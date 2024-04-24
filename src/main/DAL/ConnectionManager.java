@@ -9,7 +9,7 @@ public class ConnectionManager {
 
     public ConnectionManager() {
         ds = new SQLServerDataSource();
-       //Database Name ds.setDatabaseName("NAME");
+        ds.setDatabaseName("BinaryBuddiesSchneider");
         ds.setUser("CSe2023b_e_8");
         ds.setPassword("CSe2023bE8#23");
         ds.setServerName("10.176.111.34");
