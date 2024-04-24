@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="neovisionaries.nv.i18n1" type="repository">
+    <properties maven-id="com.neovisionaries:nv-i18n:1.29" />
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/nv-i18n-1.29.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
