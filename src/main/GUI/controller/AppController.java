@@ -13,7 +13,16 @@ import javafx.scene.control.*;
 import java.math.BigDecimal;
 
 public class AppController {
-
+    // --------Calculation Label Fields--------
+    public Label annualSalaryLbl;
+    public Label overheadMultiplierLbl;
+    public Label fixedAnnualAmountLbl;
+    public Label countryLbl;
+    public Label teamLbl;
+    public Label annualWorkingHourLbl;
+    public Label utilizationLbl;
+    public Label resourceLbl;
+    // ----------------------------------
     @FXML
     private TabPane mainTabPane;
     @FXML
