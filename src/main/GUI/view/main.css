@@ -4,7 +4,7 @@
 }
 
 .button {
-    -fx-background-color: #278338;
+    -fx-background-color: #00A652;
     -fx-text-fill: white;
     -fx-border-radius: 5;
     -fx-background-radius: 5;
@@ -48,11 +48,11 @@
 .mainTabPane .tab-header-area .tab {
     -fx-pref-width: 150;
     -fx-background-color: #e8e8e8;
-    -fx-text-fill: #278338;
+    -fx-text-fill: #00A652;
 }
 
 .tab-label {
-    -fx-text-fill: #278338;
+    -fx-text-fill: #00A652;
     -fx-font-weight: bold;
 }
 
@@ -97,19 +97,19 @@
 
 .table-view {
     -fx-base: white;
-    -fx-text-fill: 278338;
-    -fx-control-inner-background: white;
-    -fx-control-inner-background-alt: derive(white, 5%);
-    -fx-accent: #D3D3D3;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-selection-bar: lightgrey;
 }
 
-.table-column {
-    -fx-background-color: #D3D3D3;
-    -fx-text-fill: #278338;
-}
+
 
 .table-view .column-header {
-    -fx-background-color: white;
-    -fx-text-fill: #278338;
+    -fx-background-color: #00A652;
 }
+
+.table-view .column-header .label {
+    -fx-text-fill: white;
+}
+
 
