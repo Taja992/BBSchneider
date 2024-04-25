@@ -13,22 +13,52 @@ import javafx.scene.control.*;
 import java.math.BigDecimal;
 
 public class AppController {
-    // --------Employee tab Label Fields--------
-    public Label annualSalaryLbl;
-    public Label overheadMultiplierLbl;
-    public Label fixedAnnualAmountLbl;
-    public Label countryLbl;
-    public Label teamLbl;
-    public Label annualWorkingHourLbl;
-    public Label utilizationLbl;
-    public Label resourceLbl;
+
+    // --------Employee tab ---------------
+    @FXML
+    private Label annualSalaryLbl;
+    @FXML
+    private Label overheadMultiplierLbl;
+    @FXML
+    private Label fixedAnnualAmountLbl;
+    @FXML
+    private Label countryLbl;
+    @FXML
+    private Label teamLbl;
+    @FXML
+    private Label annualWorkingHourLbl;
+    @FXML
+    private Label utilizationLbl;
+    @FXML
+    private Label resourceLbl;
+    @FXML
+    private ListView<Employee> employeeLV;
+    @FXML
+    private TextField nameTxt;
+    @FXML
+    private TextField annualSalaryTxt;
+    @FXML
+    private TextField overheadMultiTxt;
+    @FXML
+    private TextField annualAmtTxt;
+    @FXML
+    private TextField yearlyHrsTxt;
+    @FXML
+    private TextField utilizationTxt;
+    @FXML
+    private CheckBox overheadChkBox;
+    @FXML
+    private ComboBox<String> countryCmbBox;
     //--------------------------------------
-    //----------Overview Rate Labels--------
-    public Label employeeDayRateLbl;
-    public Label employeeHourlyRateLbl;
-    public Label teamDayRateLbl;
-    public Label teamHourlyRateLbl;
-    // -------------------------------------
+    //----------Overview Tab----------------
+    @FXML
+    private Label employeeDayRateLbl;
+    @FXML
+    private Label employeeHourlyRateLbl;
+    @FXML
+    private Label teamDayRateLbl;
+    @FXML
+    private Label teamHourlyRateLbl;
     @FXML
     private TableColumn<Employee, String> nameCol;
     @FXML
@@ -49,24 +79,8 @@ public class AppController {
     private TableColumn<Employee, Boolean> overheadCol;
     @FXML
     private TableView<Employee> overviewEmployeeTblView;
-    @FXML
-    private ListView<Employee> employeeLV;
-    @FXML
-    private TextField nameTxt;
-    @FXML
-    private TextField annualSalaryTxt;
-    @FXML
-    private TextField overheadMultiTxt;
-    @FXML
-    private TextField annualAmtTxt;
-    @FXML
-    private TextField yearlyHrsTxt;
-    @FXML
-    private TextField utilizationTxt;
-    @FXML
-    private CheckBox overheadChkBox;
-    @FXML
-    private ComboBox<String> countryCmbBox;
+    // -------------------------------------
+
 
     private final EmployeeModel employeeModel;
 
