@@ -4,16 +4,18 @@ import BE.Employee;
 import Exceptions.BBExceptions;
 import GUI.model.EmployeeModel;
 import com.neovisionaries.i18n.CountryCode;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.DoubleBinding;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 
 import java.math.BigDecimal;
 
 public class AppController {
+
+    @FXML
+    private TabPane mainTabPane;
     @FXML
     private TextField nameTxt;
     @FXML
@@ -39,6 +41,7 @@ public class AppController {
 
    public void initialize(){
        populateCountryComboBox();
+     //  fitTabs();
    }
 
    public void populateCountryComboBox() {
@@ -64,4 +67,16 @@ public class AppController {
            e.printStackTrace();
        }
     }
+
+//    private void fitTabs() {
+//        DoubleBinding binding = Bindings.createDoubleBinding(() ->
+//                        mainTabPane.getWidth() / mainTabPane.getTabs().size(),
+//                mainTabPane.widthProperty(),
+//                mainTabPane.getTabs());
+//
+//        mainTabPane.tabMinWidthProperty().bind(binding);
+//        mainTabPane.tabMaxWidthProperty().bind(binding);
+//    }
+
+
 }
