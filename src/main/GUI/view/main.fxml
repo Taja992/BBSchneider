@@ -121,15 +121,15 @@
                               <Insets top="25.0" />
                            </VBox.margin>
                         </Label>
-                        <Label text="\$600/Day" />
-                        <Label text="\$60/Hr" />
+                        <Label fx:id="employeeDayRateLbl" text="\$600/Day" />
+                        <Label fx:id="employeeHourlyRateLbl" text="\$60/Hr" />
                         <Label text="Team Rates:">
                            <padding>
                               <Insets top="100.0" />
                            </padding>
                         </Label>
-                        <Label text="\$8000/Day" />
-                        <Label text="\$200/Hr" />
+                        <Label fx:id="teamDayRateLbl" text="\$8000/Day" />
+                        <Label fx:id="teamHourlyRateLbl" text="\$200/Hr" />
                      </children>
                      <BorderPane.margin>
                         <Insets left="10.0" right="10.0" />

@@ -16,7 +16,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<TabPane fx:id="mainTabPane" prefHeight="558.0" prefWidth="900.0" styleClass="mainTabPane" stylesheets="/GUI/view/main.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.controller.AppController">
+<TabPane fx:id="mainTabPane" prefHeight="558.0" prefWidth="900.0" styleClass="mainTabPane" stylesheets="/GUI/view/main.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.controller.AppController">
    <tabs>
       <Tab closable="false" text="Overview">
          <content>
@@ -121,15 +121,15 @@
                               <Insets top="25.0" />
                            </VBox.margin>
                         </Label>
-                        <Label text="\$600/Day" />
-                        <Label text="\$60/Hr" />
+                        <Label fx:id="employeeDayRateLbl" text="\$600/Day" />
+                        <Label fx:id="employeeHourlyRateLbl" text="\$60/Hr" />
                         <Label text="Team Rates:">
                            <padding>
                               <Insets top="100.0" />
                            </padding>
                         </Label>
-                        <Label text="\$8000/Day" />
-                        <Label text="\$200/Hr" />
+                        <Label fx:id="teamDayRateLbl" text="\$8000/Day" />
+                        <Label fx:id="teamHourlyRateLbl" text="\$200/Hr" />
                      </children>
                      <BorderPane.margin>
                         <Insets left="10.0" right="10.0" />
@@ -176,25 +176,25 @@
                                     <HBox spacing="5.0">
                                        <children>
                                           <Label text="Annual Salary:" />
-                                          <Label text="\$120,000" />
+                                          <Label fx:id="annualSalaryLbl" text="\$120,000" />
                                        </children>
                                     </HBox>
                                     <HBox spacing="5.0">
                                        <children>
                                           <Label text="Overhead Multiplier %:" />
-                                          <Label text="10%" />
+                                          <Label fx:id="overheadMultiplierLbl" text="10%" />
                                        </children>
                                     </HBox>
                                     <HBox spacing="5.0">
                                        <children>
                                           <Label text="Fixed Annual Amount:" />
-                                          <Label text="\$100,000" />
+                                          <Label fx:id="fixedAnnualAmountLbl" text="\$100,000" />
                                        </children>
                                     </HBox>
                                     <HBox spacing="5.0">
                                        <children>
                                           <Label text="Country:" />
-                                          <Label text="France" />
+                                          <Label fx:id="countryLbl" text="France" />
                                        </children>
                                     </HBox>
                                  </children>
@@ -204,25 +204,25 @@
                                     <HBox spacing="5.0">
                                        <children>
                                           <Label text="Team:" />
-                                          <Label text="Team 1" />
+                                          <Label fx:id="teamLbl" text="Team 1" />
                                        </children>
                                     </HBox>
                                     <HBox spacing="5.0">
                                        <children>
                                           <Label text="Annual Working Hours:" />
-                                          <Label text="1500" />
+                                          <Label fx:id="annualWorkingHourLbl" text="1500" />
                                        </children>
                                     </HBox>
                                     <HBox spacing="5.0">
                                        <children>
                                           <Label text="Utilization %:" />
-                                          <Label text="15%" />
+                                          <Label fx:id="utilizationLbl" text="15%" />
                                        </children>
                                     </HBox>
                                     <HBox spacing="5.0">
                                        <children>
                                           <Label text="Overhead or Production resource:" />
-                                          <Label text="Production Resource" />
+                                          <Label fx:id="resourceLbl" text="Production Resource" />
                                        </children>
                                     </HBox>
                                  </children>

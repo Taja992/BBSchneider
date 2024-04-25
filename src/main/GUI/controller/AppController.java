@@ -15,7 +15,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import java.math.BigDecimal;
 
 public class AppController {
-    // --------Calculation Label Fields--------
+    // --------Employee tab Label Fields--------
     public Label annualSalaryLbl;
     public Label overheadMultiplierLbl;
     public Label fixedAnnualAmountLbl;
@@ -24,7 +24,13 @@ public class AppController {
     public Label annualWorkingHourLbl;
     public Label utilizationLbl;
     public Label resourceLbl;
-    // ----------------------------------
+    //--------------------------------------
+    //----------Overview Rate Labels--------
+    public Label employeeDayRateLbl;
+    public Label employeeHourlyRateLbl;
+    public Label teamDayRateLbl;
+    public Label teamHourlyRateLbl;
+    // -------------------------------------
     @FXML
     private TableColumn<Employee, String> nameCol;
     @FXML
