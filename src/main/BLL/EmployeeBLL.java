@@ -15,4 +15,6 @@ public class EmployeeBLL {
     public void addNewEmployee(Employee employee) throws BBExceptions{
         employeeDAO.newEmployee(employee);
     }
+
+
 }
