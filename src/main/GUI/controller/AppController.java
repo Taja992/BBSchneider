@@ -13,6 +13,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 
 public class AppController {
 
@@ -90,26 +91,27 @@ public class AppController {
     }
 
     private void addDollarSignsTableview() {
+        NumberFormat format = NumberFormat.getNumberInstance();
+        //we set the format to have a minimum of 2 and a maximum of 2 digits after the decimal
+        format.setMinimumFractionDigits(2);
+        format.setMaximumFractionDigits(2);
         //set up Annual Salary cell
         annualSalaryCol.setCellValueFactory(new PropertyValueFactory<>("annualSalary"));
         annualSalaryCol.setCellFactory(tc -> new TableCell<>() {
             @Override
             protected void updateItem(BigDecimal value, boolean empty) {
                 super.updateItem(value, empty);
-                //This checks if cell is empty, if not it adds a $ and then the value
-                //% is a placeholder for the value that will be inserted
-                //.2 this tells our tableview we want 2 digits after the decimal
-                //f indicates it's a floating point number (a number with a decimal)
-                setText(empty ? null : String.format("$%.2f ", value));
+                //Here we use the NumberFormat class to format our numbers to have commas and add a $
+                setText(empty ? null : "$" + format.format(value));
             }
         });
-        //set up Annual amount cell
+        //set up Annual amount cell the same way
         annualAmountCol.setCellValueFactory(new PropertyValueFactory<>("annualAmount"));
         annualAmountCol.setCellFactory(tc -> new TableCell<>() {
             @Override
             protected void updateItem(BigDecimal value, boolean empty) {
                 super.updateItem(value, empty);
-                setText(empty ? null : String.format("$%.2f", value));
+                setText(empty ? null : "$" + format.format(value));
             }
         });
     }
@@ -120,7 +122,11 @@ public class AppController {
             @Override
             protected void updateItem(BigDecimal value, boolean empty) {
                 super.updateItem(value, empty);
-                //this works the same as the $ method % is a placeholder .2 is a decimal f is a floating number and % is what we want added
+                //This checks if cell is empty, if not continues..
+                //% is a placeholder for the value that will be inserted
+                //.2 this tells our tableview we want 2 digits after the decimal
+                //f indicates it's a floating point number (a number with a decimal)
+                //% we add this to the end of the number
                 setText(empty ? null : String.format("%.2f%%", value));
             }
         });
