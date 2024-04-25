@@ -6,16 +6,38 @@ import GUI.model.EmployeeModel;
 import com.neovisionaries.i18n.CountryCode;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.math.BigDecimal;
 
 public class AppController {
 
     @FXML
-    private TabPane mainTabPane;
+    private TableColumn<Employee, String> nameCol;
+    @FXML
+    private TableColumn<Employee, BigDecimal> annualSalaryCol;
+    @FXML
+    private TableColumn<Employee, BigDecimal> overHeadMultiCol;
+    @FXML
+    private TableColumn<Employee, BigDecimal> annualAmountCol;
+    @FXML
+    private TableColumn<Employee, String> countryCol;
+    @FXML
+    private TableColumn<Employee, Integer> teamCol;
+    @FXML
+    private TableColumn<Employee, Integer> hoursCol;
+    @FXML
+    private TableColumn<Employee, BigDecimal> utilCol;
+    @FXML
+    private TableColumn<Employee, Boolean> overheadCol;
+    @FXML
+    private TableView<Employee> overviewEmployeeTblView;
+    @FXML
+    private ListView<Employee> employeeLV;
     @FXML
     private TextField nameTxt;
     @FXML
@@ -41,8 +63,53 @@ public class AppController {
 
    public void initialize(){
        populateCountryComboBox();
-     //  fitTabs();
+       populateEmployeeTableView();
+       populateEmployeeListView();
    }
+
+    public void populateEmployeeTableView() {
+        try {
+            // Get the list of employees from the model
+            ObservableList<Employee> employees = employeeModel.getEmployees();
+
+            // Populate the TableView
+            nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
+            annualSalaryCol.setCellValueFactory(new PropertyValueFactory<>("annualSalary"));
+            overHeadMultiCol.setCellValueFactory(new PropertyValueFactory<>("overheadMultiPercent"));
+            annualAmountCol.setCellValueFactory(new PropertyValueFactory<>("annualAmount"));
+            countryCol.setCellValueFactory(new PropertyValueFactory<>("country"));
+            teamCol.setCellValueFactory(new PropertyValueFactory<>("teamId"));
+            hoursCol.setCellValueFactory(new PropertyValueFactory<>("workingHours"));
+            utilCol.setCellValueFactory(new PropertyValueFactory<>("utilization"));
+            overheadCol.setCellValueFactory(new PropertyValueFactory<>("isOverheadCost"));
+            overviewEmployeeTblView.setItems(employees);
+        } catch (BBExceptions e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void populateEmployeeListView() {
+        try {
+            // Get the list of employees from the model
+            ObservableList<Employee> employees = employeeModel.getEmployees();
+
+            // Populate the ListView
+            employeeLV.setCellFactory(param -> new ListCell<>() {
+                @Override
+                protected void updateItem(Employee item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setText(null);
+                    } else {
+                        setText(item.getName());
+                    }
+                }
+            });
+            employeeLV.setItems(employees);
+        } catch (BBExceptions e) {
+            e.printStackTrace();
+        }
+    }
 
    public void populateCountryComboBox() {
         for (CountryCode code : CountryCode.values()) {
@@ -68,15 +135,6 @@ public class AppController {
        }
     }
 
-//    private void fitTabs() {
-//        DoubleBinding binding = Bindings.createDoubleBinding(() ->
-//                        mainTabPane.getWidth() / mainTabPane.getTabs().size(),
-//                mainTabPane.widthProperty(),
-//                mainTabPane.getTabs());
-//
-//        mainTabPane.tabMinWidthProperty().bind(binding);
-//        mainTabPane.tabMaxWidthProperty().bind(binding);
-//    }
 
 
 }

@@ -4,10 +4,9 @@ import BE.Employee;
 import Exceptions.BBExceptions;
 import com.microsoft.sqlserver.jdbc.SQLServerException;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Types;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class EmployeeDAO {
     private final ConnectionManager connectionManager;
@@ -39,9 +38,40 @@ public class EmployeeDAO {
             ps.setBoolean(9, employee.getIsOverheadCost());
 
             ps.executeUpdate();
-        } catch (SQLException ex) {
-            throw new BBExceptions("Error inserting new employee", ex);
+        } catch (SQLException e) {
+            throw new BBExceptions("Error inserting new employee", e);
         }
+    }
+
+    public List<Employee> getAllEmployees() throws BBExceptions {
+        List<Employee> employees = new ArrayList<>();
+
+        String sql = "SELECT * FROM Employee";
+
+        try (Connection connection = connectionManager.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Employee employee = new Employee();
+                employee.setName(rs.getString("Name"));
+                employee.setAnnualSalary(rs.getBigDecimal("AnnualSalary"));
+                employee.setOverheadMultiPercent(rs.getBigDecimal("OverheadMultiPercent"));
+                employee.setAnnualAmount(rs.getBigDecimal("AnnualAmount"));
+                employee.setCountry(rs.getString("Country"));
+                employee.setTeamId(rs.getInt("Team_Id"));
+                employee.setWorkingHours(rs.getInt("WorkingHours"));
+                employee.setUtilization(rs.getBigDecimal("Utilization"));
+                employee.setIsOverheadCost(rs.getBoolean("isOverheadCost"));
+
+                employees.add(employee);
+            }
+        } catch (SQLException e) {
+            throw new BBExceptions("Error retrieving all employees", e);
+        }
+
+        return employees;
     }
 
 }

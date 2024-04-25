@@ -4,6 +4,8 @@ import BE.Employee;
 import DAL.EmployeeDAO;
 import Exceptions.BBExceptions;
 
+import java.util.List;
+
 public class EmployeeBLL {
     private final EmployeeDAO employeeDAO;
 
@@ -16,5 +18,8 @@ public class EmployeeBLL {
         employeeDAO.newEmployee(employee);
     }
 
+    public List<Employee> getAllEmployees() throws BBExceptions {
+        return employeeDAO.getAllEmployees();
+    }
 
 }
