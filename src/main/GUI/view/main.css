@@ -1,0 +1,78 @@
+.root {
+    -fx-font-family: "Arial Rounded MT";
+    -fx-base: white;
+}
+
+.button {
+    -fx-background-color: #278338;
+    -fx-text-fill: white;
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+}
+
+.button:hover {
+    -fx-background-color: #278338;
+}
+
+
+.mainTabPane {
+    -fx-tab-min-width: 1px;
+    -fx-border-color: black;
+    -fx-border-width: 2px;
+}
+
+.mainTabPane .tab-header-area .tab-header-background {
+    -fx-background-color: transparent;
+
+}
+
+.mainTabPane .tab-header-area {
+    -fx-font-size: 16px;
+}
+
+.mainTabPane .tab-header-area .tab {
+    -fx-pref-width: 150;
+    -fx-background-color: #e8e8e8;
+    -fx-text-fill: #278338;
+}
+
+.tab-label {
+    -fx-text-fill: #278338;
+    -fx-font-weight: bold;
+}
+
+.mainTabPane .tab-header-area .tab:selected {
+    -fx-background-color: white;
+
+}
+
+.teamTabPane .tab-header-area .tab {
+    -fx-pref-width: 75;
+}
+
+.teamTabPane .tab-header-area {
+    -fx-font-size: 13px;
+}
+
+.text-field {
+    -fx-border-color: #278338;
+}
+
+.table-view {
+    -fx-base: white;
+    -fx-text-fill: 278338;
+    -fx-control-inner-background: white;
+    -fx-control-inner-background-alt: derive(white, 5%);
+    -fx-accent: #D3D3D3;
+}
+
+.table-column {
+    -fx-background-color: #D3D3D3;
+    -fx-text-fill: #278338;
+}
+
+.table-view .column-header {
+    -fx-background-color: white;
+    -fx-text-fill: #278338;
+}
+
