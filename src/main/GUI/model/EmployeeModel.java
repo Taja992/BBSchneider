@@ -36,4 +36,12 @@ public class EmployeeModel {
         employees.clear();
         employees.addAll(employeeBLL.getAllEmployees());
     }
+
+    public Double calculateHourlyRate(Employee selectedEmployee) {
+        return employeeBLL.calculateHourlyRate(selectedEmployee);
+    }
+
+    public Double calculateDailyRate(Employee selectedEmployee) {
+        return employeeBLL.calculateDailyRate(selectedEmployee);
+    }
 }

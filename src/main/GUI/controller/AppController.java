@@ -4,8 +4,6 @@ import BE.Employee;
 import Exceptions.BBExceptions;
 import GUI.model.EmployeeModel;
 import com.neovisionaries.i18n.CountryCode;
-import javafx.beans.binding.Bindings;
-import javafx.beans.binding.DoubleBinding;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -80,6 +78,13 @@ public class AppController {
        populateCountryComboBox();
        populateEmployeeTableView();
        populateEmployeeListView();
+
+       // Listener to the overview table view to calculate the rates
+       overviewEmployeeTblView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+           if (newSelection != null) {
+               calculateEmployeeRates();
+           }
+       });
    }
 
     public void populateEmployeeTableView() {
@@ -150,6 +155,12 @@ public class AppController {
        }
     }
 
-
+    public void calculateEmployeeRates() {
+        Employee selectedEmployee = overviewEmployeeTblView.getSelectionModel().getSelectedItem();
+        if(selectedEmployee != null){
+            employeeHourlyRateLbl.setText("$" + employeeModel.calculateHourlyRate(selectedEmployee) + "/Hr without overhead");
+            employeeDayRateLbl.setText("$" + employeeModel.calculateDailyRate(selectedEmployee) + "/Day without overhead");
+        }
+    }
 
 }
