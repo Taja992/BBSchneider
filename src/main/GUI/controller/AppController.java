@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 
 public class AppController {
 
-    // --------Employee tab Label Fields--------
+    // --------Employee tab ---------------
     @FXML
     private Label annualSalaryLbl;
     @FXML
@@ -31,8 +31,26 @@ public class AppController {
     private Label utilizationLbl;
     @FXML
     private Label resourceLbl;
+    @FXML
+    private ListView<Employee> employeeLV;
+    @FXML
+    private TextField nameTxt;
+    @FXML
+    private TextField annualSalaryTxt;
+    @FXML
+    private TextField overheadMultiTxt;
+    @FXML
+    private TextField annualAmtTxt;
+    @FXML
+    private TextField yearlyHrsTxt;
+    @FXML
+    private TextField utilizationTxt;
+    @FXML
+    private CheckBox overheadChkBox;
+    @FXML
+    private ComboBox<String> countryCmbBox;
     //--------------------------------------
-    //----------Overview Rate Labels--------
+    //----------Overview Tab----------------
     @FXML
     private Label employeeDayRateLbl;
     @FXML
@@ -41,7 +59,6 @@ public class AppController {
     private Label teamDayRateLbl;
     @FXML
     private Label teamHourlyRateLbl;
-    // -------------------------------------
     @FXML
     private TableColumn<Employee, String> nameCol;
     @FXML
@@ -62,24 +79,8 @@ public class AppController {
     private TableColumn<Employee, Boolean> overheadCol;
     @FXML
     private TableView<Employee> overviewEmployeeTblView;
-    @FXML
-    private ListView<Employee> employeeLV;
-    @FXML
-    private TextField nameTxt;
-    @FXML
-    private TextField annualSalaryTxt;
-    @FXML
-    private TextField overheadMultiTxt;
-    @FXML
-    private TextField annualAmtTxt;
-    @FXML
-    private TextField yearlyHrsTxt;
-    @FXML
-    private TextField utilizationTxt;
-    @FXML
-    private CheckBox overheadChkBox;
-    @FXML
-    private ComboBox<String> countryCmbBox;
+    // -------------------------------------
+
 
     private final EmployeeModel employeeModel;
 
