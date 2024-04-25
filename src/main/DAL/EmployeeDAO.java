@@ -7,6 +7,7 @@ import com.microsoft.sqlserver.jdbc.SQLServerException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 
 public class EmployeeDAO {
     private final ConnectionManager connectionManager;
@@ -26,10 +27,12 @@ public class EmployeeDAO {
             ps.setBigDecimal(3, employee.getOverheadMultiPercent());
             ps.setBigDecimal(4, employee.getAnnualAmount());
             ps.setString(5, employee.getCountry());
+            //Check to see if teams are null or not
             if (employee.getTeamId() != null) {
                 ps.setInt(6, employee.getTeamId());
             } else {
-                ps.setNull(6, java.sql.Types.INTEGER);
+                //We use java.sql.types class INTEGER so SQL knows what type of NULL(Integer) it is
+                ps.setNull(6, Types.INTEGER);
             }
             ps.setInt(7, employee.getWorkingHours());
             ps.setBigDecimal(8, employee.getUtilization());
