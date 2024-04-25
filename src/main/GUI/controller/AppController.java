@@ -94,18 +94,65 @@ public class AppController {
 
             // Populate the TableView
             nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
-            annualSalaryCol.setCellValueFactory(new PropertyValueFactory<>("annualSalary"));
             overHeadMultiCol.setCellValueFactory(new PropertyValueFactory<>("overheadMultiPercent"));
-            annualAmountCol.setCellValueFactory(new PropertyValueFactory<>("annualAmount"));
             countryCol.setCellValueFactory(new PropertyValueFactory<>("country"));
             teamCol.setCellValueFactory(new PropertyValueFactory<>("teamId"));
             hoursCol.setCellValueFactory(new PropertyValueFactory<>("workingHours"));
-            utilCol.setCellValueFactory(new PropertyValueFactory<>("utilization"));
-            overheadCol.setCellValueFactory(new PropertyValueFactory<>("isOverheadCost"));
+            //This method just adds dollar signs in front of the money values
+            //Once we add Conversion from USD to Euro this will probably need to be tweaked
+            addDollarSignsTableview();
+            //This method adds % signs to our tableview
+            addPercentSignsTableView();
             overviewEmployeeTblView.setItems(employees);
         } catch (BBExceptions e) {
             e.printStackTrace();
         }
+    }
+
+    private void addDollarSignsTableview() {
+        //set up Annual Salary cell
+        annualSalaryCol.setCellValueFactory(new PropertyValueFactory<>("annualSalary"));
+        annualSalaryCol.setCellFactory(tc -> new TableCell<>() {
+            @Override
+            protected void updateItem(BigDecimal value, boolean empty) {
+                super.updateItem(value, empty);
+                //This checks if cell is empty, if not it adds a $ and then the value
+                //% is a placeholder for the value that will be inserted
+                //.2 this tells our tableview we want 2 digits after the decimal
+                //f indicates it's a floating point number (a number with a decimal)
+                setText(empty ? null : String.format("$%.2f ", value));
+            }
+        });
+        //set up Annual amount cell
+        annualAmountCol.setCellValueFactory(new PropertyValueFactory<>("annualAmount"));
+        annualAmountCol.setCellFactory(tc -> new TableCell<>() {
+            @Override
+            protected void updateItem(BigDecimal value, boolean empty) {
+                super.updateItem(value, empty);
+                setText(empty ? null : String.format("$%.2f", value));
+            }
+        });
+    }
+
+    public void addPercentSignsTableView() {
+        overHeadMultiCol.setCellValueFactory(new PropertyValueFactory<>("overheadMultiPercent"));
+        overHeadMultiCol.setCellFactory(tc -> new TableCell<>() {
+            @Override
+            protected void updateItem(BigDecimal value, boolean empty) {
+                super.updateItem(value, empty);
+                //this works the same as the $ method % is a placeholder .2 is a decimal f is a floating number and % is what we want added
+                setText(empty ? null : String.format("%.2f%%", value));
+            }
+        });
+
+        utilCol.setCellValueFactory(new PropertyValueFactory<>("utilization"));
+        utilCol.setCellFactory(tc -> new TableCell<>() {
+            @Override
+            protected void updateItem(BigDecimal value, boolean empty) {
+                super.updateItem(value, empty);
+                setText(empty ? null : String.format("%.2f%%", value));
+            }
+        });
     }
 
     public void populateEmployeeListView() {
@@ -116,12 +163,14 @@ public class AppController {
             // Populate the ListView
             employeeLV.setCellFactory(param -> new ListCell<>() {
                 @Override
-                protected void updateItem(Employee item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
+                //We Override the current updateItem method for listviews by JavaFX and tell our compiler
+                protected void updateItem(Employee employee, boolean empty) {
+                    super.updateItem(employee, empty);
+                    if (empty || employee == null) {
                         setText(null);
                     } else {
-                        setText(item.getName());
+                        //We set the text to show the employee name
+                        setText("ID# - " +employee.getName());
                     }
                 }
             });
