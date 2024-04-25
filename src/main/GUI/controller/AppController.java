@@ -96,12 +96,14 @@ public class AppController {
             // Populate the ListView
             employeeLV.setCellFactory(param -> new ListCell<>() {
                 @Override
-                protected void updateItem(Employee item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
+                //We Override the current updateItem method for listviews by JavaFX and tell our compiler
+                protected void updateItem(Employee employee, boolean empty) {
+                    super.updateItem(employee, empty);
+                    if (empty || employee == null) {
                         setText(null);
                     } else {
-                        setText(item.getName());
+                        //We set the text to show the employee name
+                        setText("ID# - " +employee.getName());
                     }
                 }
             });
@@ -134,7 +136,5 @@ public class AppController {
            e.printStackTrace();
        }
     }
-
-
 
 }
