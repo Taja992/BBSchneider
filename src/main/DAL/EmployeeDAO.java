@@ -4,9 +4,9 @@ import BE.Employee;
 import Exceptions.BBExceptions;
 import com.microsoft.sqlserver.jdbc.SQLServerException;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class EmployeeDAO {
     private final ConnectionManager connectionManager;
@@ -26,19 +26,52 @@ public class EmployeeDAO {
             ps.setBigDecimal(3, employee.getOverheadMultiPercent());
             ps.setBigDecimal(4, employee.getAnnualAmount());
             ps.setString(5, employee.getCountry());
+            //Check to see if teams are null or not
             if (employee.getTeamId() != null) {
                 ps.setInt(6, employee.getTeamId());
             } else {
-                ps.setNull(6, java.sql.Types.INTEGER);
+                //We use java.sql.types class INTEGER so SQL knows what type of NULL(Integer) it is
+                ps.setNull(6, Types.INTEGER);
             }
             ps.setInt(7, employee.getWorkingHours());
             ps.setBigDecimal(8, employee.getUtilization());
             ps.setBoolean(9, employee.getIsOverheadCost());
 
             ps.executeUpdate();
-        } catch (SQLException ex) {
-            throw new BBExceptions("Error inserting new employee", ex);
+        } catch (SQLException e) {
+            throw new BBExceptions("Error inserting new employee", e);
         }
+    }
+
+    public List<Employee> getAllEmployees() throws BBExceptions {
+        List<Employee> employees = new ArrayList<>();
+
+        String sql = "SELECT * FROM Employee";
+
+        try (Connection connection = connectionManager.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Employee employee = new Employee();
+                employee.setName(rs.getString("Name"));
+                employee.setAnnualSalary(rs.getBigDecimal("AnnualSalary"));
+                employee.setOverheadMultiPercent(rs.getBigDecimal("OverheadMultiPercent"));
+                employee.setAnnualAmount(rs.getBigDecimal("AnnualAmount"));
+                employee.setCountry(rs.getString("Country"));
+                employee.setTeamId(rs.getInt("Team_Id"));
+                employee.setWorkingHours(rs.getInt("WorkingHours"));
+                employee.setUtilization(rs.getBigDecimal("Utilization"));
+                employee.setIsOverheadCost(rs.getBoolean("isOverheadCost"));
+
+                employees.add(employee);
+            }
+        } catch (SQLException e) {
+            throw new BBExceptions("Error retrieving all employees", e);
+        }
+
+        return employees;
     }
 
 }

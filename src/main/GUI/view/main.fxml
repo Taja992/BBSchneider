@@ -18,35 +18,26 @@
 
 <TabPane fx:id="mainTabPane" prefHeight="558.0" prefWidth="900.0" styleClass="mainTabPane" stylesheets="/GUI/view/main.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.controller.AppController">
    <tabs>
-      <Tab closable="false" styleClass="overviewTab" text="Overview">
+      <Tab closable="false" text="Overview">
          <content>
-            <BorderPane styleClass="overviewBP">
+            <BorderPane>
                <center>
                   <VBox prefHeight="401.0" prefWidth="272.0" spacing="10.0" BorderPane.alignment="CENTER">
                      <children>
-                        <Label text="Employees Search">
-                           <VBox.margin>
-                              <Insets left="10.0" />
-                           </VBox.margin></Label>
-                        <TextField maxWidth="150.0" prefWidth="109.0">
-                           <VBox.margin>
-                              <Insets left="10.0" />
-                           </VBox.margin></TextField>
-                        <TableView>
+                        <Label text="Employees Search" />
+                        <TextField maxWidth="150.0" prefWidth="109.0" />
+                        <TableView fx:id="overviewEmployeeTblView">
                           <columns>
-                            <TableColumn prefWidth="63.0" text="Name" />
-                            <TableColumn prefWidth="79.0" text="Annual Salary" />
-                              <TableColumn prefWidth="72.0" text="Markup" />
-                              <TableColumn prefWidth="86.0" text="Fixed Annual" />
-                              <TableColumn prefWidth="75.0" text="Country" />
-                              <TableColumn prefWidth="75.0" text="Team" />
-                              <TableColumn prefWidth="75.0" text="Hours" />
-                              <TableColumn prefWidth="75.0" text="Util %" />
-                              <TableColumn prefWidth="75.0" text="Overhead" />
+                            <TableColumn fx:id="nameCol" prefWidth="63.0" text="Name" />
+                            <TableColumn fx:id="annualSalaryCol" prefWidth="90.0" text="Annual Salary" />
+                              <TableColumn fx:id="overHeadMultiCol" prefWidth="92.0" text="Overhead %" />
+                              <TableColumn fx:id="annualAmountCol" prefWidth="104.0" text="Annual Amount" />
+                              <TableColumn fx:id="countryCol" prefWidth="73.0" text="Country" />
+                              <TableColumn fx:id="teamCol" prefWidth="53.0" text="Team" />
+                              <TableColumn fx:id="hoursCol" prefWidth="81.0" text="Annual Hrs" />
+                              <TableColumn fx:id="utilCol" prefWidth="72.0" text="Util %" />
+                              <TableColumn fx:id="overheadCol" prefWidth="73.0" text="Overhead" />
                           </columns>
-                           <VBox.margin>
-                              <Insets left="10.0" />
-                           </VBox.margin>
                         </TableView>
                         <TabPane styleClass="teamTabPane">
                            <tabs>
@@ -68,24 +59,38 @@
                                  <content>
                                     <VBox alignment="CENTER">
                                        <children>
-                                          <TableView>
+                                          <TableView prefHeight="200.0" prefWidth="200.0">
+                                            <columns>
+                                              <TableColumn prefWidth="75.0" text="Name" />
+                                              <TableColumn prefWidth="75.0" text="Rates" />
+                                            </columns>
+                                          </TableView>
+                                       </children>
+                                    </VBox>
+                                 </content>
+                              </Tab>
+                              <Tab closable="false" text="Team 3">
+                                 <content>
+                                    <VBox alignment="CENTER">
+                                       <children>
+                                          <TableView prefHeight="200.0" prefWidth="200.0">
                                              <columns>
                                                 <TableColumn prefWidth="75.0" text="Name" />
                                                 <TableColumn prefWidth="75.0" text="Rates" />
                                              </columns>
+                                             <VBox.margin>
+                                                <Insets bottom="5.0" />
+                                             </VBox.margin>
                                           </TableView>
                                        </children>
                                     </VBox>
                                  </content>
                               </Tab>
                            </tabs>
-                           <VBox.margin>
-                              <Insets bottom="5.0" left="10.0" />
-                           </VBox.margin>
                         </TabPane>
                      </children>
                      <BorderPane.margin>
-                        <Insets top="20.0" />
+                        <Insets left="10.0" top="20.0" />
                      </BorderPane.margin>
                   </VBox>
                </center>
@@ -240,7 +245,7 @@
                         <TextField maxWidth="200.0" promptText="Search" />
                         <HBox>
                            <children>
-                              <ListView prefHeight="374.0" prefWidth="224.0">
+                              <ListView fx:id="employeeLV" prefHeight="374.0" prefWidth="224.0">
                                  <HBox.margin>
                                     <Insets left="10.0" />
                                  </HBox.margin>
