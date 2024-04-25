@@ -16,7 +16,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<TabPane fx:id="mainTabPane" prefHeight="558.0" prefWidth="900.0" styleClass="mainTabPane" stylesheets="/GUI/view/main.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.controller.AppController">
+<TabPane fx:id="mainTabPane" prefHeight="558.0" prefWidth="900.0" styleClass="mainTabPane" stylesheets="/GUI/view/main.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.controller.AppController">
    <tabs>
       <Tab closable="false" text="Overview">
          <content>
@@ -59,28 +59,11 @@
                                  <content>
                                     <VBox alignment="CENTER">
                                        <children>
-                                          <TableView prefHeight="200.0" prefWidth="200.0">
+                                          <TableView>
                                              <columns>
                                                 <TableColumn prefWidth="75.0" text="Name" />
                                                 <TableColumn prefWidth="75.0" text="Rates" />
                                              </columns>
-                                          </TableView>
-                                       </children>
-                                    </VBox>
-                                 </content>
-                              </Tab>
-                              <Tab closable="false" text="Team 3">
-                                 <content>
-                                    <VBox alignment="CENTER">
-                                       <children>
-                                          <TableView prefHeight="200.0" prefWidth="200.0">
-                                             <columns>
-                                                <TableColumn prefWidth="75.0" text="Name" />
-                                                <TableColumn prefWidth="75.0" text="Rates" />
-                                             </columns>
-                                             <VBox.margin>
-                                                <Insets bottom="5.0" />
-                                             </VBox.margin>
                                           </TableView>
                                        </children>
                                     </VBox>
