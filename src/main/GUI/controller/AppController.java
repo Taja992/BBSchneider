@@ -4,8 +4,6 @@ import BE.Employee;
 import Exceptions.BBExceptions;
 import GUI.model.EmployeeModel;
 import com.neovisionaries.i18n.CountryCode;
-import javafx.beans.binding.Bindings;
-import javafx.beans.binding.DoubleBinding;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -16,7 +14,22 @@ import java.math.BigDecimal;
 import java.text.NumberFormat;
 
 public class AppController {
-
+    // --------Employee tab Label Fields--------
+    public Label annualSalaryLbl;
+    public Label overheadMultiplierLbl;
+    public Label fixedAnnualAmountLbl;
+    public Label countryLbl;
+    public Label teamLbl;
+    public Label annualWorkingHourLbl;
+    public Label utilizationLbl;
+    public Label resourceLbl;
+    //--------------------------------------
+    //----------Overview Rate Labels--------
+    public Label employeeDayRateLbl;
+    public Label employeeHourlyRateLbl;
+    public Label teamDayRateLbl;
+    public Label teamHourlyRateLbl;
+    // -------------------------------------
     @FXML
     private TableColumn<Employee, String> nameCol;
     @FXML
@@ -66,6 +79,13 @@ public class AppController {
        populateCountryComboBox();
        populateEmployeeTableView();
        populateEmployeeListView();
+
+       // Listener to the overview table view to calculate the rates
+       overviewEmployeeTblView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+           if (newSelection != null) {
+               calculateEmployeeRates();
+           }
+       });
    }
 
     public void populateEmployeeTableView() {
@@ -188,6 +208,14 @@ public class AppController {
        } catch (BBExceptions e){
            e.printStackTrace();
        }
+    }
+
+    public void calculateEmployeeRates() {
+        Employee selectedEmployee = overviewEmployeeTblView.getSelectionModel().getSelectedItem();
+        if(selectedEmployee != null){
+            employeeHourlyRateLbl.setText("$" + employeeModel.calculateHourlyRate(selectedEmployee) + "/Hr without overhead");
+            employeeDayRateLbl.setText("$" + employeeModel.calculateDailyRate(selectedEmployee) + "/Day without overhead");
+        }
     }
 
 }
