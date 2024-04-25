@@ -13,21 +13,34 @@ import javafx.scene.control.*;
 import java.math.BigDecimal;
 
 public class AppController {
+
     // --------Employee tab Label Fields--------
-    public Label annualSalaryLbl;
-    public Label overheadMultiplierLbl;
-    public Label fixedAnnualAmountLbl;
-    public Label countryLbl;
-    public Label teamLbl;
-    public Label annualWorkingHourLbl;
-    public Label utilizationLbl;
-    public Label resourceLbl;
+    @FXML
+    private Label annualSalaryLbl;
+    @FXML
+    private Label overheadMultiplierLbl;
+    @FXML
+    private Label fixedAnnualAmountLbl;
+    @FXML
+    private Label countryLbl;
+    @FXML
+    private Label teamLbl;
+    @FXML
+    private Label annualWorkingHourLbl;
+    @FXML
+    private Label utilizationLbl;
+    @FXML
+    private Label resourceLbl;
     //--------------------------------------
     //----------Overview Rate Labels--------
-    public Label employeeDayRateLbl;
-    public Label employeeHourlyRateLbl;
-    public Label teamDayRateLbl;
-    public Label teamHourlyRateLbl;
+    @FXML
+    private Label employeeDayRateLbl;
+    @FXML
+    private Label employeeHourlyRateLbl;
+    @FXML
+    private Label teamDayRateLbl;
+    @FXML
+    private Label teamHourlyRateLbl;
     // -------------------------------------
     @FXML
     private TableColumn<Employee, String> nameCol;
