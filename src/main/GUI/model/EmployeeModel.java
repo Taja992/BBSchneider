@@ -24,6 +24,19 @@ public class EmployeeModel {
         return employees;
     }
 
+    public ObservableList<Employee> searchEmployees(String keyword) throws BBExceptions {
+        ObservableList<Employee> allEmployees = getEmployees();
+        ObservableList<Employee> filteredEmployees = FXCollections.observableArrayList();
+
+        for (Employee employee : allEmployees) {
+            if (employee.getName().toLowerCase().contains(keyword.toLowerCase())) {
+                filteredEmployees.add(employee);
+            }
+        }
+
+        return filteredEmployees;
+    }
+
     public void addNewEmployee(Employee employee) throws BBExceptions {
         //add employee to database
         employeeBLL.addNewEmployee(employee);
