@@ -43,5 +43,16 @@ public class TeamDAO {
         return allTeams;
     }
 
+    public void newTeam(Team team) throws SQLException {
+
+        try(Connection con = connectionManager.getConnection()){
+            String sql = "INSERT INTO Team (Team_Name) VALUES (?)";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setString(1, team.getName());
+            ps.executeUpdate();
+        }
+
+    }
+
 
 }
