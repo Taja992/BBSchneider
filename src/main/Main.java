@@ -21,13 +21,13 @@ public class Main extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("GUI/view/main.fxml"));
         Parent root = fxmlLoader.load();
         Scene scene = new Scene(root);
-       // scene.setFill(Color.TRANSPARENT);
-       // primaryStage.initStyle(StageStyle.TRANSPARENT);
+        //scene.setFill(Color.TRANSPARENT);
+        //primaryStage.initStyle(StageStyle.TRANSPARENT);
         primaryStage.setTitle("Schneider Rates");
         primaryStage.setScene(scene);
         primaryStage.show();
 
-    //    windowControls(primaryStage, scene);
+       // windowControls(primaryStage, scene);
     }
 
 //    public void windowControls(Stage primaryStage, Scene scene){
