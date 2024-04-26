@@ -1,6 +1,7 @@
 .root {
     -fx-font-family: "Arial Rounded MT";
     -fx-base: white;
+    -fx-border-radius: 20;
 }
 
 .button {
@@ -113,3 +114,10 @@
 }
 
 
+/* .closeBtn {
+    -fx-background-radius: 10;
+    -fx-min-width: 17px;
+    -fx-min-height: 17px;
+    -fx-max-width: 17px;
+    -fx-max-height: 17px;
+}*/

@@ -13,35 +13,26 @@ import java.text.NumberFormat;
 
 public class OverviewTab {
 
-
-    @FXML
-    private TableColumn<Employee, String> nameCol;
-    @FXML
-    private TableColumn<Employee, BigDecimal> annualSalaryCol;
-    @FXML
-    private TableColumn<Employee, BigDecimal> overHeadMultiCol;
-    @FXML
-    private TableColumn<Employee, BigDecimal> annualAmountCol;
-    @FXML
-    private TableColumn<Employee, String> countryCol;
-    @FXML
-    private TableColumn<Employee, Integer> teamCol;
-    @FXML
-    private TableColumn<Employee, Integer> hoursCol;
-    @FXML
-    private TableColumn<Employee, BigDecimal> utilCol;
-    @FXML
-    private TableColumn<Employee, Boolean> overheadCol;
-    @FXML
-    private TableView<Employee> overviewEmployeeTblView;
-    @FXML
-    private Label employeeDayRateLbl;
-    @FXML
-    private Label employeeHourlyRateLbl;
+    private final TableColumn<Employee, String> nameCol;
+    private final TableColumn<Employee, BigDecimal> annualSalaryCol;
+    private final TableColumn<Employee, BigDecimal> overHeadMultiCol;
+    private final TableColumn<Employee, BigDecimal> annualAmountCol;
+    private final TableColumn<Employee, String> countryCol;
+    private final TableColumn<Employee, Integer> teamCol;
+    private final TableColumn<Employee, Integer> hoursCol;
+    private final TableColumn<Employee, BigDecimal> utilCol;
+    private final TableColumn<Employee, Boolean> overheadCol;
+    private final TableView<Employee> overviewEmployeeTblView;
+    private final Label employeeDayRateLbl;
+    private final Label employeeHourlyRateLbl;
     private final EmployeeModel employeeModel;
 
 
-    public OverviewTab(EmployeeModel employeeModel, TableColumn<Employee, String> nameCol, TableColumn<Employee, BigDecimal> annualSalaryCol, TableColumn<Employee, BigDecimal> overHeadMultiCol, TableColumn<Employee, BigDecimal> annualAmountCol, TableColumn<Employee, String> countryCol, TableColumn<Employee, Integer> teamCol, TableColumn<Employee, Integer> hoursCol, TableColumn<Employee, BigDecimal> utilCol, TableColumn<Employee, Boolean> overheadCol, TableView<Employee> overviewEmployeeTblView, Label employeeDayRateLbl, Label employeeHourlyRateLbl) {
+    public OverviewTab(EmployeeModel employeeModel, TableColumn<Employee, String> nameCol, TableColumn<Employee, BigDecimal> annualSalaryCol,
+                       TableColumn<Employee, BigDecimal> overHeadMultiCol, TableColumn<Employee, BigDecimal> annualAmountCol,
+                       TableColumn<Employee, String> countryCol, TableColumn<Employee, Integer> teamCol, TableColumn<Employee, Integer> hoursCol,
+                       TableColumn<Employee, BigDecimal> utilCol, TableColumn<Employee, Boolean> overheadCol,
+                       TableView<Employee> overviewEmployeeTblView, Label employeeDayRateLbl, Label employeeHourlyRateLbl) {
         this.employeeModel = employeeModel;
         this.nameCol = nameCol;
         this.annualSalaryCol = annualSalaryCol;
