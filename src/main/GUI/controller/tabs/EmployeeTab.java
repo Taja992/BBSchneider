@@ -22,12 +22,12 @@ public class EmployeeTab {
     private final TextField yearlyHrsTxt;
     private final TextField utilizationTxt;
 
-    private final TextField searchTextField;
+    private final TextField employeesSearchTxt;
 
 
     public EmployeeTab(EmployeeModel employeeModel, ListView<Employee> employeeLV, ComboBox<String> countryCmbBox,
                        TextField nameTxt, TextField annualSalaryTxt, TextField overheadMultiTxt, TextField annualAmtTxt,
-                       CheckBox overheadChkBox, TextField yearlyHrsTxt, TextField utilizationTxt, Button addEmployeeBtn, TextField searchTextField) {
+                       CheckBox overheadChkBox, TextField yearlyHrsTxt, TextField utilizationTxt, Button addEmployeeBtn,TextField employeesSearchTxt) {
         this.employeeModel = employeeModel;
         this.employeeLV = employeeLV;
         this.countryCmbBox = countryCmbBox;
@@ -38,7 +38,7 @@ public class EmployeeTab {
         this.overheadChkBox = overheadChkBox;
         this.yearlyHrsTxt = yearlyHrsTxt;
         this.utilizationTxt = utilizationTxt;
-        this.searchTextField = searchTextField;
+        this.employeesSearchTxt = employeesSearchTxt;
         //Add ActionEvent to our button
         addEmployeeBtn.setOnAction(this::addEmployee);
     }
@@ -50,9 +50,9 @@ public class EmployeeTab {
     }
 
     private void setSearchEvent() {
-        searchTextField.setOnKeyReleased(event -> {
-            String keyword = searchTextField.getText();
-            System.out.println(keyword);
+        employeesSearchTxt.setOnKeyReleased(event -> {
+            String keyword = employeesSearchTxt.getText();
+
             try {
                 ObservableList<Employee> filteredEmployees = employeeModel.searchEmployees(keyword);
                 employeeLV.setItems(filteredEmployees);

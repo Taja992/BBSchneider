@@ -80,6 +80,8 @@ public class AppController {
     private TableView<Employee> overviewEmployeeTblView;
     @FXML
     private TextField searchTextField;
+    @FXML
+    private TextField employeesSearchTxt;
     // -------------------------------------
 
 
@@ -99,7 +101,7 @@ public class AppController {
 
        //This is where we handle our EmployeeTab
        EmployeeTab employeeTab = new EmployeeTab(employeeModel, employeeLV, countryCmbBox, nameTxt, annualSalaryTxt,
-               overheadMultiTxt, annualAmtTxt, overheadChkBox,yearlyHrsTxt, utilizationTxt, addEmployeeBtn, searchTextField);
+               overheadMultiTxt, annualAmtTxt, overheadChkBox,yearlyHrsTxt, utilizationTxt, addEmployeeBtn, employeesSearchTxt);
 
        employeeTab.initialize();
    }
