@@ -16,8 +16,6 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-
-
 <TabPane fx:id="mainTabPane" prefHeight="558.0" prefWidth="900.0" styleClass="mainTabPane" stylesheets="/GUI/view/main.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.controller.AppController">
    <tabs>
       <Tab closable="false" text="Overview">
@@ -27,7 +25,7 @@
                   <VBox prefHeight="401.0" prefWidth="272.0" spacing="10.0" BorderPane.alignment="CENTER">
                      <children>
                         <Label text="Employees Search" />
-                        <TextField maxWidth="150.0" prefWidth="109.0" />
+                        <TextField fx:id="searchTextField" maxWidth="150.0" prefWidth="109.0" />
                         <TableView fx:id="overviewEmployeeTblView">
                            <columns>
                               <TableColumn fx:id="nameCol" prefWidth="63.0" text="Name" />
@@ -41,38 +39,46 @@
                               <TableColumn fx:id="overheadCol" prefWidth="73.0" text="Overhead" />
                            </columns>
                         </TableView>
-                        <TabPane styleClass="teamTabPane">
-                           <tabs>
-                              <Tab closable="false" text="Team 1">
-                                 <content>
-                                    <VBox alignment="CENTER">
-                                       <children>
-                                          <TableView>
-                                             <columns>
-                                                <TableColumn prefWidth="75.0" text="Name" />
-                                                <TableColumn prefWidth="75.0" text="Rates" />
-                                             </columns>
-                                          </TableView>
-                                       </children>
-                                    </VBox>
-                                 </content>
-                              </Tab>
-                              <Tab closable="false" text="Team 2">
-                                 <content>
-                                    <VBox alignment="CENTER">
-                                       <children>
-                                          <TableView>
-                                             <columns>
-                                                <TableColumn prefWidth="75.0" text="Name" />
-                                                <TableColumn prefWidth="75.0" text="Rates" />
-                                             </columns>
-                                          </TableView>
-                                       </children>
-                                    </VBox>
-                                 </content>
-                              </Tab>
-                           </tabs>
-                        </TabPane>
+                        <HBox prefHeight="450.0" prefWidth="702.0">
+                           <children>
+                              <TabPane prefHeight="66.0" prefWidth="677.0" styleClass="teamTabPane">
+                                 <tabs>
+                                    <Tab closable="false" text="Team 1">
+                                       <content>
+                                          <VBox alignment="CENTER">
+                                             <children>
+                                                <TableView prefHeight="206.0" prefWidth="592.0">
+                                                   <columns>
+                                                      <TableColumn prefWidth="75.0" text="Name" />
+                                                      <TableColumn prefWidth="75.0" text="Rates" />
+                                                   </columns>
+                                                   <VBox.margin>
+                                                      <Insets bottom="5.0" />
+                                                   </VBox.margin>
+                                                </TableView>
+                                             </children>
+                                          </VBox>
+                                       </content>
+                                    </Tab>
+                                    <Tab closable="false" text="Team 2">
+                                       <content>
+                                          <VBox alignment="CENTER">
+                                             <children>
+                                                <TableView>
+                                                   <columns>
+                                                      <TableColumn prefWidth="75.0" text="Name" />
+                                                      <TableColumn prefWidth="75.0" text="Rates" />
+                                                   </columns>
+                                                </TableView>
+                                             </children>
+                                          </VBox>
+                                       </content>
+                                    </Tab>
+                                 </tabs>
+                              </TabPane>
+                              <Button mnemonicParsing="false" text="+" />
+                           </children>
+                        </HBox>
                      </children>
                      <BorderPane.margin>
                         <Insets left="10.0" top="20.0" />
@@ -227,7 +233,7 @@
                   <VBox alignment="CENTER" prefHeight="523.0" prefWidth="242.0" spacing="10.0" BorderPane.alignment="CENTER">
                      <children>
                         <Label text="Employee Search" />
-                        <TextField maxWidth="200.0" promptText="Search" />
+                        <TextField fx:id="employeesSearchTxt" maxWidth="200.0" promptText="Search" />
                         <HBox>
                            <children>
                               <ListView fx:id="employeeLV" prefHeight="374.0" prefWidth="224.0">

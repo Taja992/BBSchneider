@@ -22,10 +22,12 @@ public class EmployeeTab {
     private final TextField yearlyHrsTxt;
     private final TextField utilizationTxt;
 
+    private final TextField employeesSearchTxt;
+
 
     public EmployeeTab(EmployeeModel employeeModel, ListView<Employee> employeeLV, ComboBox<String> countryCmbBox,
                        TextField nameTxt, TextField annualSalaryTxt, TextField overheadMultiTxt, TextField annualAmtTxt,
-                       CheckBox overheadChkBox, TextField yearlyHrsTxt, TextField utilizationTxt, Button addEmployeeBtn) {
+                       CheckBox overheadChkBox, TextField yearlyHrsTxt, TextField utilizationTxt, Button addEmployeeBtn,TextField employeesSearchTxt) {
         this.employeeModel = employeeModel;
         this.employeeLV = employeeLV;
         this.countryCmbBox = countryCmbBox;
@@ -36,6 +38,7 @@ public class EmployeeTab {
         this.overheadChkBox = overheadChkBox;
         this.yearlyHrsTxt = yearlyHrsTxt;
         this.utilizationTxt = utilizationTxt;
+        this.employeesSearchTxt = employeesSearchTxt;
         //Add ActionEvent to our button
         addEmployeeBtn.setOnAction(this::addEmployee);
     }
@@ -43,7 +46,22 @@ public class EmployeeTab {
     public void initialize(){
         populateCountryComboBox();
         populateEmployeeListView();
+        setSearchEvent();
     }
+
+    private void setSearchEvent() {
+        employeesSearchTxt.setOnKeyReleased(event -> {
+            String keyword = employeesSearchTxt.getText();
+
+            try {
+                ObservableList<Employee> filteredEmployees = employeeModel.searchEmployees(keyword);
+                employeeLV.setItems(filteredEmployees);
+            } catch (BBExceptions e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
 
     private void populateEmployeeListView() {
         try {

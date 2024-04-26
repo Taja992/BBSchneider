@@ -6,6 +6,8 @@ import Exceptions.BBExceptions;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.sql.SQLOutput;
+
 public class EmployeeModel {
     private final EmployeeBLL employeeBLL;
     private final ObservableList<Employee> employees;
@@ -22,6 +24,19 @@ public class EmployeeModel {
         }
         //return our observable list
         return employees;
+    }
+
+    public ObservableList<Employee> searchEmployees(String keyword) throws BBExceptions {
+        ObservableList<Employee> allEmployees = getEmployees();
+        ObservableList<Employee> filteredEmployees = FXCollections.observableArrayList();
+
+        for (Employee employee : allEmployees) {
+            if (employee.getName().toLowerCase().contains(keyword.toLowerCase())) {
+                filteredEmployees.add(employee);
+            }
+        }
+
+        return filteredEmployees;
     }
 
     public void addNewEmployee(Employee employee) throws BBExceptions {

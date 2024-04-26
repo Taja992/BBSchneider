@@ -7,6 +7,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.TextField;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
@@ -26,13 +27,14 @@ public class OverviewTab {
     private final Label employeeDayRateLbl;
     private final Label employeeHourlyRateLbl;
     private final EmployeeModel employeeModel;
+    private final TextField searchTextField;
 
 
     public OverviewTab(EmployeeModel employeeModel, TableColumn<Employee, String> nameCol, TableColumn<Employee, BigDecimal> annualSalaryCol,
                        TableColumn<Employee, BigDecimal> overHeadMultiCol, TableColumn<Employee, BigDecimal> annualAmountCol,
                        TableColumn<Employee, String> countryCol, TableColumn<Employee, Integer> teamCol, TableColumn<Employee, Integer> hoursCol,
                        TableColumn<Employee, BigDecimal> utilCol, TableColumn<Employee, Boolean> overheadCol,
-                       TableView<Employee> overviewEmployeeTblView, Label employeeDayRateLbl, Label employeeHourlyRateLbl) {
+                       TableView<Employee> overviewEmployeeTblView, Label employeeDayRateLbl, Label employeeHourlyRateLbl, TextField searchTextField) {
         this.employeeModel = employeeModel;
         this.nameCol = nameCol;
         this.annualSalaryCol = annualSalaryCol;
@@ -46,13 +48,31 @@ public class OverviewTab {
         this.overviewEmployeeTblView = overviewEmployeeTblView;
         this.employeeDayRateLbl = employeeDayRateLbl;
         this.employeeHourlyRateLbl = employeeHourlyRateLbl;
+        this.searchTextField = searchTextField;
     }
 
 
     public void initialize(){
         ratesListener();
         populateEmployeeTableView();
+        setSearchEvent();
+
     }
+
+    private void setSearchEvent() {
+        searchTextField.setOnKeyReleased(event -> {
+            String keyword = searchTextField.getText();
+            try {
+                ObservableList<Employee> filteredEmployees = employeeModel.searchEmployees(keyword);
+                overviewEmployeeTblView.setItems(filteredEmployees);
+            } catch (BBExceptions e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+
+
 
     public void populateEmployeeTableView() {
         try {
@@ -109,7 +129,7 @@ public class OverviewTab {
             @Override
             protected void updateItem(BigDecimal value, boolean empty) {
                 super.updateItem(value, empty);
-                //This checks if cell is empty, if not continues..
+                //This checks if cell is empty, if not continues...
                 //% is a placeholder for the value that will be inserted
                 //.2 this tells our tableview we want 2 digits after the decimal
                 //f indicates it's a floating point number (a number with a decimal)

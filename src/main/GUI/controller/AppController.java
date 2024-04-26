@@ -78,6 +78,10 @@ public class AppController {
     private TableColumn<Employee, Boolean> overheadCol;
     @FXML
     private TableView<Employee> overviewEmployeeTblView;
+    @FXML
+    private TextField searchTextField;
+    @FXML
+    private TextField employeesSearchTxt;
     // -------------------------------------
 
 
@@ -91,13 +95,13 @@ public class AppController {
         //We pass all our FXML elements and employeeModel to the overviewTab class constructor
        OverviewTab overviewTab = new OverviewTab(employeeModel, nameCol, annualSalaryCol, overHeadMultiCol, annualAmountCol,
                countryCol, teamCol, hoursCol, utilCol, overheadCol, overviewEmployeeTblView,
-               employeeDayRateLbl, employeeHourlyRateLbl);
+               employeeDayRateLbl, employeeHourlyRateLbl, searchTextField);
        //Create our own initialize to easily call the methods in the class
        overviewTab.initialize();
 
        //This is where we handle our EmployeeTab
        EmployeeTab employeeTab = new EmployeeTab(employeeModel, employeeLV, countryCmbBox, nameTxt, annualSalaryTxt,
-               overheadMultiTxt, annualAmtTxt, overheadChkBox,yearlyHrsTxt, utilizationTxt, addEmployeeBtn);
+               overheadMultiTxt, annualAmtTxt, overheadChkBox,yearlyHrsTxt, utilizationTxt, addEmployeeBtn, employeesSearchTxt);
 
        employeeTab.initialize();
    }
