@@ -2,17 +2,22 @@ package DAL;
 
 import BE.Employee;
 import Exceptions.BBExceptions;
-import com.microsoft.sqlserver.jdbc.SQLServerException;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class EmployeeDAO {
-    private final ConnectionManager connectionManager;
+    private ConnectionManager connectionManager;
 
     public EmployeeDAO(){
-        connectionManager = new ConnectionManager();
+        ConnectionManager databaseConnectionManager;
+        try {
+            databaseConnectionManager = new ConnectionManager(true);
+            databaseConnectionManager.getConnection().close(); // Need this to test connection and force the SQLException and swap to false
+            connectionManager = databaseConnectionManager;
+        } catch (SQLException e) {
+            connectionManager = new ConnectionManager(false);
+        }
     }
 
     public void newEmployee(Employee employee) throws BBExceptions {
