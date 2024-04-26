@@ -42,7 +42,7 @@
                         <HBox prefHeight="450.0" prefWidth="702.0">
                            <children>
                               <TabPane fx:id="TeamTabPane" prefHeight="66.0" prefWidth="677.0" styleClass="teamTabPane" />
-                              <Button mnemonicParsing="false" text="+" />
+                              <Button fx:id="addTeambtn" mnemonicParsing="false" text="+" />
                            </children>
                         </HBox>
                      </children>

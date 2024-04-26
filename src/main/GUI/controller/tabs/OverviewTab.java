@@ -6,6 +6,7 @@ import Exceptions.BBExceptions;
 import GUI.model.EmployeeModel;
 import GUI.model.TeamModel;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.TextField;
@@ -33,6 +34,7 @@ public class OverviewTab {
     private final TextField searchTextField;
     private final TabPane TeamTabPane;
     private final TeamModel teamModel;
+    private final Button addTeambtn;
 
 
     public OverviewTab(EmployeeModel employeeModel, TableColumn<Employee, String> nameCol, TableColumn<Employee, BigDecimal> annualSalaryCol,
@@ -40,7 +42,7 @@ public class OverviewTab {
                        TableColumn<Employee, String> countryCol, TableColumn<Employee, Integer> teamCol, TableColumn<Employee, Integer> hoursCol,
                        TableColumn<Employee, BigDecimal> utilCol, TableColumn<Employee, Boolean> overheadCol,
                        TableView<Employee> overviewEmployeeTblView, Label employeeDayRateLbl, Label employeeHourlyRateLbl, TextField searchTextField,
-                       TabPane teamTabPane, TeamModel teamModel) {
+                       TabPane teamTabPane, TeamModel teamModel, Button addTeambtn) {
         this.employeeModel = employeeModel;
         this.nameCol = nameCol;
         this.annualSalaryCol = annualSalaryCol;
@@ -57,6 +59,8 @@ public class OverviewTab {
         this.searchTextField = searchTextField;
         this.TeamTabPane = teamTabPane;
         this.teamModel = teamModel;
+        this.addTeambtn = addTeambtn;
+        addTeambtn.setOnAction(this::addTeam);
     }
 
 
@@ -113,6 +117,14 @@ public class OverviewTab {
         teamTblView.setItems(employeesInTeam);
 
         return teamTblView;
+    }
+
+    private void addTeam(ActionEvent event) {
+        Team newTeam = new Team(teamModel.getLastTeamId()+1, "untitled team");
+        teamModel.newTeam(newTeam);
+        Tab tab = new Tab(newTeam.getName());
+        tab.setContent(createTableForTeam(newTeam));
+        TeamTabPane.getTabs().add(tab);
     }
 
 

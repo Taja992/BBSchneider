@@ -54,5 +54,27 @@ public class TeamDAO {
 
     }
 
+    // gets last team Id created
+    // we need this because when a new team object is made, we need an id for it in java
+    // so we can get the last Id + 1
+    public int getLastTeamId(){
+        int lastId = -1;
+
+        try(Connection con = connectionManager.getConnection()){
+            String sql = "SELECT * FROM Team WHERE Team_Id = (SELECT IDENT_CURRENT('Team'))";
+
+            PreparedStatement ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            while(rs.next()){
+                lastId = rs.getInt("Team_Id");
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return lastId;
+    }
+
 
 }

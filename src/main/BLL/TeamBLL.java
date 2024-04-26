@@ -8,15 +8,23 @@ import java.util.List;
 
 public class TeamBLL {
 
-    TeamDAO DAO = new TeamDAO();
+    TeamDAO teamDAO = new TeamDAO();
 
 
     public List<Team> getAllTeams() throws SQLException {
-        return DAO.getAllTeams();
+        return teamDAO.getAllTeams();
     }
 
-    public void newTeam(Team team) throws SQLException {
-        DAO.newTeam(team);
+    public void newTeam(Team team) {
+        try {
+            teamDAO.newTeam(team);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public int getLastTeamId(){
+        return teamDAO.getLastTeamId();
     }
 
 }

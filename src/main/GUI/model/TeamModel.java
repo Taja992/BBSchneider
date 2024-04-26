@@ -16,8 +16,12 @@ public class TeamModel {
         return teamBLL.getAllTeams();
     }
 
-    public void newTeam(Team team) throws SQLException {
+    public void newTeam(Team team){
         teamBLL.newTeam(team);
+    }
+
+    public int getLastTeamId(){
+        return teamBLL.getLastTeamId();
     }
 
 }
