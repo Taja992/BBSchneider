@@ -86,7 +86,7 @@ public class AppController {
     @FXML
     private TextField employeesSearchTxt;
     @FXML
-    private TabPane TeamTabPane;
+    private TabPane teamTabPane;
     @FXML
     private Button addTeambtn;
     // -------------------------------------
@@ -104,7 +104,7 @@ public class AppController {
         //We pass all our FXML elements and employeeModel to the overviewTab class constructor
        OverviewTab overviewTab = new OverviewTab(employeeModel, nameCol, annualSalaryCol, overHeadMultiCol, annualAmountCol,
                countryCol, teamCol, hoursCol, utilCol, overheadCol, overviewEmployeeTblView,
-               employeeDayRateLbl, employeeHourlyRateLbl, searchTextField, TeamTabPane, teamModel, addTeambtn);
+               employeeDayRateLbl, employeeHourlyRateLbl, searchTextField, teamTabPane, teamModel, addTeambtn, teamDayRateLbl, teamHourlyRateLbl);
        //Create our own initialize to easily call the methods in the class
        overviewTab.initialize();
 

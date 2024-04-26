@@ -24,4 +24,12 @@ public class TeamModel {
         return teamBLL.getLastTeamId();
     }
 
+    public Double calculateTotalHourlyRate(int teamId){
+        return teamBLL.calculateTotalHourlyRate(teamId);
+    }
+
+    public Double calculateTotalDailyRate(int teamId){
+        return teamBLL.calculateTotalDailyRate(teamId);
+    }
+
 }

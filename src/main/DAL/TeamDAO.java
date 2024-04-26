@@ -43,6 +43,31 @@ public class TeamDAO {
         return allTeams;
     }
 
+    public Team getTeam(int Id){
+
+        Team team = null;
+
+        try(Connection con = connectionManager.getConnection()){
+            String sql = "SELECT * FROM Team WHERE Team_Id = ?";
+
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setInt(1, Id);
+            ResultSet rs = ps.executeQuery();
+
+            while(rs.next()){
+                int id = rs.getInt("Team_Id");
+                String name = rs.getString("Team_Name");
+
+                team = new Team(id, name);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return team;
+    }
+
     public void newTeam(Team team) throws SQLException {
 
         try(Connection con = connectionManager.getConnection()){
