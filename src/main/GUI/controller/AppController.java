@@ -2,6 +2,7 @@ package GUI.controller;
 
 import BE.Employee;
 import Exceptions.BBExceptions;
+import GUI.controller.tabs.EmployeeTab;
 import GUI.controller.tabs.OverviewTab;
 import GUI.model.EmployeeModel;
 import com.neovisionaries.i18n.CountryCode;
@@ -49,6 +50,8 @@ public class AppController {
     private CheckBox overheadChkBox;
     @FXML
     private ComboBox<String> countryCmbBox;
+    @FXML
+    private Button addEmployeeBtn;
     //--------------------------------------
     //----------Overview Tab----------------
     @FXML
@@ -94,57 +97,9 @@ public class AppController {
        //Create our own initialize to easily call the methods in the class
        overviewTab.initialize();
 
-       populateCountryComboBox();
-       populateEmployeeListView();
+       //This is where we handle our EmployeeTab
+       EmployeeTab employeeTab = new EmployeeTab(employeeModel, employeeLV, countryCmbBox, nameTxt, annualSalaryTxt, overheadMultiTxt, annualAmtTxt, overheadChkBox,yearlyHrsTxt, utilizationTxt, addEmployeeBtn);
+       employeeTab.initialize();
    }
-
-    public void populateEmployeeListView() {
-        try {
-            // Get the list of employees from the model
-            ObservableList<Employee> employees = employeeModel.getEmployees();
-
-            // Populate the ListView
-            employeeLV.setCellFactory(param -> new ListCell<>() {
-                @Override
-                //We Override the current updateItem method for listviews by JavaFX and tell our compiler
-                protected void updateItem(Employee employee, boolean empty) {
-                    super.updateItem(employee, empty);
-                    if (empty || employee == null) {
-                        setText(null);
-                    } else {
-                        //We set the text to show the employee name
-                        setText("ID# - " +employee.getName());
-                    }
-                }
-            });
-            employeeLV.setItems(employees);
-        } catch (BBExceptions e) {
-            e.printStackTrace();
-        }
-    }
-
-   public void populateCountryComboBox() {
-        for (CountryCode code : CountryCode.values()) {
-            countryCmbBox.getItems().add(code.getName());
-        }
-   }
-
-    public void addEmployee(ActionEvent actionEvent) {
-       Employee employee = new Employee();
-       employee.setName(nameTxt.getText());
-       employee.setAnnualSalary(new BigDecimal(annualSalaryTxt.getText()));
-       employee.setOverheadMultiPercent(new BigDecimal(overheadMultiTxt.getText()));
-       employee.setAnnualAmount(new BigDecimal(annualAmtTxt.getText()));
-       employee.setCountry(countryCmbBox.getValue());
-       employee.setIsOverheadCost(overheadChkBox.isSelected());
-       employee.setWorkingHours(Integer.parseInt(yearlyHrsTxt.getText()));
-       employee.setUtilization(new BigDecimal(utilizationTxt.getText()));
-
-       try {
-           employeeModel.addNewEmployee(employee);
-       } catch (BBExceptions e){
-           e.printStackTrace();
-       }
-    }
 
 }
