@@ -151,7 +151,7 @@
                               </VBox>
                            </children>
                         </HBox>
-                        <Button fx:id="addEmployeeBtn" mnemonicParsing="false" onAction="#addEmployee" text="Add" />
+                        <Button fx:id="addEmployeeBtn" mnemonicParsing="false" text="Add" />
                         <HBox alignment="CENTER" prefHeight="153.0" prefWidth="654.0">
                            <children>
                               <VBox spacing="20.0">
