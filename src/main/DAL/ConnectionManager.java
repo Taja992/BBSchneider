@@ -9,6 +9,7 @@ import java.sql.SQLException;
 public class ConnectionManager {
     private final SQLServerDataSource ds;
     private final String sqliteUrl;
+    private final boolean isSQLite;
 
     public ConnectionManager(boolean useSqlServer) {
         if (useSqlServer) {
@@ -21,9 +22,11 @@ public class ConnectionManager {
             ds.setTrustServerCertificate(true);
             ds.setLoginTimeout(1); //we set the login time out and switch to local server if no database connection
             sqliteUrl = null;
+            isSQLite = false;
         } else {
             ds = null;
             sqliteUrl = "jdbc:sqlite:src/resources/localschneiderdatabase.db";
+            isSQLite = true;
         }
     }
 
@@ -34,4 +37,10 @@ public class ConnectionManager {
             return DriverManager.getConnection(sqliteUrl);
         }
     }
+
+    public boolean isSQLite() {
+        return isSQLite;
+    }
+
+
 }

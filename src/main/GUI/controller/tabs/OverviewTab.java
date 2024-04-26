@@ -159,7 +159,6 @@ public class OverviewTab {
     }
 
 
-
     public void populateEmployeeTableView() {
         try {
             // Get the list of employees from the model
