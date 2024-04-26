@@ -7,8 +7,8 @@ import com.neovisionaries.i18n.CountryCode;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
-
 import java.math.BigDecimal;
+
 
 public class EmployeeTab {
     private EmployeeModel employeeModel;
@@ -79,13 +79,13 @@ public class EmployeeTab {
     private void addEmployee(ActionEvent actionEvent) {
         Employee employee = new Employee();
         employee.setName(nameTxt.getText());
-        employee.setAnnualSalary(new BigDecimal(annualSalaryTxt.getText()));
-        employee.setOverheadMultiPercent(new BigDecimal(overheadMultiTxt.getText()));
-        employee.setAnnualAmount(new BigDecimal(annualAmtTxt.getText()));
+        employee.setAnnualSalary(convertToBigDecimal(annualSalaryTxt.getText()));
+        employee.setOverheadMultiPercent(convertToBigDecimal(overheadMultiTxt.getText()));
+        employee.setAnnualAmount(convertToBigDecimal(annualAmtTxt.getText()));
         employee.setCountry(countryCmbBox.getValue());
         employee.setIsOverheadCost(overheadChkBox.isSelected());
         employee.setWorkingHours(Integer.parseInt(yearlyHrsTxt.getText()));
-        employee.setUtilization(new BigDecimal(utilizationTxt.getText()));
+        employee.setUtilization(convertToBigDecimal(utilizationTxt.getText()));
 
         try {
             employeeModel.addNewEmployee(employee);
@@ -93,4 +93,16 @@ public class EmployeeTab {
             e.printStackTrace();
         }
     }
+
+
+    //Incase user uses $/% or , when they input the values this will account for that
+    private BigDecimal convertToBigDecimal(String input) {
+        //This uses regex to replace everything that isnt an int
+        // the carrot '^' means to negate anything not defined
+        //then we add the range 0-9 and a .  this tells regex to negate anything that is not those and replace it with ""
+        //The replaceAll was not working for % signs so I added .replace as well to handle if the user inputs %
+        String number = input.replaceAll("[^0-9.]", "").replace("%", "");
+        return new BigDecimal(number);
+    }
+
 }
