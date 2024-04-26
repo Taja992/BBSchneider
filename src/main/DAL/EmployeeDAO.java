@@ -74,4 +74,74 @@ public class EmployeeDAO {
         return employees;
     }
 
+    public List<Employee> getAllEmployeesFromTeam(int TeamId) throws SQLException {
+        List<Employee> employees = new ArrayList<>();
+
+        String sql = "SELECT * FROM Employee WHERE Team_Id = ?";
+
+        try(Connection con = connectionManager.getConnection()){
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setInt(1, TeamId);
+
+            ResultSet rs = ps.executeQuery();
+
+            while(rs.next()){
+                Employee employee = new Employee();
+                employee.setId(rs.getInt("Employee_Id"));
+                employee.setName(rs.getString("Name"));
+                employee.setAnnualSalary(rs.getBigDecimal("AnnualSalary"));
+                employee.setOverheadMultiPercent(rs.getBigDecimal("OverheadMultiPercent"));
+                employee.setAnnualAmount(rs.getBigDecimal("AnnualAmount"));
+                employee.setCountry(rs.getString("Country"));
+                employee.setTeamId(rs.getInt("Team_Id"));
+                employee.setWorkingHours(rs.getInt("WorkingHours"));
+                employee.setUtilization(rs.getBigDecimal("Utilization"));
+                employee.setIsOverheadCost(rs.getBoolean("isOverheadCost"));
+
+                employees.add(employee);
+            }
+
+        } catch (SQLException e){
+            throw new BBExceptions("Error retrieving all employees from team with ID " + TeamId, e);
+        }
+
+
+        return employees;
+    }
+
+    public List<Employee> getAllEmployeesFromLocation(String Location) throws SQLException {
+        List<Employee> employees = new ArrayList<>();
+
+        String sql = "SELECT * FROM Employee WHERE Country = ?";
+
+        try(Connection con = connectionManager.getConnection()){
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setString(1, Location);
+
+            ResultSet rs = ps.executeQuery();
+
+            while(rs.next()){
+                Employee employee = new Employee();
+                employee.setId(rs.getInt("Employee_Id"));
+                employee.setName(rs.getString("Name"));
+                employee.setAnnualSalary(rs.getBigDecimal("AnnualSalary"));
+                employee.setOverheadMultiPercent(rs.getBigDecimal("OverheadMultiPercent"));
+                employee.setAnnualAmount(rs.getBigDecimal("AnnualAmount"));
+                employee.setCountry(rs.getString("Country"));
+                employee.setTeamId(rs.getInt("Team_Id"));
+                employee.setWorkingHours(rs.getInt("WorkingHours"));
+                employee.setUtilization(rs.getBigDecimal("Utilization"));
+                employee.setIsOverheadCost(rs.getBoolean("isOverheadCost"));
+
+                employees.add(employee);
+            }
+
+        } catch (SQLException e){
+            throw new BBExceptions("Error retrieving all employees from team from location " + Location, e);
+        }
+
+
+        return employees;
+    }
+
 }
