@@ -4,12 +4,14 @@ import BE.Employee;
 import GUI.controller.tabs.EmployeeTab;
 import GUI.controller.tabs.OverviewTab;
 import GUI.model.EmployeeModel;
+import GUI.model.TeamModel;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
 import java.math.BigDecimal;
 
 public class AppController {
+
 
     // --------Employee tab ---------------
     @FXML
@@ -82,12 +84,16 @@ public class AppController {
     private TextField searchTextField;
     @FXML
     private TextField employeesSearchTxt;
+    @FXML
+    private TabPane TeamTabPane;
     // -------------------------------------
 
 
     private final EmployeeModel employeeModel;
+    private final TeamModel teamModel;
 
     public AppController(){
+        teamModel = new TeamModel();
         employeeModel = new EmployeeModel();
     }
 
@@ -95,7 +101,7 @@ public class AppController {
         //We pass all our FXML elements and employeeModel to the overviewTab class constructor
        OverviewTab overviewTab = new OverviewTab(employeeModel, nameCol, annualSalaryCol, overHeadMultiCol, annualAmountCol,
                countryCol, teamCol, hoursCol, utilCol, overheadCol, overviewEmployeeTblView,
-               employeeDayRateLbl, employeeHourlyRateLbl, searchTextField);
+               employeeDayRateLbl, employeeHourlyRateLbl, searchTextField, TeamTabPane, teamModel);
        //Create our own initialize to easily call the methods in the class
        overviewTab.initialize();
 
