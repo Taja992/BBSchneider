@@ -7,41 +7,34 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.TextField;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 
 public class OverviewTab {
 
-
-    @FXML
-    private TableColumn<Employee, String> nameCol;
-    @FXML
-    private TableColumn<Employee, BigDecimal> annualSalaryCol;
-    @FXML
-    private TableColumn<Employee, BigDecimal> overHeadMultiCol;
-    @FXML
-    private TableColumn<Employee, BigDecimal> annualAmountCol;
-    @FXML
-    private TableColumn<Employee, String> countryCol;
-    @FXML
-    private TableColumn<Employee, Integer> teamCol;
-    @FXML
-    private TableColumn<Employee, Integer> hoursCol;
-    @FXML
-    private TableColumn<Employee, BigDecimal> utilCol;
-    @FXML
-    private TableColumn<Employee, Boolean> overheadCol;
-    @FXML
-    private TableView<Employee> overviewEmployeeTblView;
-    @FXML
-    private Label employeeDayRateLbl;
-    @FXML
-    private Label employeeHourlyRateLbl;
+    private final TableColumn<Employee, String> nameCol;
+    private final TableColumn<Employee, BigDecimal> annualSalaryCol;
+    private final TableColumn<Employee, BigDecimal> overHeadMultiCol;
+    private final TableColumn<Employee, BigDecimal> annualAmountCol;
+    private final TableColumn<Employee, String> countryCol;
+    private final TableColumn<Employee, Integer> teamCol;
+    private final TableColumn<Employee, Integer> hoursCol;
+    private final TableColumn<Employee, BigDecimal> utilCol;
+    private final TableColumn<Employee, Boolean> overheadCol;
+    private final TableView<Employee> overviewEmployeeTblView;
+    private final Label employeeDayRateLbl;
+    private final Label employeeHourlyRateLbl;
     private final EmployeeModel employeeModel;
+    private final TextField searchTextField;
 
 
-    public OverviewTab(EmployeeModel employeeModel, TableColumn<Employee, String> nameCol, TableColumn<Employee, BigDecimal> annualSalaryCol, TableColumn<Employee, BigDecimal> overHeadMultiCol, TableColumn<Employee, BigDecimal> annualAmountCol, TableColumn<Employee, String> countryCol, TableColumn<Employee, Integer> teamCol, TableColumn<Employee, Integer> hoursCol, TableColumn<Employee, BigDecimal> utilCol, TableColumn<Employee, Boolean> overheadCol, TableView<Employee> overviewEmployeeTblView, Label employeeDayRateLbl, Label employeeHourlyRateLbl) {
+    public OverviewTab(EmployeeModel employeeModel, TableColumn<Employee, String> nameCol, TableColumn<Employee, BigDecimal> annualSalaryCol,
+                       TableColumn<Employee, BigDecimal> overHeadMultiCol, TableColumn<Employee, BigDecimal> annualAmountCol,
+                       TableColumn<Employee, String> countryCol, TableColumn<Employee, Integer> teamCol, TableColumn<Employee, Integer> hoursCol,
+                       TableColumn<Employee, BigDecimal> utilCol, TableColumn<Employee, Boolean> overheadCol,
+                       TableView<Employee> overviewEmployeeTblView, Label employeeDayRateLbl, Label employeeHourlyRateLbl, TextField searchTextField) {
         this.employeeModel = employeeModel;
         this.nameCol = nameCol;
         this.annualSalaryCol = annualSalaryCol;
@@ -55,13 +48,31 @@ public class OverviewTab {
         this.overviewEmployeeTblView = overviewEmployeeTblView;
         this.employeeDayRateLbl = employeeDayRateLbl;
         this.employeeHourlyRateLbl = employeeHourlyRateLbl;
+        this.searchTextField = searchTextField;
     }
 
 
     public void initialize(){
         ratesListener();
         populateEmployeeTableView();
+        setSearchEvent();
+
     }
+
+    private void setSearchEvent() {
+        searchTextField.setOnKeyReleased(event -> {
+            String keyword = searchTextField.getText();
+            try {
+                ObservableList<Employee> filteredEmployees = employeeModel.searchEmployees(keyword);
+                overviewEmployeeTblView.setItems(filteredEmployees);
+            } catch (BBExceptions e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+
+
 
     public void populateEmployeeTableView() {
         try {
@@ -118,7 +129,7 @@ public class OverviewTab {
             @Override
             protected void updateItem(BigDecimal value, boolean empty) {
                 super.updateItem(value, empty);
-                //This checks if cell is empty, if not continues..
+                //This checks if cell is empty, if not continues...
                 //% is a placeholder for the value that will be inserted
                 //.2 this tells our tableview we want 2 digits after the decimal
                 //f indicates it's a floating point number (a number with a decimal)

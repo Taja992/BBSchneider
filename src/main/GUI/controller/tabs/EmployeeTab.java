@@ -11,20 +11,23 @@ import java.math.BigDecimal;
 
 
 public class EmployeeTab {
-    private EmployeeModel employeeModel;
-    private ListView<Employee> employeeLV;
-    private ComboBox<String> countryCmbBox;
-    private TextField nameTxt;
-    private TextField annualSalaryTxt;
-    private TextField overheadMultiTxt;
-    private TextField annualAmtTxt;
-    private CheckBox overheadChkBox;
-    private TextField yearlyHrsTxt;
-    private TextField utilizationTxt;
-    private Button addEmployeeBtn;
+    private final EmployeeModel employeeModel;
+    private final ListView<Employee> employeeLV;
+    private final ComboBox<String> countryCmbBox;
+    private final TextField nameTxt;
+    private final TextField annualSalaryTxt;
+    private final TextField overheadMultiTxt;
+    private final TextField annualAmtTxt;
+    private final CheckBox overheadChkBox;
+    private final TextField yearlyHrsTxt;
+    private final TextField utilizationTxt;
+
+    private final TextField employeesSearchTxt;
 
 
-    public EmployeeTab(EmployeeModel employeeModel, ListView<Employee> employeeLV, ComboBox<String> countryCmbBox, TextField nameTxt, TextField annualSalaryTxt, TextField overheadMultiTxt, TextField annualAmtTxt, CheckBox overheadChkBox, TextField yearlyHrsTxt, TextField utilizationTxt, Button addEmployeeBtn) {
+    public EmployeeTab(EmployeeModel employeeModel, ListView<Employee> employeeLV, ComboBox<String> countryCmbBox,
+                       TextField nameTxt, TextField annualSalaryTxt, TextField overheadMultiTxt, TextField annualAmtTxt,
+                       CheckBox overheadChkBox, TextField yearlyHrsTxt, TextField utilizationTxt, Button addEmployeeBtn,TextField employeesSearchTxt) {
         this.employeeModel = employeeModel;
         this.employeeLV = employeeLV;
         this.countryCmbBox = countryCmbBox;
@@ -35,15 +38,30 @@ public class EmployeeTab {
         this.overheadChkBox = overheadChkBox;
         this.yearlyHrsTxt = yearlyHrsTxt;
         this.utilizationTxt = utilizationTxt;
-        this.addEmployeeBtn = addEmployeeBtn;
+        this.employeesSearchTxt = employeesSearchTxt;
         //Add ActionEvent to our button
-        this.addEmployeeBtn.setOnAction(this::addEmployee);
+        addEmployeeBtn.setOnAction(this::addEmployee);
     }
 
     public void initialize(){
         populateCountryComboBox();
         populateEmployeeListView();
+        setSearchEvent();
     }
+
+    private void setSearchEvent() {
+        employeesSearchTxt.setOnKeyReleased(event -> {
+            String keyword = employeesSearchTxt.getText();
+
+            try {
+                ObservableList<Employee> filteredEmployees = employeeModel.searchEmployees(keyword);
+                employeeLV.setItems(filteredEmployees);
+            } catch (BBExceptions e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
 
     private void populateEmployeeListView() {
         try {
@@ -84,7 +102,7 @@ public class EmployeeTab {
         employee.setAnnualAmount(convertToBigDecimal(annualAmtTxt.getText()));
         employee.setCountry(countryCmbBox.getValue());
         employee.setIsOverheadCost(overheadChkBox.isSelected());
-        employee.setWorkingHours(Integer.parseInt(yearlyHrsTxt.getText()));
+        employee.setWorkingHours(convertToInt(yearlyHrsTxt.getText()));
         employee.setUtilization(convertToBigDecimal(utilizationTxt.getText()));
 
         try {
@@ -103,6 +121,12 @@ public class EmployeeTab {
         //The replaceAll was not working for % signs so I added .replace as well to handle if the user inputs %
         String number = input.replaceAll("[^0-9.]", "").replace("%", "");
         return new BigDecimal(number);
+    }
+
+    //Same thing as above but for the Integer field
+    private int convertToInt(String input) {
+        String number = input.replaceAll("[^0-9]", "");
+        return Integer.parseInt(number);
     }
 
 }
