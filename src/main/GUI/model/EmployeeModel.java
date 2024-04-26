@@ -7,6 +7,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.sql.SQLOutput;
+import java.util.List;
 
 public class EmployeeModel {
     private final EmployeeBLL employeeBLL;
@@ -58,5 +59,12 @@ public class EmployeeModel {
 
     public Double calculateDailyRate(Employee selectedEmployee) {
         return employeeBLL.calculateDailyRate(selectedEmployee);
+    }
+    public ObservableList<Employee> getAllEmployeesFromTeam(int TeamId) {
+        //converting the List to an ObservableList so we can add it to a table
+        ObservableList<Employee> empFromTeam = FXCollections.observableArrayList();
+        empFromTeam.addAll(employeeBLL.getAllEmployeesFromTeam(TeamId));
+
+        return empFromTeam;
     }
 }

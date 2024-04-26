@@ -4,6 +4,7 @@ import BE.Employee;
 import DAL.EmployeeDAO;
 import Exceptions.BBExceptions;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public class EmployeeBLL {
@@ -40,4 +41,13 @@ public class EmployeeBLL {
         double dailyRateBeforeOverhead = hourlyRateBeforeOverhead * 8;
         return Double.valueOf(String.format("%.2f", dailyRateBeforeOverhead));
     }
+
+    public List<Employee> getAllEmployeesFromTeam(int TeamId) {
+        try {
+            return employeeDAO.getAllEmployeesFromTeam(TeamId);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
