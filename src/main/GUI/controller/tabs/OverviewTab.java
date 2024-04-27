@@ -5,16 +5,23 @@ import BE.Team;
 import Exceptions.BBExceptions;
 import GUI.model.EmployeeModel;
 import GUI.model.TeamModel;
+import com.neovisionaries.i18n.CountryCode;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.CheckBoxTableCell;
+import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.converter.BigDecimalStringConverter;
+import com.neovisionaries.i18n.CountryCode;
+import javafx.util.converter.IntegerStringConverter;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -173,16 +180,19 @@ public class OverviewTab {
             //Makes name editable
             makeNameEditable();
             overHeadMultiCol.setCellValueFactory(new PropertyValueFactory<>("overheadMultiPercent"));
-            countryCol.setCellValueFactory(new PropertyValueFactory<>("country"));
+           // countryCol.setCellValueFactory(new PropertyValueFactory<>("country"));
+            makeCountryEditable();
             teamCol.setCellValueFactory(new PropertyValueFactory<>("teamId"));
             hoursCol.setCellValueFactory(new PropertyValueFactory<>("workingHours"));
+            makeAnnualHoursEditable();
             //These methods format the tableview to have $ and commas as well as allows them to be editable
             formatAnnualSalaryCol();
             formatAnnualAmountCol();
             //These methods format the tableview to have % as well as allows them to be editable
             formatOverheadMultiPercent();
             formatUtilization();
-            overheadCol.setCellValueFactory(new PropertyValueFactory<>("isOverheadCost"));
+
+            makeOverheadEditable();
             overviewEmployeeTblView.setItems(employees);
         } catch (BBExceptions e) {
             e.printStackTrace();
@@ -226,6 +236,22 @@ public class OverviewTab {
             }
         });
     }
+
+    public void makeAnnualHoursEditable() {
+        // Make the cell able to become a textfield and we use IntegerStringConverter to convert it from a string to an Integer
+        hoursCol.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
+        // After editing, it sets the name in the database with .setOnEditCommit
+        hoursCol.setOnEditCommit(event -> {
+            Employee employee = event.getRowValue();
+            employee.setWorkingHours(event.getNewValue());
+            try {
+                employeeModel.updateEmployee(employee);
+            } catch (BBExceptions e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
 
     public void formatAnnualSalaryCol() {
         NumberFormat format = NumberFormat.getNumberInstance();
@@ -360,6 +386,50 @@ public class OverviewTab {
     }
 
 
+    public void makeCountryEditable(){
+        ObservableList<String> countries = FXCollections.observableArrayList();
+        for (CountryCode code : CountryCode.values()) {
+            countries.add(code.getName());
+        }
+        countryCol.setCellValueFactory(new PropertyValueFactory<>("country"));
+        //Give the cell the ability to become a combobox and fill it with our countries library
+        countryCol.setCellFactory(ComboBoxTableCell.forTableColumn(countries));
+
+        countryCol.setOnEditCommit(event -> {
+            Employee employee = event.getRowValue();
+            employee.setCountry(event.getNewValue());
+            try {
+                employeeModel.updateEmployee(employee);
+            } catch (BBExceptions e){
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public void makeOverheadEditable() {
+        overheadCol.setCellValueFactory(cellData -> new SimpleBooleanProperty(cellData.getValue().getIsOverheadCost()));
+        // Make the cell able to become a checkbox
+        overheadCol.setCellFactory(tableColumn -> new CheckBoxTableCell<>() {
+            @Override
+            public void updateItem(Boolean item, boolean empty) {
+                super.updateItem(item, empty);
+                if (!empty) {
+                    CheckBox checkBox = (CheckBox) this.getGraphic();
+                    checkBox.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
+                        if (isSelected != wasSelected) {
+                            Employee employee = this.getTableView().getItems().get(this.getIndex());
+                            employee.setIsOverheadCost(isSelected);
+                            try {
+                                employeeModel.updateEmployee(employee);
+                            } catch (BBExceptions e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    }
 
     //////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////
