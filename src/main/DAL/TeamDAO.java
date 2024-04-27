@@ -86,12 +86,23 @@ public class TeamDAO {
         int lastId = -1;
 
         try(Connection con = connectionManager.getConnection()){
-            String sql = "SELECT * FROM Team WHERE Team_Id = (SELECT IDENT_CURRENT('Team'))";
+            String sql;
+            //added if statement here to work with SQLite Database
+            if (!connectionManager.isSQLite()) {
+                sql = "SELECT * FROM Team WHERE Team_Id = (SELECT IDENT_CURRENT('Team'))";
+            } else {
+                sql = "SELECT last_insert_rowid()";
+            }
 
             PreparedStatement ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             while(rs.next()){
-                lastId = rs.getInt("Team_Id");
+                //added if statement here to work with SQLite Database
+                if (!connectionManager.isSQLite()) {
+                    lastId = rs.getInt("Team_Id");
+                } else {
+                    lastId = rs.getInt(1);
+                }
             }
 
         } catch (SQLException e) {
