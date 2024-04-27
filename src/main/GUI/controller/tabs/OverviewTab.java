@@ -5,17 +5,20 @@ import BE.Team;
 import Exceptions.BBExceptions;
 import GUI.model.EmployeeModel;
 import GUI.model.TeamModel;
+import com.neovisionaries.i18n.CountryCode;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.converter.BigDecimalStringConverter;
-
+import com.neovisionaries.i18n.CountryCode;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.text.NumberFormat;
@@ -173,7 +176,8 @@ public class OverviewTab {
             //Makes name editable
             makeNameEditable();
             overHeadMultiCol.setCellValueFactory(new PropertyValueFactory<>("overheadMultiPercent"));
-            countryCol.setCellValueFactory(new PropertyValueFactory<>("country"));
+           // countryCol.setCellValueFactory(new PropertyValueFactory<>("country"));
+            makeCountryEditable();
             teamCol.setCellValueFactory(new PropertyValueFactory<>("teamId"));
             hoursCol.setCellValueFactory(new PropertyValueFactory<>("workingHours"));
             //These methods format the tableview to have $ and commas as well as allows them to be editable
@@ -359,7 +363,25 @@ public class OverviewTab {
         });
     }
 
+    public void makeCountryEditable(){
+        ObservableList<String> countries = FXCollections.observableArrayList();
+        for (CountryCode code : CountryCode.values()) {
+            countries.add(code.getName());
+        }
+        countryCol.setCellValueFactory(new PropertyValueFactory<>("country"));
 
+        countryCol.setCellFactory(ComboBoxTableCell.forTableColumn(countries));
+
+        countryCol.setOnEditCommit(event -> {
+            Employee employee = event.getRowValue();
+            employee.setCountry(event.getNewValue());
+            try {
+                employeeModel.updateEmployee(employee);
+            } catch (BBExceptions e){
+                e.printStackTrace();
+            }
+        });
+    }
 
     //////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////
