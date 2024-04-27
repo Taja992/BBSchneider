@@ -13,6 +13,8 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.util.converter.BigDecimalStringConverter;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -74,10 +76,16 @@ public class OverviewTab {
 
 
     public void initialize(){
+        overviewEmployeeTblView.setEditable(true);
         ratesListener();
         populateEmployeeTableView();
         setSearchEvent();
         addTableTabs();
+        makeNameEditable();
+        makeAnnualSalaryColEditable();
+        makeAnnualAmountColEditable();
+        makeutilizationEditable();
+
 
         //adding a listener to tabPane so the daily/hourly rates of the selected team will be shown
         teamTabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
@@ -170,67 +178,16 @@ public class OverviewTab {
             countryCol.setCellValueFactory(new PropertyValueFactory<>("country"));
             teamCol.setCellValueFactory(new PropertyValueFactory<>("teamId"));
             hoursCol.setCellValueFactory(new PropertyValueFactory<>("workingHours"));
-            //This method just adds dollar signs in front of the money values
-            //Once we add Conversion from USD to Euro this will probably need to be tweaked
-            addDollarSignsTableview();
-            //This method adds % signs to our tableview
-            addPercentSignsTableView();
+            //These methods format the tableview to have $ and commas as well as allows them to be editable
+            makeAnnualSalaryColEditable();
+            makeAnnualAmountColEditable();
+            //This methods format the tableview to have % as well as allows them to be editable
+            makeOverheadMultiPercentEditable();
             overheadCol.setCellValueFactory(new PropertyValueFactory<>("isOverheadCost"));
             overviewEmployeeTblView.setItems(employees);
         } catch (BBExceptions e) {
             e.printStackTrace();
         }
-    }
-
-    private void addDollarSignsTableview() {
-        NumberFormat format = NumberFormat.getNumberInstance();
-        //we set the format to have a minimum of 2 and a maximum of 2 digits after the decimal
-        format.setMinimumFractionDigits(2);
-        format.setMaximumFractionDigits(2);
-        //set up Annual Salary cell
-        annualSalaryCol.setCellValueFactory(new PropertyValueFactory<>("annualSalary"));
-        annualSalaryCol.setCellFactory(tc -> new TableCell<>() {
-            @Override
-            protected void updateItem(BigDecimal value, boolean empty) {
-                super.updateItem(value, empty);
-                //Here we use the NumberFormat class to format our numbers to have commas and add a $
-                setText(empty ? null : "$" + format.format(value));
-            }
-        });
-        //set up Annual amount cell the same way
-        annualAmountCol.setCellValueFactory(new PropertyValueFactory<>("annualAmount"));
-        annualAmountCol.setCellFactory(tc -> new TableCell<>() {
-            @Override
-            protected void updateItem(BigDecimal value, boolean empty) {
-                super.updateItem(value, empty);
-                setText(empty ? null : "$" + format.format(value));
-            }
-        });
-    }
-
-    public void addPercentSignsTableView() {
-        overHeadMultiCol.setCellValueFactory(new PropertyValueFactory<>("overheadMultiPercent"));
-        overHeadMultiCol.setCellFactory(tc -> new TableCell<>() {
-            @Override
-            protected void updateItem(BigDecimal value, boolean empty) {
-                super.updateItem(value, empty);
-                //This checks if cell is empty, if not continues...
-                //% is a placeholder for the value that will be inserted
-                //.2 this tells our tableview we want 2 digits after the decimal
-                //f indicates it's a floating point number (a number with a decimal)
-                //% we add this to the end of the number
-                setText(empty ? null : String.format("%.2f%%", value));
-            }
-        });
-
-        utilCol.setCellValueFactory(new PropertyValueFactory<>("utilization"));
-        utilCol.setCellFactory(tc -> new TableCell<>() {
-            @Override
-            protected void updateItem(BigDecimal value, boolean empty) {
-                super.updateItem(value, empty);
-                setText(empty ? null : String.format("%.2f%%", value));
-            }
-        });
     }
 
     public void calculateEmployeeRates() {
@@ -249,5 +206,156 @@ public class OverviewTab {
             }
         });
     }
+
+
+
+    //////////////////////////////////////////////////////////
+    ///////////////Editing Employee Table/////////////////////
+    //////////////////////////////////////////////////////////
+
+    public void makeAnnualSalaryColEditable() {
+        NumberFormat format = NumberFormat.getNumberInstance();
+        format.setMinimumFractionDigits(2);
+        format.setMaximumFractionDigits(2);
+
+        // Set the cell value factory
+        annualSalaryCol.setCellValueFactory(new PropertyValueFactory<>("annualSalary"));
+
+        // Make the cell able to become a textfield
+        annualSalaryCol.setCellFactory(tableColumn -> {
+            TextFieldTableCell<Employee, BigDecimal> cell = new TextFieldTableCell<>(new BigDecimalStringConverter()) {
+                @Override
+                public void updateItem(BigDecimal item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (item == null || empty) {
+                        setText(null);
+                    } else {
+                        setText("$" + format.format(item));
+                    }
+                }
+            };
+            return cell;
+        });
+
+        // After editing, it sets the annual salary in the database with .setOnEditCommit
+        annualSalaryCol.setOnEditCommit(event -> {
+            Employee employee = event.getRowValue();
+            employee.setAnnualSalary(event.getNewValue());
+            try {
+                employeeModel.updateEmployee(employee);
+            } catch (BBExceptions e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public void makeAnnualAmountColEditable() {
+        NumberFormat format = NumberFormat.getNumberInstance();
+        format.setMinimumFractionDigits(2);
+        format.setMaximumFractionDigits(2);
+
+        // Set the cell value factory
+        annualAmountCol.setCellValueFactory(new PropertyValueFactory<>("annualAmount"));
+
+        // Make the cell able to become a textfield
+        annualAmountCol.setCellFactory(tableColumn -> {
+            TextFieldTableCell<Employee, BigDecimal> cell = new TextFieldTableCell<>(new BigDecimalStringConverter()) {
+                @Override
+                public void updateItem(BigDecimal item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (item == null || empty) {
+                        setText(null);
+                    } else {
+                        setText("$" + format.format(item));
+                    }
+                }
+            };
+            return cell;
+        });
+
+        // After editing, it sets the annual salary in the database with .setOnEditCommit
+        annualAmountCol.setOnEditCommit(event -> {
+            Employee employee = event.getRowValue();
+            employee.setAnnualSalary(event.getNewValue());
+            try {
+                employeeModel.updateEmployee(employee);
+            } catch (BBExceptions e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public void makeNameEditable() {
+        // Make the cell able to become a textfield
+        nameCol.setCellFactory(TextFieldTableCell.forTableColumn());
+        // After editing, it sets the name in the database with .setOnEditCommit
+        nameCol.setOnEditCommit(event -> {
+            Employee employee = event.getRowValue();
+            employee.setName(event.getNewValue());
+            try {
+                employeeModel.updateEmployee(employee);
+            } catch (BBExceptions e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public void makeutilizationEditable() {
+        utilCol.setCellValueFactory(new PropertyValueFactory<>("utilization"));
+
+        utilCol.setCellFactory(tableColumn -> new TextFieldTableCell<>(new BigDecimalStringConverter()) {
+            @Override
+            public void updateItem(BigDecimal value, boolean empty) {
+                super.updateItem(value, empty);
+                //This checks if cell is empty, if not continues...
+                //% is a placeholder for the value that will be inserted
+                //.2 this tells our tableview we want 2 digits after the decimal
+                //f indicates it's a floating point number (a number with a decimal)
+                //% we add this to the end of the number
+                setText(empty ? null : String.format("%.2f%%", value));
+            }
+        });
+        utilCol.setOnEditCommit(event -> {
+            Employee employee = event.getRowValue();
+            employee.setOverheadMultiPercent(event.getNewValue());
+            try {
+                employeeModel.updateEmployee(employee);
+            } catch (BBExceptions e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public void makeOverheadMultiPercentEditable() {
+        overHeadMultiCol.setCellValueFactory(new PropertyValueFactory<>("overheadMultiPercent"));
+
+        overHeadMultiCol.setCellFactory(tableColumn -> new TextFieldTableCell<>(new BigDecimalStringConverter()) {
+            @Override
+            public void updateItem(BigDecimal value, boolean empty) {
+                super.updateItem(value, empty);
+                //This checks if cell is empty, if not continues...
+                //% is a placeholder for the value that will be inserted
+                //.2 this tells our tableview we want 2 digits after the decimal
+                //f indicates it's a floating point number (a number with a decimal)
+                //% we add this to the end of the number
+                setText(empty ? null : String.format("%.2f%%", value));
+            }
+        });
+        overHeadMultiCol.setOnEditCommit(event -> {
+            Employee employee = event.getRowValue();
+            employee.setOverheadMultiPercent(event.getNewValue());
+            try {
+                employeeModel.updateEmployee(employee);
+            } catch (BBExceptions e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+
+
+    //////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////
 
 }
