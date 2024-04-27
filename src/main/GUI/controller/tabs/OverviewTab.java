@@ -409,7 +409,7 @@ public class OverviewTab {
     public void makeOverheadEditable() {
         overheadCol.setCellValueFactory(cellData -> new SimpleBooleanProperty(cellData.getValue().getIsOverheadCost()));
         // Make the cell able to become a checkbox
-        overheadCol.setCellFactory(tc -> new CheckBoxTableCell<Employee, Boolean>() {
+        overheadCol.setCellFactory(tc -> new CheckBoxTableCell<>() {
             @Override
             public void updateItem(Boolean item, boolean empty) {
                 super.updateItem(item, empty);
