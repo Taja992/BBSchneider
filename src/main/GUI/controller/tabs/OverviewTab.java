@@ -81,10 +81,6 @@ public class OverviewTab {
         populateEmployeeTableView();
         setSearchEvent();
         addTableTabs();
-        makeNameEditable();
-        makeAnnualSalaryColEditable();
-        makeAnnualAmountColEditable();
-        makeutilizationEditable();
 
 
         //adding a listener to tabPane so the daily/hourly rates of the selected team will be shown
@@ -174,15 +170,18 @@ public class OverviewTab {
 
             // Populate the TableView
             nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
+            //Makes name editable
+            makeNameEditable();
             overHeadMultiCol.setCellValueFactory(new PropertyValueFactory<>("overheadMultiPercent"));
             countryCol.setCellValueFactory(new PropertyValueFactory<>("country"));
             teamCol.setCellValueFactory(new PropertyValueFactory<>("teamId"));
             hoursCol.setCellValueFactory(new PropertyValueFactory<>("workingHours"));
             //These methods format the tableview to have $ and commas as well as allows them to be editable
-            makeAnnualSalaryColEditable();
-            makeAnnualAmountColEditable();
-            //This methods format the tableview to have % as well as allows them to be editable
-            makeOverheadMultiPercentEditable();
+            formatAnnualSalaryCol();
+            formatAnnualAmountCol();
+            //These methods format the tableview to have % as well as allows them to be editable
+            formatOverheadMultiPercent();
+            formatUtilization();
             overheadCol.setCellValueFactory(new PropertyValueFactory<>("isOverheadCost"));
             overviewEmployeeTblView.setItems(employees);
         } catch (BBExceptions e) {
@@ -213,78 +212,6 @@ public class OverviewTab {
     ///////////////Editing Employee Table/////////////////////
     //////////////////////////////////////////////////////////
 
-    public void makeAnnualSalaryColEditable() {
-        NumberFormat format = NumberFormat.getNumberInstance();
-        format.setMinimumFractionDigits(2);
-        format.setMaximumFractionDigits(2);
-
-        // Set the cell value factory
-        annualSalaryCol.setCellValueFactory(new PropertyValueFactory<>("annualSalary"));
-
-        // Make the cell able to become a textfield
-        annualSalaryCol.setCellFactory(tableColumn -> {
-            TextFieldTableCell<Employee, BigDecimal> cell = new TextFieldTableCell<>(new BigDecimalStringConverter()) {
-                @Override
-                public void updateItem(BigDecimal item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (item == null || empty) {
-                        setText(null);
-                    } else {
-                        setText("$" + format.format(item));
-                    }
-                }
-            };
-            return cell;
-        });
-
-        // After editing, it sets the annual salary in the database with .setOnEditCommit
-        annualSalaryCol.setOnEditCommit(event -> {
-            Employee employee = event.getRowValue();
-            employee.setAnnualSalary(event.getNewValue());
-            try {
-                employeeModel.updateEmployee(employee);
-            } catch (BBExceptions e) {
-                e.printStackTrace();
-            }
-        });
-    }
-
-    public void makeAnnualAmountColEditable() {
-        NumberFormat format = NumberFormat.getNumberInstance();
-        format.setMinimumFractionDigits(2);
-        format.setMaximumFractionDigits(2);
-
-        // Set the cell value factory
-        annualAmountCol.setCellValueFactory(new PropertyValueFactory<>("annualAmount"));
-
-        // Make the cell able to become a textfield
-        annualAmountCol.setCellFactory(tableColumn -> {
-            TextFieldTableCell<Employee, BigDecimal> cell = new TextFieldTableCell<>(new BigDecimalStringConverter()) {
-                @Override
-                public void updateItem(BigDecimal item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (item == null || empty) {
-                        setText(null);
-                    } else {
-                        setText("$" + format.format(item));
-                    }
-                }
-            };
-            return cell;
-        });
-
-        // After editing, it sets the annual salary in the database with .setOnEditCommit
-        annualAmountCol.setOnEditCommit(event -> {
-            Employee employee = event.getRowValue();
-            employee.setAnnualSalary(event.getNewValue());
-            try {
-                employeeModel.updateEmployee(employee);
-            } catch (BBExceptions e) {
-                e.printStackTrace();
-            }
-        });
-    }
-
     public void makeNameEditable() {
         // Make the cell able to become a textfield
         nameCol.setCellFactory(TextFieldTableCell.forTableColumn());
@@ -300,7 +227,80 @@ public class OverviewTab {
         });
     }
 
-    public void makeutilizationEditable() {
+    public void formatAnnualSalaryCol() {
+        NumberFormat format = NumberFormat.getNumberInstance();
+        format.setMinimumFractionDigits(2);
+        format.setMaximumFractionDigits(2);
+
+        // Set the cell value factory
+        annualSalaryCol.setCellValueFactory(new PropertyValueFactory<>("annualSalary"));
+
+        // Make the cell able to become a textfield
+        annualSalaryCol.setCellFactory(tableColumn -> new TextFieldTableCell<>(new BigDecimalStringConverter()) {
+            @Override
+            public void updateItem(BigDecimal item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item == null || empty) {
+                    setText(null);
+                } else {
+                    setText("$" + format.format(item));
+                }
+            }
+        });
+        // After editing, it sets the annual salary in the database with .setOnEditCommit
+        makeAnnualSalaryColEditable();
+    }
+    public void makeAnnualSalaryColEditable() {
+        annualSalaryCol.setOnEditCommit(event -> {
+            Employee employee = event.getRowValue();
+            employee.setAnnualSalary(event.getNewValue());
+            try {
+                employeeModel.updateEmployee(employee);
+            } catch (BBExceptions e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+
+    public void formatAnnualAmountCol() {
+        NumberFormat format = NumberFormat.getNumberInstance();
+        format.setMinimumFractionDigits(2);
+        format.setMaximumFractionDigits(2);
+
+        // Set the cell value factory
+        annualAmountCol.setCellValueFactory(new PropertyValueFactory<>("annualAmount"));
+
+        // Make the cell able to become a textfield
+        annualAmountCol.setCellFactory(tableColumn -> new TextFieldTableCell<>(new BigDecimalStringConverter()) {
+            @Override
+            public void updateItem(BigDecimal item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item == null || empty) {
+                    setText(null);
+                } else {
+                    setText("$" + format.format(item));
+                }
+            }
+        });
+        // After editing, it sets the annual salary in the database with .setOnEditCommit
+        makeAnnualAmountColEditable();
+    }
+    public void makeAnnualAmountColEditable() {
+        // After editing, it sets the annual salary in the database with .setOnEditCommit
+        annualAmountCol.setOnEditCommit(event -> {
+            Employee employee = event.getRowValue();
+            employee.setAnnualSalary(event.getNewValue());
+            try {
+                employeeModel.updateEmployee(employee);
+            } catch (BBExceptions e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+
+    public void formatUtilization() {
         utilCol.setCellValueFactory(new PropertyValueFactory<>("utilization"));
 
         utilCol.setCellFactory(tableColumn -> new TextFieldTableCell<>(new BigDecimalStringConverter()) {
@@ -315,6 +315,9 @@ public class OverviewTab {
                 setText(empty ? null : String.format("%.2f%%", value));
             }
         });
+        makeutilizationEditable();
+    }
+    public void makeutilizationEditable(){
         utilCol.setOnEditCommit(event -> {
             Employee employee = event.getRowValue();
             employee.setOverheadMultiPercent(event.getNewValue());
@@ -326,7 +329,8 @@ public class OverviewTab {
         });
     }
 
-    public void makeOverheadMultiPercentEditable() {
+
+    public void formatOverheadMultiPercent() {
         overHeadMultiCol.setCellValueFactory(new PropertyValueFactory<>("overheadMultiPercent"));
 
         overHeadMultiCol.setCellFactory(tableColumn -> new TextFieldTableCell<>(new BigDecimalStringConverter()) {
@@ -341,6 +345,9 @@ public class OverviewTab {
                 setText(empty ? null : String.format("%.2f%%", value));
             }
         });
+        makeOverheadMultiPercentEditable();
+    }
+    public void makeOverheadMultiPercentEditable(){
         overHeadMultiCol.setOnEditCommit(event -> {
             Employee employee = event.getRowValue();
             employee.setOverheadMultiPercent(event.getNewValue());
