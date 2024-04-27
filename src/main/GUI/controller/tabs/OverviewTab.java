@@ -19,6 +19,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.converter.BigDecimalStringConverter;
 import com.neovisionaries.i18n.CountryCode;
+import javafx.util.converter.IntegerStringConverter;
+
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.text.NumberFormat;
@@ -180,6 +182,7 @@ public class OverviewTab {
             makeCountryEditable();
             teamCol.setCellValueFactory(new PropertyValueFactory<>("teamId"));
             hoursCol.setCellValueFactory(new PropertyValueFactory<>("workingHours"));
+            makeAnnualHoursEditable();
             //These methods format the tableview to have $ and commas as well as allows them to be editable
             formatAnnualSalaryCol();
             formatAnnualAmountCol();
@@ -230,6 +233,22 @@ public class OverviewTab {
             }
         });
     }
+
+    public void makeAnnualHoursEditable() {
+        // Make the cell able to become a textfield and we use IntegerStringConverter to convert it from a string to an Integer
+        hoursCol.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
+        // After editing, it sets the name in the database with .setOnEditCommit
+        hoursCol.setOnEditCommit(event -> {
+            Employee employee = event.getRowValue();
+            employee.setWorkingHours(event.getNewValue());
+            try {
+                employeeModel.updateEmployee(employee);
+            } catch (BBExceptions e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
 
     public void formatAnnualSalaryCol() {
         NumberFormat format = NumberFormat.getNumberInstance();
@@ -363,13 +382,14 @@ public class OverviewTab {
         });
     }
 
+
     public void makeCountryEditable(){
         ObservableList<String> countries = FXCollections.observableArrayList();
         for (CountryCode code : CountryCode.values()) {
             countries.add(code.getName());
         }
         countryCol.setCellValueFactory(new PropertyValueFactory<>("country"));
-
+        //Give the cell the ability to become a combobox and fill it with our countries library
         countryCol.setCellFactory(ComboBoxTableCell.forTableColumn(countries));
 
         countryCol.setOnEditCommit(event -> {
