@@ -6,6 +6,7 @@ import Exceptions.BBExceptions;
 import GUI.model.EmployeeModel;
 import GUI.model.TeamModel;
 import com.neovisionaries.i18n.CountryCode;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -13,6 +14,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.TextField;
@@ -189,7 +191,8 @@ public class OverviewTab {
             //These methods format the tableview to have % as well as allows them to be editable
             formatOverheadMultiPercent();
             formatUtilization();
-            overheadCol.setCellValueFactory(new PropertyValueFactory<>("isOverheadCost"));
+
+            makeOverheadEditable();
             overviewEmployeeTblView.setItems(employees);
         } catch (BBExceptions e) {
             e.printStackTrace();
@@ -399,6 +402,31 @@ public class OverviewTab {
                 employeeModel.updateEmployee(employee);
             } catch (BBExceptions e){
                 e.printStackTrace();
+            }
+        });
+    }
+
+    public void makeOverheadEditable() {
+        overheadCol.setCellValueFactory(cellData -> new SimpleBooleanProperty(cellData.getValue().getIsOverheadCost()));
+        // Make the cell able to become a checkbox
+        overheadCol.setCellFactory(tc -> new CheckBoxTableCell<Employee, Boolean>() {
+            @Override
+            public void updateItem(Boolean item, boolean empty) {
+                super.updateItem(item, empty);
+                if (!empty) {
+                    CheckBox checkBox = (CheckBox) this.getGraphic();
+                    checkBox.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
+                        if (isSelected != wasSelected) {
+                            Employee employee = this.getTableView().getItems().get(this.getIndex());
+                            employee.setIsOverheadCost(isSelected);
+                            try {
+                                employeeModel.updateEmployee(employee);
+                            } catch (BBExceptions e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                }
             }
         });
     }
