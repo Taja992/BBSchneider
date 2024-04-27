@@ -34,7 +34,7 @@ public class EmployeeBLL {
         double overheadMultiplier = selectedEmployee.getOverheadMultiPercent().doubleValue();
         double fixedAnnualAmount = selectedEmployee.getAnnualAmount().doubleValue();
         double workingHours = selectedEmployee.getWorkingHours();
-        double hourlyRate = (annualSalary + fixedAnnualAmount) * (1 + overheadMultiplier) / workingHours;
+        double hourlyRate = ((annualSalary + fixedAnnualAmount) * (1 + overheadMultiplier)) / workingHours;
         return Double.valueOf(String.format("%.2f", hourlyRate));
     }
 
@@ -50,7 +50,7 @@ public class EmployeeBLL {
         double overheadMultiplier = selectedEmployee.getOverheadMultiPercent().doubleValue();
         double fixedAnnualAmount = selectedEmployee.getAnnualAmount().doubleValue();
         double workingHours = selectedEmployee.getWorkingHours();
-        double hourlyRate = (annualSalary + fixedAnnualAmount) * (1 + overheadMultiplier) / workingHours;
+        double hourlyRate = ((annualSalary + fixedAnnualAmount) * (1 + overheadMultiplier)) / workingHours;
         double dailyRate = hourlyRate * 8;
         return Double.valueOf(String.format("%.2f", dailyRate));
     }
