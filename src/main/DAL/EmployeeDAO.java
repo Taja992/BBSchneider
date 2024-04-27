@@ -60,6 +60,7 @@ public class EmployeeDAO {
 
             while (rs.next()) {
                 Employee employee = new Employee();
+                employee.setId(rs.getInt("Employee_Id"));
                 employee.setName(rs.getString("Name"));
                 employee.setAnnualSalary(rs.getBigDecimal("AnnualSalary"));
                 employee.setOverheadMultiPercent(rs.getBigDecimal("OverheadMultiPercent"));
@@ -147,6 +148,34 @@ public class EmployeeDAO {
 
 
         return employees;
+    }
+
+    public void updateEmployee(Employee employee) throws BBExceptions {
+        String sql = "UPDATE Employee SET Name = ?, AnnualSalary = ?, OverheadMultiPercent = ?, AnnualAmount = ?, Country = ?, Team_Id = ?, WorkingHours = ?, Utilization = ?, isOverheadCost = ? WHERE Employee_Id = ?";
+        try (Connection connection = connectionManager.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setString(1, employee.getName());
+            ps.setBigDecimal(2, employee.getAnnualSalary());
+            ps.setBigDecimal(3, employee.getOverheadMultiPercent());
+            ps.setBigDecimal(4, employee.getAnnualAmount());
+            ps.setString(5, employee.getCountry());
+            //Check to see if teams are null or not
+            if (employee.getTeamId() != null) {
+                ps.setInt(6, employee.getTeamId());
+            } else {
+                //We use java.sql.types class INTEGER so SQL knows what type of NULL(Integer) it is
+                ps.setNull(6, Types.INTEGER);
+            }
+            ps.setInt(7, employee.getWorkingHours());
+            ps.setBigDecimal(8, employee.getUtilization());
+            ps.setBoolean(9, employee.getIsOverheadCost());
+            ps.setInt(10, employee.getId());
+
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new BBExceptions("Error updating employee", e);
+        }
     }
 
 }

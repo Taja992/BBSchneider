@@ -67,4 +67,9 @@ public class EmployeeModel {
 
         return empFromTeam;
     }
+
+    public void updateEmployee(Employee employee) throws BBExceptions{
+        employeeBLL.updateEmployee(employee);
+    }
+
 }
