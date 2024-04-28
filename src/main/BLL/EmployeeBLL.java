@@ -27,8 +27,10 @@ public class EmployeeBLL {
         double annualSalary = selectedEmployee.getAnnualSalary().doubleValue();
         double overheadMultiplier = selectedEmployee.getOverheadMultiPercent().doubleValue();
         double fixedAnnualAmount = selectedEmployee.getAnnualAmount().doubleValue();
-        double workingHours = selectedEmployee.getWorkingHours();
-        return ((annualSalary + fixedAnnualAmount) * (1 + overheadMultiplier)) / workingHours;
+        double utilizationPercentage = selectedEmployee.getUtilization().doubleValue();
+        double MaximumWorkingHoursInYear = 2080;
+        double projectWorkingHours = MaximumWorkingHoursInYear * utilizationPercentage;
+        return ((annualSalary + fixedAnnualAmount) * (1 + overheadMultiplier)) / projectWorkingHours;
     }
 
     public Double calculateHourlyRate(Employee selectedEmployee) {
