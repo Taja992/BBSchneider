@@ -23,21 +23,21 @@ public class EmployeeBLL {
         return employeeDAO.getAllEmployees();
     }
 
-    public Double calculateHourlyRate(Employee selectedEmployee) {
+    private double calculateRate(Employee selectedEmployee) {
         double annualSalary = selectedEmployee.getAnnualSalary().doubleValue();
         double overheadMultiplier = selectedEmployee.getOverheadMultiPercent().doubleValue();
         double fixedAnnualAmount = selectedEmployee.getAnnualAmount().doubleValue();
         double workingHours = selectedEmployee.getWorkingHours();
-        double hourlyRate = ((annualSalary + fixedAnnualAmount) * (1 + overheadMultiplier)) / workingHours;
+        return ((annualSalary + fixedAnnualAmount) * (1 + overheadMultiplier)) / workingHours;
+    }
+
+    public Double calculateHourlyRate(Employee selectedEmployee) {
+        double hourlyRate = calculateRate(selectedEmployee);
         return Double.valueOf(String.format("%.2f", hourlyRate));
     }
 
     public Double calculateDailyRate(Employee selectedEmployee) {
-        double annualSalary = selectedEmployee.getAnnualSalary().doubleValue();
-        double overheadMultiplier = selectedEmployee.getOverheadMultiPercent().doubleValue();
-        double fixedAnnualAmount = selectedEmployee.getAnnualAmount().doubleValue();
-        double workingHours = selectedEmployee.getWorkingHours();
-        double hourlyRate = ((annualSalary + fixedAnnualAmount) * (1 + overheadMultiplier)) / workingHours;
+        double hourlyRate = calculateRate(selectedEmployee);
         double dailyRate = hourlyRate * 8;
         return Double.valueOf(String.format("%.2f", dailyRate));
     }
