@@ -40,7 +40,9 @@ public class EmployeeBLL {
 
     public Double calculateDailyRate(Employee selectedEmployee) {
         double hourlyRate = calculateRate(selectedEmployee);
-        double dailyRate = hourlyRate * 8;
+        double annualWorkingHours = selectedEmployee.getWorkingHours();
+        double dailyWorkingHours = annualWorkingHours / 365; //even though 260 working days in a year
+        double dailyRate = hourlyRate * dailyWorkingHours;
         return Double.valueOf(String.format("%.2f", dailyRate));
     }
 
