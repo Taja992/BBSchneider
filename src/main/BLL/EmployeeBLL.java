@@ -23,35 +23,23 @@ public class EmployeeBLL {
         return employeeDAO.getAllEmployees();
     }
 
-    public Double calculateHourlyRate(Employee selectedEmployee) {
-//        double annualSalary = selectedEmployee.getAnnualSalary().doubleValue();
-//        double workingHours = selectedEmployee.getWorkingHours();
-//        double hourlyRate = annualSalary / workingHours;
-//        // To find the hourly rate before the overhead multiplier was applied, divide the base hourly rate by 1 plus the multiplier
-//        double hourlyRateBeforeOverhead = hourlyRate / (1 + selectedEmployee.getOverheadMultiPercent().doubleValue());
-//        return Double.valueOf(String.format("%.2f", hourlyRateBeforeOverhead));
+    private double calculateRate(Employee selectedEmployee) {
         double annualSalary = selectedEmployee.getAnnualSalary().doubleValue();
-        double overheadMultiplier = selectedEmployee.getOverheadMultiPercent().doubleValue();
+        double overheadMultiplier = selectedEmployee.getOverheadMultiPercent().doubleValue() / 100; // convert to decimal
         double fixedAnnualAmount = selectedEmployee.getAnnualAmount().doubleValue();
-        double workingHours = selectedEmployee.getWorkingHours();
-        double hourlyRate = ((annualSalary + fixedAnnualAmount) * (1 + overheadMultiplier)) / workingHours;
+        double utilizationPercentage = selectedEmployee.getUtilization().doubleValue() / 100; // convert to decimal
+        double annualEffectiveWorkingHours = selectedEmployee.getWorkingHours();
+        return ((annualSalary + fixedAnnualAmount) * (1 + overheadMultiplier)) / (annualEffectiveWorkingHours * utilizationPercentage);
+    }
+
+    public Double calculateHourlyRate(Employee selectedEmployee) {
+        double rate = calculateRate(selectedEmployee);
+        double hourlyRate = rate / 8; // Assuming 8 working hours in a day, have to ask in sprintreview
         return Double.valueOf(String.format("%.2f", hourlyRate));
     }
 
     public Double calculateDailyRate(Employee selectedEmployee) {
-//        double annualSalary = selectedEmployee.getAnnualSalary().doubleValue();
-//        double workingHours = selectedEmployee.getWorkingHours();
-//        double hourlyRate = annualSalary / workingHours;
-//        double hourlyRateBeforeOverhead = hourlyRate / (1 + selectedEmployee.getOverheadMultiPercent().doubleValue());
-//        // Multiplied by 8, assuming a day of work is 8 hours
-//        double dailyRateBeforeOverhead = hourlyRateBeforeOverhead * 8;
-//        return Double.valueOf(String.format("%.2f", dailyRateBeforeOverhead));
-        double annualSalary = selectedEmployee.getAnnualSalary().doubleValue();
-        double overheadMultiplier = selectedEmployee.getOverheadMultiPercent().doubleValue();
-        double fixedAnnualAmount = selectedEmployee.getAnnualAmount().doubleValue();
-        double workingHours = selectedEmployee.getWorkingHours();
-        double hourlyRate = ((annualSalary + fixedAnnualAmount) * (1 + overheadMultiplier)) / workingHours;
-        double dailyRate = hourlyRate * 8;
+        double dailyRate = calculateRate(selectedEmployee); // The rate calculated is already a daily rate
         return Double.valueOf(String.format("%.2f", dailyRate));
     }
 

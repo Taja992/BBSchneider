@@ -34,7 +34,7 @@ public class TeamBLL {
         for(Employee employee : employees){
             totalHourlyRate += employeeBLL.calculateHourlyRate(employee);
         }
-        return totalHourlyRate;
+        return Double.valueOf(String.format("%.2f", totalHourlyRate));
     }
 
     public Double calculateTotalDailyRate(int teamId){
@@ -43,7 +43,7 @@ public class TeamBLL {
         for(Employee employee : employees){
             totalDailyRate += employeeBLL.calculateDailyRate(employee);
         }
-        return totalDailyRate;
+        return Double.valueOf(String.format("%.2f", totalDailyRate));
     }
 
 }
