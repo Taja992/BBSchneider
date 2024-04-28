@@ -316,7 +316,7 @@ public class OverviewTab {
         // After editing, it sets the annual salary in the database with .setOnEditCommit
         annualAmountCol.setOnEditCommit(event -> {
             Employee employee = event.getRowValue();
-            employee.setAnnualSalary(event.getNewValue());
+            employee.setAnnualAmount(event.getNewValue());
             try {
                 employeeModel.updateEmployee(employee);
             } catch (BBExceptions e) {
@@ -346,7 +346,7 @@ public class OverviewTab {
     public void makeutilizationEditable(){
         utilCol.setOnEditCommit(event -> {
             Employee employee = event.getRowValue();
-            employee.setOverheadMultiPercent(event.getNewValue());
+            employee.setUtilization(event.getNewValue());
             try {
                 employeeModel.updateEmployee(employee);
             } catch (BBExceptions e) {
