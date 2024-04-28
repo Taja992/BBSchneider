@@ -202,8 +202,8 @@ public class OverviewTab {
     public void calculateEmployeeRates() {
         Employee selectedEmployee = overviewEmployeeTblView.getSelectionModel().getSelectedItem();
         if(selectedEmployee != null){
-            employeeHourlyRateLbl.setText("$" + employeeModel.calculateHourlyRate(selectedEmployee) + "/Hr without overhead");
-            employeeDayRateLbl.setText("$" + employeeModel.calculateDailyRate(selectedEmployee) + "/Day without overhead");
+            employeeHourlyRateLbl.setText("$" + employeeModel.calculateHourlyRate(selectedEmployee) + "/Hr");
+            employeeDayRateLbl.setText("$" + employeeModel.calculateDailyRate(selectedEmployee) + "/Day");
         }
     }
 
