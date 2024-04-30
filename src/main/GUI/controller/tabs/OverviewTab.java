@@ -10,6 +10,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
@@ -151,8 +152,15 @@ public class OverviewTab {
 
         nameCol.setCellValueFactory(new PropertyValueFactory<>("Name"));
 
-        //getting all employees in team and adding them to the table
+        // Get the list of employees for the team
         ObservableList<Employee> employeesInTeam = employeeModel.getAllEmployeesFromTeam(team.getId());
+
+        //I added a listener here to listen if there was a change to the above Observable list
+        employeesInTeam.addListener((ListChangeListener<Employee>) change -> {
+            // When the list changes, refresh the table
+            teamTblView.refresh();
+        });
+
         teamTblView.setItems(employeesInTeam);
 
         return teamTblView;

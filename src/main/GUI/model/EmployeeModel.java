@@ -6,9 +6,16 @@ import Exceptions.BBExceptions;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class EmployeeModel {
     private final EmployeeBLL employeeBLL;
     private final ObservableList<Employee> employees;
+
+    //Added 2 Hashmaps in order to track if an employees Team Id has changed and reflect changes on the tableviews
+    private final Map<Employee, Integer> previousTeamIds = new HashMap<>();
+    private final Map<Integer, ObservableList<Employee>> teamEmployees = new HashMap<>();
 
 
     public EmployeeModel(){
@@ -60,15 +67,41 @@ public class EmployeeModel {
         return employeeBLL.calculateDailyRate(selectedEmployee);
     }
     public ObservableList<Employee> getAllEmployeesFromTeam(int TeamId) {
-        //converting the List to an ObservableList so we can add it to a table
-        ObservableList<Employee> empFromTeam = FXCollections.observableArrayList();
-        empFromTeam.addAll(employeeBLL.getAllEmployeesFromTeam(TeamId));
+        //checks to see if the teamId has already been assigned to Hashmap
+        if (!teamEmployees.containsKey(TeamId)) {
+            //Set up Observable list for tables
+            ObservableList<Employee> empFromTeam = FXCollections.observableArrayList();
+            empFromTeam.addAll(employeeBLL.getAllEmployeesFromTeam(TeamId));
+            //Put the TeamId as the setKey for the list of employees
+            teamEmployees.put(TeamId, empFromTeam);
+        }
 
-        return empFromTeam;
+        // Return the list from the map with .get which gives us the key (TeamId)
+        return teamEmployees.get(TeamId);
     }
 
     public void updateEmployee(Employee employee) throws BBExceptions{
+        //get the previous teamId from the hashmap (starts null, but thats ok)
+        Integer previousTeamId = previousTeamIds.get(employee);
+        Integer currentTeamId = employee.getTeamIdEmployee();
         employeeBLL.updateEmployee(employee);
+        //if the previous Id(hashmap) does not match the current Id, we call the refresh method
+        if (previousTeamId != null && !previousTeamId.equals(currentTeamId)) {
+            //we call this method twice so both lists get updated
+            refreshEmployeesInTeam(previousTeamId);
+            refreshEmployeesInTeam(currentTeamId);
+        }
+        //then we update our hashmap to set the employee Key to the the Id
+        previousTeamIds.put(employee, currentTeamId);
+    }
+
+    private void refreshEmployeesInTeam(int teamId) {
+        // Get the list of employees for the team
+        ObservableList<Employee> employeesInTeam = teamEmployees.get(teamId);
+
+        // Clear the list and repopulate it from the database
+        employeesInTeam.clear();
+        employeesInTeam.addAll(employeeBLL.getAllEmployeesFromTeam(teamId));
     }
 
 }
