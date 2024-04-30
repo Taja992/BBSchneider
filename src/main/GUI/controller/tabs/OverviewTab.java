@@ -94,19 +94,16 @@ public class OverviewTab {
 
 
         //adding a listener to tabPane so the daily/hourly rates of the selected team will be shown
-        teamTabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
-            @Override
-            public void changed(ObservableValue<? extends Tab> observable, Tab oldValue, Tab newValue) {
-                TableView<Employee> selectedTable = (TableView<Employee>) newValue.getContent();
-                if(!selectedTable.getItems().isEmpty()){ //if the tableview in the tab isn't empty...
-                    int teamId = selectedTable.getItems().getFirst().getTeamIdEmployee(); //get teamId from first row
-                    setTeamRatesLabel(teamId); //set all the rates based on the team
-                } else{ //if the tableview is empty, then just print 0's for the rates
-                    teamHourlyRateLbl.setText("$0/Hour");
-                    teamDayRateLbl.setText("$0/Day");
-                }
-
+        teamTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            TableView<Employee> selectedTable = (TableView<Employee>) newValue.getContent();
+            if(!selectedTable.getItems().isEmpty()){ //if the tableview in the tab isn't empty...
+                int teamId = selectedTable.getItems().getFirst().getTeamIdEmployee(); //get teamId from first row
+                setTeamRatesLabel(teamId); //set all the rates based on the team
+            } else{ //if the tableview is empty, then just print 0's for the rates
+                teamHourlyRateLbl.setText("$0/Hour");
+                teamDayRateLbl.setText("$0/Day");
             }
+
         });
 
     }
@@ -155,10 +152,13 @@ public class OverviewTab {
         // Get the list of employees for the team
         ObservableList<Employee> employeesInTeam = employeeModel.getAllEmployeesFromTeam(team.getId());
 
-        //I added a listener here to listen if there was a change to the above Observable list
-        employeesInTeam.addListener((ListChangeListener<Employee>) change -> {
-            // When the list changes, refresh the table
-            teamTblView.refresh();
+        // Add a listener to the list
+        employeesInTeam.addListener(new ListChangeListener<Employee>() {
+            @Override
+            public void onChanged(Change<? extends Employee> change) {
+                // When the list changes, update the items of the table
+                teamTblView.setItems(employeesInTeam);
+            }
         });
 
         teamTblView.setItems(employeesInTeam);
