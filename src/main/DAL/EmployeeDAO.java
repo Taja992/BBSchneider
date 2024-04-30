@@ -70,6 +70,7 @@ public class EmployeeDAO {
                 employee.setAnnualAmount(rs.getBigDecimal("AnnualAmount"));
                 employee.setCountry(rs.getString("Country"));
                 employee.setTeamIdEmployee(rs.getInt("Employee_Team_Id"));
+                //Because Employee extends Team I am able to set the Team object that is associated with the Employee
                 employee.setTeamId(rs.getInt("Team_Id"));
                 employee.setTeamName(rs.getString("Team_Name"));
                 employee.setWorkingHours(rs.getInt("WorkingHours"));
