@@ -20,11 +20,12 @@ public class EmployeeDAO {
         }
     }
 
-    public void newEmployee(Employee employee) throws BBExceptions {
+    //Our New employee method returns the generated key by our database so we are able to edit the newly created employees
+    public int newEmployee(Employee employee) throws BBExceptions {
         String sql = "INSERT INTO Employee (Name, AnnualSalary, OverheadMultiPercent, AnnualAmount, Country, Team_Id, WorkingHours, Utilization, isOverheadCost) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection connection = connectionManager.getConnection();
-             PreparedStatement ps = connection.prepareStatement(sql)) {
+             PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setString(1, employee.getName());
             ps.setBigDecimal(2, employee.getAnnualSalary());
@@ -43,6 +44,14 @@ public class EmployeeDAO {
             ps.setBoolean(9, employee.getIsOverheadCost());
 
             ps.executeUpdate();
+
+            try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    return generatedKeys.getInt(1);
+                } else {
+                    throw new BBExceptions("Creating employee failed, no ID obtained.");
+                }
+            }
         } catch (SQLException e) {
             throw new BBExceptions("Error inserting new employee", e);
         }
