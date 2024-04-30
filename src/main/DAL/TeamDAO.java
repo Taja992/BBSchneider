@@ -1,6 +1,7 @@
 package DAL;
 
 import BE.Team;
+import Exceptions.BBExceptions;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -23,7 +24,7 @@ public class TeamDAO {
         }
     }
 
-    public List<Team> getAllTeams() throws SQLException {
+    public List<Team> getAllTeams() throws BBExceptions {
         List<Team> allTeams = new ArrayList<Team>();
 
         try(Connection con = connectionManager.getConnection()){
@@ -38,12 +39,15 @@ public class TeamDAO {
                 Team team = new Team(id, name);
                 allTeams.add(team);
             }
+        } catch (SQLException e) {
+            throw new BBExceptions("Error getting all teams", e);
         }
 
         return allTeams;
     }
 
-    public Team getTeam(int Id){
+
+    public Team getTeam(int Id) throws BBExceptions {
 
         Team team = null;
 
@@ -62,19 +66,20 @@ public class TeamDAO {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new BBExceptions("Error getting team", e);
         }
-
         return team;
     }
 
-    public void newTeam(Team team) throws SQLException {
+    public void newTeam(Team team) throws BBExceptions {
 
         try(Connection con = connectionManager.getConnection()){
             String sql = "INSERT INTO Team (Team_Name) VALUES (?)";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, team.getName());
             ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new BBExceptions("Error inserting new team", e);
         }
 
     }
@@ -82,12 +87,11 @@ public class TeamDAO {
     // gets last team Id created
     // we need this because when a new team object is made, we need an id for it in java
     // so we can get the last Id + 1
-    public int getLastTeamId(){
+    public int getLastTeamId() throws BBExceptions {
         int lastId = -1;
 
         try(Connection con = connectionManager.getConnection()){
             String sql;
-            //added if statement here to work with SQLite Database
             if (!connectionManager.isSQLite()) {
                 sql = "SELECT * FROM Team WHERE Team_Id = (SELECT IDENT_CURRENT('Team'))";
             } else {
@@ -97,7 +101,6 @@ public class TeamDAO {
             PreparedStatement ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             while(rs.next()){
-                //added if statement here to work with SQLite Database
                 if (!connectionManager.isSQLite()) {
                     lastId = rs.getInt("Team_Id");
                 } else {
@@ -106,7 +109,7 @@ public class TeamDAO {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new BBExceptions("Error getting last team ID", e);
         }
 
         return lastId;

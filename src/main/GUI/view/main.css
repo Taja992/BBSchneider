@@ -21,6 +21,7 @@
 
 .mainTabPane {
     -fx-tab-min-width: 125px;
+    -fx-padding: -8 0 0 0;
 }
 
 .mainTabPane .tab-header-area .tab-header-background {
@@ -30,7 +31,6 @@
 
 .mainTabPane .tab:selected {
     -fx-border-color: black transparent transparent transparent;
-    -fx-border-width: 1px;
     -fx-focus-color: transparent;
     -fx-faint-focus-color: transparent;
 }
@@ -41,9 +41,6 @@
     -fx-padding: 0 0 0 0;
 }
 
-.mainTabPane {
-    -fx-padding: -8 0 0 0;
-}
 
 .mainTabPane .tab-header-area {
     -fx-font-size: 16px;
@@ -66,11 +63,11 @@
 
 
 .teamTabPane .tab-header-area .tab {
-    -fx-pref-width: 175;
+    -fx-pref-width: 125;
 }
 
 .teamTabPane .tab {
-    -fx-padding: 0 0 0 5;
+    -fx-padding: 0 0 0 5; /* Top, Right, Bottom, Left */
 }
 
 .teamTabPane .tab:selected {

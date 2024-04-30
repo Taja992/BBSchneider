@@ -71,7 +71,8 @@ public class EmployeeDAO {
                 employee.setCountry(rs.getString("Country"));
                 employee.setTeamIdEmployee(rs.getInt("Employee_Team_Id"));
                 //Because Employee extends Team I am able to set the Team object that is associated with the Employee
-                employee.setTeamId(rs.getInt("Team_Id"));
+                //We dont need the ID but ill leave this here incase for some reason we do later
+                //  employee.setTeamId(rs.getInt("Team_Id"));
                 employee.setTeamName(rs.getString("Team_Name"));
                 employee.setWorkingHours(rs.getInt("WorkingHours"));
                 employee.setUtilization(rs.getBigDecimal("Utilization"));
@@ -87,7 +88,7 @@ public class EmployeeDAO {
     }
 
 
-    public List<Employee> getAllEmployeesFromTeam(int TeamId) throws SQLException {
+    public List<Employee> getAllEmployeesFromTeam(int TeamId) throws BBExceptions {
         List<Employee> employees = new ArrayList<>();
 
         String sql = "SELECT * FROM Employee WHERE Team_Id = ?";
@@ -122,7 +123,7 @@ public class EmployeeDAO {
         return employees;
     }
 
-    public List<Employee> getAllEmployeesFromLocation(String Location) throws SQLException {
+    public List<Employee> getAllEmployeesFromLocation(String Location) throws BBExceptions {
         List<Employee> employees = new ArrayList<>();
 
         String sql = "SELECT * FROM Employee WHERE Country = ?";

@@ -24,7 +24,9 @@ import javafx.util.converter.IntegerStringConverter;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.text.NumberFormat;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class OverviewTab {
 
@@ -33,7 +35,7 @@ public class OverviewTab {
     private final TableColumn<Employee, BigDecimal> overHeadMultiCol;
     private final TableColumn<Employee, BigDecimal> annualAmountCol;
     private final TableColumn<Employee, String> countryCol;
-    private final TableColumn<Employee, Integer> teamCol;
+    private final TableColumn<Employee, String> teamCol;
     private final TableColumn<Employee, Integer> hoursCol;
     private final TableColumn<Employee, BigDecimal> utilCol;
     private final TableColumn<Employee, Boolean> overheadCol;
@@ -52,7 +54,7 @@ public class OverviewTab {
     public OverviewTab(EmployeeModel employeeModel, TableColumn<Employee, String> nameCol,
                        TableColumn<Employee, BigDecimal> annualSalaryCol, TableColumn<Employee, BigDecimal> overHeadMultiCol,
                        TableColumn<Employee, BigDecimal> annualAmountCol, TableColumn<Employee, String> countryCol,
-                       TableColumn<Employee, Integer> teamCol, TableColumn<Employee, Integer> hoursCol,
+                       TableColumn<Employee, String> teamCol, TableColumn<Employee, Integer> hoursCol,
                        TableColumn<Employee, BigDecimal> utilCol, TableColumn<Employee, Boolean> overheadCol,
                        TableView<Employee> overviewEmployeeTblView, Label employeeDayRateLbl, Label employeeHourlyRateLbl, TextField searchTextField,
                        TabPane teamTabPane, TeamModel teamModel, Button addTeambtn,
@@ -74,7 +76,9 @@ public class OverviewTab {
         this.teamTabPane = teamTabPane;
         this.teamModel = teamModel;
         this.addTeambtn = addTeambtn;
+
         addTeambtn.setOnAction(this::addTeam);
+
         this.teamDayRateLbl = teamDayRateLbl;
         this.teamHourlyRateLbl = teamHourlyRateLbl;
     }
@@ -125,13 +129,13 @@ public class OverviewTab {
             teams = teamModel.getAllTeams(); //all the teams
             for (Team team: teams){ //for each team...
                 Tab tab = new Tab(team.getName()); //create a new tab for that team
+                tab.setClosable(false);
                 tab.setContent(createTableForTeam(team)); //adds a table with the employees from team to the tab
                 teamTabPane.getTabs().add(tab); //add that tab to TabPane
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
     }
 
     private TableView<Employee> createTableForTeam(Team team){
@@ -155,11 +159,16 @@ public class OverviewTab {
     }
 
     private void addTeam(ActionEvent event) {
-        Team newTeam = new Team(teamModel.getLastTeamId()+1, "untitled team");
-        teamModel.newTeam(newTeam);
-        Tab tab = new Tab(newTeam.getName());
-        tab.setContent(createTableForTeam(newTeam));
-        teamTabPane.getTabs().add(tab);
+        try {
+            Team newTeam = new Team(teamModel.getLastTeamId() + 1, "untitled team");
+            teamModel.newTeam(newTeam);
+            Tab tab = new Tab(newTeam.getName());
+            tab.setClosable(false);
+            tab.setContent(createTableForTeam(newTeam));
+            teamTabPane.getTabs().add(tab);
+        } catch (BBExceptions e) {
+            e.printStackTrace();
+        }
     }
 
     private void setTeamRatesLabel(int teamId){
@@ -180,7 +189,7 @@ public class OverviewTab {
             overHeadMultiCol.setCellValueFactory(new PropertyValueFactory<>("overheadMultiPercent"));
            // countryCol.setCellValueFactory(new PropertyValueFactory<>("country"));
             makeCountryEditable();
-            teamCol.setCellValueFactory(new PropertyValueFactory<>("teamName"));
+            makeTeamEditable();
             hoursCol.setCellValueFactory(new PropertyValueFactory<>("workingHours"));
             makeAnnualHoursEditable();
             //These methods format the tableview to have $ and commas as well as allows them to be editable
@@ -400,6 +409,38 @@ public class OverviewTab {
                 employeeModel.updateEmployee(employee);
             } catch (BBExceptions e){
                 e.printStackTrace();
+            }
+        });
+    }
+
+    private void makeTeamEditable() throws BBExceptions {
+        //First we set up a hashmap so we can have a quick link between IDs and Names on the ComboBox
+        //we use the getAllTeams method to populate this
+        Map<String, Integer> teamNameToId = new HashMap<>();
+        for (Team team : teamModel.getAllTeams()) {
+            //when we use .put the first parameter is the "Key" so when we call .keySet it gives us team names
+            teamNameToId.put(team.getName(), team.getId());
+        }
+
+        //now using our hashmap we make an observable list of the names by calling .keySet
+        ObservableList<String> allTeamNames = FXCollections.observableArrayList(teamNameToId.keySet());
+        teamCol.setCellValueFactory(new PropertyValueFactory<>("teamName"));
+        teamCol.setCellFactory(ComboBoxTableCell.forTableColumn(allTeamNames));
+
+        teamCol.setOnEditCommit(event -> {
+            Employee employee = event.getRowValue();
+            String newTeamName = event.getNewValue();
+            //We then can get our new team Id by inputting the new team name into .get
+            Integer newTeamId = teamNameToId.get(newTeamName);
+            if (newTeamId != null) {
+                employee.setTeamIdEmployee(newTeamId);
+                //Because we extend team we are able to set the new team name easily
+                employee.setTeamName(newTeamName);
+                try {
+                    employeeModel.updateEmployee(employee);
+                } catch (BBExceptions e){
+                    e.printStackTrace();
+                }
             }
         });
     }
