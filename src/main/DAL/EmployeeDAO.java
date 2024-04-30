@@ -32,8 +32,8 @@ public class EmployeeDAO {
             ps.setBigDecimal(4, employee.getAnnualAmount());
             ps.setString(5, employee.getCountry());
             //Check to see if teams are null or not
-            if (employee.getTeamId() != null) {
-                ps.setInt(6, employee.getTeamId());
+            if (employee.getTeamIdEmployee() != null) {
+                ps.setInt(6, employee.getTeamIdEmployee());
             } else {
                 //We use java.sql.types class INTEGER so SQL knows what type of NULL(Integer) it is
                 ps.setNull(6, Types.INTEGER);
@@ -51,7 +51,10 @@ public class EmployeeDAO {
     public List<Employee> getAllEmployees() throws BBExceptions {
         List<Employee> employees = new ArrayList<>();
 
-        String sql = "SELECT * FROM Employee";
+        //I joined the Team and Employee table using a LEFT JOIN(So it would show employees even if team was null)
+        //also we use AS to change the Employee.Team_Id name to Employee_Team_Id so I am able to hold both Ids in this list
+        //I did it this way to make assigning teams on a dropdown menu on Tableview more simple
+        String sql = "SELECT Employee.*, Employee.Team_Id AS Employee_Team_Id, Team.Team_Id, Team.Team_Name FROM Employee LEFT JOIN Team ON Employee.Team_Id = Team.Team_Id";
 
         try (Connection connection = connectionManager.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -66,7 +69,9 @@ public class EmployeeDAO {
                 employee.setOverheadMultiPercent(rs.getBigDecimal("OverheadMultiPercent"));
                 employee.setAnnualAmount(rs.getBigDecimal("AnnualAmount"));
                 employee.setCountry(rs.getString("Country"));
+                employee.setTeamIdEmployee(rs.getInt("Employee_Team_Id"));
                 employee.setTeamId(rs.getInt("Team_Id"));
+                employee.setTeamName(rs.getString("Team_Name"));
                 employee.setWorkingHours(rs.getInt("WorkingHours"));
                 employee.setUtilization(rs.getBigDecimal("Utilization"));
                 employee.setIsOverheadCost(rs.getBoolean("isOverheadCost"));
@@ -79,6 +84,7 @@ public class EmployeeDAO {
 
         return employees;
     }
+
 
     public List<Employee> getAllEmployeesFromTeam(int TeamId) throws SQLException {
         List<Employee> employees = new ArrayList<>();
@@ -99,7 +105,7 @@ public class EmployeeDAO {
                 employee.setOverheadMultiPercent(rs.getBigDecimal("OverheadMultiPercent"));
                 employee.setAnnualAmount(rs.getBigDecimal("AnnualAmount"));
                 employee.setCountry(rs.getString("Country"));
-                employee.setTeamId(rs.getInt("Team_Id"));
+                employee.setTeamIdEmployee(rs.getInt("Team_Id"));
                 employee.setWorkingHours(rs.getInt("WorkingHours"));
                 employee.setUtilization(rs.getBigDecimal("Utilization"));
                 employee.setIsOverheadCost(rs.getBoolean("isOverheadCost"));
@@ -134,7 +140,7 @@ public class EmployeeDAO {
                 employee.setOverheadMultiPercent(rs.getBigDecimal("OverheadMultiPercent"));
                 employee.setAnnualAmount(rs.getBigDecimal("AnnualAmount"));
                 employee.setCountry(rs.getString("Country"));
-                employee.setTeamId(rs.getInt("Team_Id"));
+                employee.setTeamIdEmployee(rs.getInt("Team_Id"));
                 employee.setWorkingHours(rs.getInt("WorkingHours"));
                 employee.setUtilization(rs.getBigDecimal("Utilization"));
                 employee.setIsOverheadCost(rs.getBoolean("isOverheadCost"));
@@ -161,8 +167,8 @@ public class EmployeeDAO {
             ps.setBigDecimal(4, employee.getAnnualAmount());
             ps.setString(5, employee.getCountry());
             //Check to see if teams are null or not
-            if (employee.getTeamId() != null) {
-                ps.setInt(6, employee.getTeamId());
+            if (employee.getTeamIdEmployee() != null) {
+                ps.setInt(6, employee.getTeamIdEmployee());
             } else {
                 //We use java.sql.types class INTEGER so SQL knows what type of NULL(Integer) it is
                 ps.setNull(6, Types.INTEGER);

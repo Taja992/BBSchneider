@@ -12,7 +12,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ComboBoxTableCell;
@@ -20,7 +19,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.converter.BigDecimalStringConverter;
-import com.neovisionaries.i18n.CountryCode;
 import javafx.util.converter.IntegerStringConverter;
 
 import java.math.BigDecimal;
@@ -96,7 +94,7 @@ public class OverviewTab {
             public void changed(ObservableValue<? extends Tab> observable, Tab oldValue, Tab newValue) {
                 TableView<Employee> selectedTable = (TableView<Employee>) newValue.getContent();
                 if(!selectedTable.getItems().isEmpty()){ //if the tableview in the tab isn't empty...
-                    int teamId = selectedTable.getItems().getFirst().getTeamId(); //get teamId from first row
+                    int teamId = selectedTable.getItems().getFirst().getTeamIdEmployee(); //get teamId from first row
                     setTeamRatesLabel(teamId); //set all the rates based on the team
                 } else{ //if the tableview is empty, then just print 0's for the rates
                     teamHourlyRateLbl.setText("$0/Hour");
@@ -182,7 +180,7 @@ public class OverviewTab {
             overHeadMultiCol.setCellValueFactory(new PropertyValueFactory<>("overheadMultiPercent"));
            // countryCol.setCellValueFactory(new PropertyValueFactory<>("country"));
             makeCountryEditable();
-            teamCol.setCellValueFactory(new PropertyValueFactory<>("teamId"));
+            teamCol.setCellValueFactory(new PropertyValueFactory<>("teamName"));
             hoursCol.setCellValueFactory(new PropertyValueFactory<>("workingHours"));
             makeAnnualHoursEditable();
             //These methods format the tableview to have $ and commas as well as allows them to be editable

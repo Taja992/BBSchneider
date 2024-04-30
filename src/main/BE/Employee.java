@@ -2,17 +2,19 @@ package BE;
 import java.math.BigDecimal;
 
 
-public class Employee {
+//we extend team so we can carry the team_id and team_name from Team Table as well
+public class Employee extends Team {
     private int id;
     private String name;
     private BigDecimal annualSalary;
     private BigDecimal overheadMultiPercent;
     private BigDecimal annualAmount;
     private String country;
-    private Integer teamId;
+    private Integer teamIdEmployee;
     private int workingHours;
     private BigDecimal utilization;
     private boolean isOverheadCost;
+
 
     public int getId() {
         return id;
@@ -62,12 +64,12 @@ public class Employee {
         this.country = country;
     }
 
-    public Integer getTeamId() {
-        return teamId;
+    public Integer getTeamIdEmployee() {
+        return teamIdEmployee;
     }
 
-    public void setTeamId(int teamId) {
-        this.teamId = teamId;
+    public void setTeamIdEmployee(int teamIdEmployee) {
+        this.teamIdEmployee = teamIdEmployee;
     }
 
     public int getWorkingHours() {
@@ -92,6 +94,23 @@ public class Employee {
 
     public void setIsOverheadCost(boolean overheadCost) {
         isOverheadCost = overheadCost;
+    }
+
+    //we return super here to be able to pull the info out of the Team class
+    public String getTeamName() {
+        return super.getName();
+    }
+
+    public void setTeamName(String teamName) {
+        super.setName(teamName);
+    }
+
+    public int getTeamId() {
+        return super.getId();
+    }
+
+    public void setTeamId(int teamId) {
+        super.setId(teamId);
     }
 
 }

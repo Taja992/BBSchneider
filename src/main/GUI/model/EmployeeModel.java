@@ -6,12 +6,10 @@ import Exceptions.BBExceptions;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import java.sql.SQLOutput;
-import java.util.List;
-
 public class EmployeeModel {
     private final EmployeeBLL employeeBLL;
     private final ObservableList<Employee> employees;
+
 
     public EmployeeModel(){
         employeeBLL = new EmployeeBLL();
@@ -26,6 +24,7 @@ public class EmployeeModel {
         //return our observable list
         return employees;
     }
+
 
     public ObservableList<Employee> searchEmployees(String keyword) throws BBExceptions {
         ObservableList<Employee> allEmployees = getEmployees();
