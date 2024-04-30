@@ -27,10 +27,12 @@ public class EmployeeModel {
     public ObservableList<Employee> getEmployees() throws BBExceptions {
         if(employees.isEmpty()) {
             //populate our list from database
-            employees.addAll(employeeBLL.getAllEmployees());
-        }
-        for (Employee employee : employeeBLL.getAllEmployees()) {
-            previousTeamIds.put(employee, employee.getTeamIdEmployee());
+            List<Employee> allEmployees = employeeBLL.getAllEmployees();
+            employees.addAll(allEmployees);
+
+            for (Employee employee : allEmployees) {
+                previousTeamIds.put(employee, employee.getTeamIdEmployee());
+            }
         }
         //return our observable list
         return employees;
@@ -87,6 +89,11 @@ public class EmployeeModel {
     public void updateEmployee(Employee employee) throws BBExceptions{
         Integer previousTeamId = previousTeamIds.get(employee);
         Integer currentTeamId = employee.getTeamIdEmployee();
+
+        if(previousTeamId == null){
+            previousTeamId = -1;
+        }
+
         System.out.println("Previous ID: " + previousTeamId + " CurrentID " + currentTeamId);
         employeeBLL.updateEmployee(employee);
         //if the previous Id(hashmap) does not match the current Id, we call the refresh method
@@ -102,6 +109,13 @@ public class EmployeeModel {
     private void refreshEmployeesInTeam(int teamId) {
         // Get the list of employees for the team
         ObservableList<Employee> employeesInTeam = teamEmployees.get(teamId);
+
+        // If the list is null, create a new list and put it in the map
+        if (employeesInTeam == null) {
+            employeesInTeam = FXCollections.observableArrayList();
+            teamEmployees.put(teamId, employeesInTeam);
+        }
+
         System.out.println("refreshEmployeesInTeam called");
         // Clear the list and repopulate it from the database
         employeesInTeam.clear();
