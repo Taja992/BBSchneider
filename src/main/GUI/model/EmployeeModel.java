@@ -52,48 +52,24 @@ public class EmployeeModel {
         return filteredEmployees;
     }
 
-    public void addNewEmployee(Employee employee) throws BBExceptions {
-        //add employee to database
-        employeeBLL.addNewEmployee(employee);
+    public int addNewEmployee(Employee employee) throws BBExceptions {
+        //add employee to database and get the generated ID
+        int newEmployeeId = employeeBLL.addNewEmployee(employee);
+        //set the ID of the employee
+        employee.setId(newEmployeeId);
         //add employees to the observable list
         employees.add(employee);
-
+        //this needs to be done this way to get the generated employee ID from the database so we are able
+        //edit new employees
+        return newEmployeeId;
     }
 
-//    public Employee addNewEmployee(Employee employee) throws BBExceptions {
-//        // Add the employee to the database and get the updated employee
-//        Employee updatedEmployee = employeeBLL.addNewEmployee(employee);
-//
-//        // Add the updated employee to the observable list
-//        employees.add(updatedEmployee);
-//
-//        // Add the updated employee to the team's list in teamEmployees
-//        Integer teamId = updatedEmployee.getTeamIdEmployee();
-//        if (teamId != null && teamId != -1) {
-//            ObservableList<Employee> teamList = teamEmployees.get(teamId);
-//            if (teamList == null) {
-//                // If the team doesn't exist in the map yet, create a new list
-//                teamList = FXCollections.observableArrayList();
-//                teamEmployees.put(teamId, teamList);
-//            }
-//            teamList.add(updatedEmployee);
-//        }
-//        previousTeamIds.put(updatedEmployee, teamId);
-//
-//        // Return the updated employee
-//        return updatedEmployee;
-//    }
 
     //Added a method to repopulate the observable list from the database if needed
     public void refreshingEmployees() throws BBExceptions {
         List<Employee> allEmployees = employeeBLL.getAllEmployees();
         employees.setAll(allEmployees);
     }
-
-//    public void refreshingEmployees() throws BBExceptions {
-//        employees.clear();
-//        employees.addAll(employeeBLL.getAllEmployees());
-//    }
 
     public Double calculateHourlyRate(Employee selectedEmployee) {
         return employeeBLL.calculateHourlyRate(selectedEmployee);
@@ -117,8 +93,6 @@ public class EmployeeModel {
     }
 
     public void updateEmployee(Employee employee) throws BBExceptions{
-        System.out.println("Employee details:");
-        System.out.println("ID: " + employee.getId());
 
 
         Integer previousTeamId = previousTeamIds.get(employee);
