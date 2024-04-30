@@ -57,13 +57,43 @@ public class EmployeeModel {
         employeeBLL.addNewEmployee(employee);
         //add employees to the observable list
         employees.add(employee);
+
     }
+
+//    public Employee addNewEmployee(Employee employee) throws BBExceptions {
+//        // Add the employee to the database and get the updated employee
+//        Employee updatedEmployee = employeeBLL.addNewEmployee(employee);
+//
+//        // Add the updated employee to the observable list
+//        employees.add(updatedEmployee);
+//
+//        // Add the updated employee to the team's list in teamEmployees
+//        Integer teamId = updatedEmployee.getTeamIdEmployee();
+//        if (teamId != null && teamId != -1) {
+//            ObservableList<Employee> teamList = teamEmployees.get(teamId);
+//            if (teamList == null) {
+//                // If the team doesn't exist in the map yet, create a new list
+//                teamList = FXCollections.observableArrayList();
+//                teamEmployees.put(teamId, teamList);
+//            }
+//            teamList.add(updatedEmployee);
+//        }
+//        previousTeamIds.put(updatedEmployee, teamId);
+//
+//        // Return the updated employee
+//        return updatedEmployee;
+//    }
 
     //Added a method to repopulate the observable list from the database if needed
     public void refreshingEmployees() throws BBExceptions {
-        employees.clear();
-        employees.addAll(employeeBLL.getAllEmployees());
+        List<Employee> allEmployees = employeeBLL.getAllEmployees();
+        employees.setAll(allEmployees);
     }
+
+//    public void refreshingEmployees() throws BBExceptions {
+//        employees.clear();
+//        employees.addAll(employeeBLL.getAllEmployees());
+//    }
 
     public Double calculateHourlyRate(Employee selectedEmployee) {
         return employeeBLL.calculateHourlyRate(selectedEmployee);
@@ -87,14 +117,22 @@ public class EmployeeModel {
     }
 
     public void updateEmployee(Employee employee) throws BBExceptions{
+        System.out.println("Employee details:");
+        System.out.println("ID: " + employee.getId());
+
+
         Integer previousTeamId = previousTeamIds.get(employee);
         Integer currentTeamId = employee.getTeamIdEmployee();
 
+        //I make these -1 because the hashmap cannot handle null
         if(previousTeamId == null){
             previousTeamId = -1;
         }
 
-        System.out.println("Previous ID: " + previousTeamId + " CurrentID " + currentTeamId);
+        if(currentTeamId == null){
+            currentTeamId = -1;
+        }
+
         employeeBLL.updateEmployee(employee);
         //if the previous Id(hashmap) does not match the current Id, we call the refresh method
         if (previousTeamId != null && !previousTeamId.equals(currentTeamId)) {
@@ -116,7 +154,6 @@ public class EmployeeModel {
             teamEmployees.put(teamId, employeesInTeam);
         }
 
-        System.out.println("refreshEmployeesInTeam called");
         // Clear the list and repopulate it from the database
         employeesInTeam.clear();
         employeesInTeam.addAll(employeeBLL.getAllEmployeesFromTeam(teamId));
