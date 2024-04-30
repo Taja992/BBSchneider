@@ -23,6 +23,7 @@ public class EmployeeBLL {
         return employeeDAO.getAllEmployees();
     }
 
+
     private double calculateRate(Employee selectedEmployee) {
         double annualSalary = selectedEmployee.getAnnualSalary().doubleValue();
         double overheadMultiplier = selectedEmployee.getOverheadMultiPercent().doubleValue() / 100; // convert to decimal
