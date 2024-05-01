@@ -15,13 +15,14 @@ public class EmployeeBLL {
     }
 
 
-    public void addNewEmployee(Employee employee) throws BBExceptions{
-        employeeDAO.newEmployee(employee);
+    public int addNewEmployee(Employee employee) throws BBExceptions{
+        return employeeDAO.newEmployee(employee);
     }
 
     public List<Employee> getAllEmployees() throws BBExceptions {
         return employeeDAO.getAllEmployees();
     }
+
 
     private double calculateRate(Employee selectedEmployee) {
         double annualSalary = selectedEmployee.getAnnualSalary().doubleValue();

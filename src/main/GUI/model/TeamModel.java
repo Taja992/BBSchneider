@@ -3,6 +3,7 @@ package GUI.model;
 import BE.Team;
 import BLL.TeamBLL;
 import DAL.TeamDAO;
+import Exceptions.BBExceptions;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -12,15 +13,15 @@ public class TeamModel {
     TeamBLL teamBLL = new TeamBLL();
 
 
-    public List<Team> getAllTeams() throws SQLException {
+    public List<Team> getAllTeams() throws BBExceptions {
         return teamBLL.getAllTeams();
     }
 
-    public void newTeam(Team team){
+    public void newTeam(Team team) throws BBExceptions {
         teamBLL.newTeam(team);
     }
 
-    public int getLastTeamId(){
+    public int getLastTeamId() throws BBExceptions {
         return teamBLL.getLastTeamId();
     }
 

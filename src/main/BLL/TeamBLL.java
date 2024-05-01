@@ -3,6 +3,7 @@ package BLL;
 import BE.Employee;
 import BE.Team;
 import DAL.TeamDAO;
+import Exceptions.BBExceptions;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -12,7 +13,7 @@ public class TeamBLL {
     TeamDAO teamDAO = new TeamDAO();
     EmployeeBLL employeeBLL = new EmployeeBLL();
 
-    public List<Team> getAllTeams() throws SQLException {
+    public List<Team> getAllTeams() throws BBExceptions {
         return teamDAO.getAllTeams();
     }
 
@@ -24,7 +25,7 @@ public class TeamBLL {
         }
     }
 
-    public int getLastTeamId(){
+    public int getLastTeamId() throws BBExceptions {
         return teamDAO.getLastTeamId();
     }
 

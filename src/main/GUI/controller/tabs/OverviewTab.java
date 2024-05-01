@@ -10,9 +10,9 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ComboBoxTableCell;
@@ -20,13 +20,14 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.converter.BigDecimalStringConverter;
-import com.neovisionaries.i18n.CountryCode;
 import javafx.util.converter.IntegerStringConverter;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.text.NumberFormat;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class OverviewTab {
 
@@ -35,7 +36,7 @@ public class OverviewTab {
     private final TableColumn<Employee, BigDecimal> overHeadMultiCol;
     private final TableColumn<Employee, BigDecimal> annualAmountCol;
     private final TableColumn<Employee, String> countryCol;
-    private final TableColumn<Employee, Integer> teamCol;
+    private final TableColumn<Employee, String> teamCol;
     private final TableColumn<Employee, Integer> hoursCol;
     private final TableColumn<Employee, BigDecimal> utilCol;
     private final TableColumn<Employee, Boolean> overheadCol;
@@ -54,7 +55,7 @@ public class OverviewTab {
     public OverviewTab(EmployeeModel employeeModel, TableColumn<Employee, String> nameCol,
                        TableColumn<Employee, BigDecimal> annualSalaryCol, TableColumn<Employee, BigDecimal> overHeadMultiCol,
                        TableColumn<Employee, BigDecimal> annualAmountCol, TableColumn<Employee, String> countryCol,
-                       TableColumn<Employee, Integer> teamCol, TableColumn<Employee, Integer> hoursCol,
+                       TableColumn<Employee, String> teamCol, TableColumn<Employee, Integer> hoursCol,
                        TableColumn<Employee, BigDecimal> utilCol, TableColumn<Employee, Boolean> overheadCol,
                        TableView<Employee> overviewEmployeeTblView, Label employeeDayRateLbl, Label employeeHourlyRateLbl, TextField searchTextField,
                        TabPane teamTabPane, TeamModel teamModel, Button addTeambtn,
@@ -76,7 +77,9 @@ public class OverviewTab {
         this.teamTabPane = teamTabPane;
         this.teamModel = teamModel;
         this.addTeambtn = addTeambtn;
+
         addTeambtn.setOnAction(this::addTeam);
+
         this.teamDayRateLbl = teamDayRateLbl;
         this.teamHourlyRateLbl = teamHourlyRateLbl;
     }
@@ -91,19 +94,16 @@ public class OverviewTab {
 
 
         //adding a listener to tabPane so the daily/hourly rates of the selected team will be shown
-        teamTabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {
-            @Override
-            public void changed(ObservableValue<? extends Tab> observable, Tab oldValue, Tab newValue) {
-                TableView<Employee> selectedTable = (TableView<Employee>) newValue.getContent();
-                if(!selectedTable.getItems().isEmpty()){ //if the tableview in the tab isn't empty...
-                    int teamId = selectedTable.getItems().getFirst().getTeamId(); //get teamId from first row
-                    setTeamRatesLabel(teamId); //set all the rates based on the team
-                } else{ //if the tableview is empty, then just print 0's for the rates
-                    teamHourlyRateLbl.setText("$0/Hour");
-                    teamDayRateLbl.setText("$0/Day");
-                }
-
+        teamTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            TableView<Employee> selectedTable = (TableView<Employee>) newValue.getContent();
+            if(!selectedTable.getItems().isEmpty()){ //if the tableview in the tab isn't empty...
+                int teamId = selectedTable.getItems().getFirst().getTeamIdEmployee(); //get teamId from first row
+                setTeamRatesLabel(teamId); //set all the rates based on the team
+            } else{ //if the tableview is empty, then just print 0's for the rates
+                teamHourlyRateLbl.setText("$0/Hour");
+                teamDayRateLbl.setText("$0/Day");
             }
+
         });
 
     }
@@ -127,13 +127,13 @@ public class OverviewTab {
             teams = teamModel.getAllTeams(); //all the teams
             for (Team team: teams){ //for each team...
                 Tab tab = new Tab(team.getName()); //create a new tab for that team
+                tab.setClosable(false);
                 tab.setContent(createTableForTeam(team)); //adds a table with the employees from team to the tab
                 teamTabPane.getTabs().add(tab); //add that tab to TabPane
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
     }
 
     private TableView<Employee> createTableForTeam(Team team){
@@ -149,19 +149,34 @@ public class OverviewTab {
 
         nameCol.setCellValueFactory(new PropertyValueFactory<>("Name"));
 
-        //getting all employees in team and adding them to the table
+        // Get the list of employees for the team
         ObservableList<Employee> employeesInTeam = employeeModel.getAllEmployeesFromTeam(team.getId());
+
+        // Add a listener to the list
+        employeesInTeam.addListener(new ListChangeListener<Employee>() {
+            @Override
+            public void onChanged(Change<? extends Employee> change) {
+                // When the list changes, update the items of the table
+                teamTblView.setItems(employeesInTeam);
+            }
+        });
+
         teamTblView.setItems(employeesInTeam);
 
         return teamTblView;
     }
 
     private void addTeam(ActionEvent event) {
-        Team newTeam = new Team(teamModel.getLastTeamId()+1, "untitled team");
-        teamModel.newTeam(newTeam);
-        Tab tab = new Tab(newTeam.getName());
-        tab.setContent(createTableForTeam(newTeam));
-        teamTabPane.getTabs().add(tab);
+        try {
+            Team newTeam = new Team(teamModel.getLastTeamId() + 1, "untitled team");
+            teamModel.newTeam(newTeam);
+            Tab tab = new Tab(newTeam.getName());
+            tab.setClosable(false);
+            tab.setContent(createTableForTeam(newTeam));
+            teamTabPane.getTabs().add(tab);
+        } catch (BBExceptions e) {
+            e.printStackTrace();
+        }
     }
 
     private void setTeamRatesLabel(int teamId){
@@ -182,7 +197,7 @@ public class OverviewTab {
             overHeadMultiCol.setCellValueFactory(new PropertyValueFactory<>("overheadMultiPercent"));
            // countryCol.setCellValueFactory(new PropertyValueFactory<>("country"));
             makeCountryEditable();
-            teamCol.setCellValueFactory(new PropertyValueFactory<>("teamId"));
+            makeTeamEditable();
             hoursCol.setCellValueFactory(new PropertyValueFactory<>("workingHours"));
             makeAnnualHoursEditable();
             //These methods format the tableview to have $ and commas as well as allows them to be editable
@@ -402,6 +417,38 @@ public class OverviewTab {
                 employeeModel.updateEmployee(employee);
             } catch (BBExceptions e){
                 e.printStackTrace();
+            }
+        });
+    }
+
+    private void makeTeamEditable() throws BBExceptions {
+        //First we set up a hashmap so we can have a quick link between IDs and Names on the ComboBox
+        //we use the getAllTeams method to populate this
+        Map<String, Integer> teamNameToId = new HashMap<>();
+        for (Team team : teamModel.getAllTeams()) {
+            //when we use .put the first parameter is the "Key" so when we call .keySet it gives us team names
+            teamNameToId.put(team.getName(), team.getId());
+        }
+
+        //now using our hashmap we make an observable list of the names by calling .keySet
+        ObservableList<String> allTeamNames = FXCollections.observableArrayList(teamNameToId.keySet());
+        teamCol.setCellValueFactory(new PropertyValueFactory<>("teamName"));
+        teamCol.setCellFactory(ComboBoxTableCell.forTableColumn(allTeamNames));
+
+        teamCol.setOnEditCommit(event -> {
+            Employee employee = event.getRowValue();
+            String newTeamName = event.getNewValue();
+            //We then can get our new team Id by inputting the new team name into .get
+            Integer newTeamId = teamNameToId.get(newTeamName);
+            if (newTeamId != null) {
+                employee.setTeamIdEmployee(newTeamId);
+                //Because we extend team we are able to set the new team name easily
+                employee.setTeamName(newTeamName);
+                try {
+                    employeeModel.updateEmployee(employee);
+                } catch (BBExceptions e){
+                    e.printStackTrace();
+                }
             }
         });
     }

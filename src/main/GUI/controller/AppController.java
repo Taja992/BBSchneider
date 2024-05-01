@@ -72,7 +72,7 @@ public class AppController {
     @FXML
     private TableColumn<Employee, String> countryCol;
     @FXML
-    private TableColumn<Employee, Integer> teamCol;
+    private TableColumn<Employee, String> teamCol;
     @FXML
     private TableColumn<Employee, Integer> hoursCol;
     @FXML
