@@ -24,6 +24,7 @@ import javafx.util.converter.IntegerStringConverter;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.text.Format;
 import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.List;
@@ -144,27 +145,27 @@ public class OverviewTab {
         nameCol.setText("Name");
         teamTblView.getColumns().add(nameCol);
 
-        TableColumn<Employee, String> salaryCol = new TableColumn<>();
+        TableColumn<Employee, BigDecimal> salaryCol = new TableColumn<>();
         salaryCol.setText("Annual Salary");
         teamTblView.getColumns().add(salaryCol);
 
-        TableColumn<Employee, String> overHeadPerCol = new TableColumn<>();
+        TableColumn<Employee, BigDecimal> overHeadPerCol = new TableColumn<>();
         overHeadPerCol.setText("Overhead %");
         teamTblView.getColumns().add(overHeadPerCol);
 
-        TableColumn<Employee, String> annualCol = new TableColumn<>();
+        TableColumn<Employee, BigDecimal> annualCol = new TableColumn<>();
         annualCol.setText("Annual Amount");
         teamTblView.getColumns().add(annualCol);
 
         TableColumn<Employee, String> countryCol = new TableColumn<>();
-        countryCol.setText("Overhead %");
+        countryCol.setText("Country");
         teamTblView.getColumns().add(countryCol);
 
         TableColumn<Employee, String> hoursCol = new TableColumn<>();
         hoursCol.setText("Annual Hrs");
         teamTblView.getColumns().add(hoursCol);
 
-        TableColumn<Employee, String> utilCol = new TableColumn<>();
+        TableColumn<Employee, BigDecimal> utilCol = new TableColumn<>();
         utilCol.setText("util %");
         teamTblView.getColumns().add(utilCol);
 
@@ -186,6 +187,14 @@ public class OverviewTab {
         utilCol.setCellValueFactory(new PropertyValueFactory<>("Utilization"));
         overHeadCol.setCellValueFactory(new PropertyValueFactory<>("isOverheadCost"));
 
+        //formatting all the columns that need it, check the "make editable" methods for more comments
+
+        formatSalaryColumn(salaryCol);
+        formatSalaryColumn(annualCol);
+        formatPercentageColumn(overHeadPerCol);
+        formatPercentageColumn(utilCol);
+
+
         // Get the list of employees for the team
         ObservableList<Employee> employeesInTeam = employeeModel.getAllEmployeesFromTeam(team.getId());
 
@@ -201,6 +210,33 @@ public class OverviewTab {
         teamTblView.setItems(employeesInTeam);
 
         return teamTblView;
+    }
+
+    private void formatPercentageColumn(TableColumn<Employee, BigDecimal> column){
+
+        column.setCellFactory(tableColumn -> new TableCell<>() {
+            @Override
+            public void updateItem(BigDecimal value, boolean empty) {
+                super.updateItem(value, empty);
+                setText(empty ? null : String.format("%.2f%%", value));
+            }
+        });
+    }
+    private void formatSalaryColumn(TableColumn<Employee, BigDecimal> column){
+        NumberFormat salaryFormat = NumberFormat.getNumberInstance();
+        salaryFormat.setMinimumFractionDigits(2);
+        salaryFormat.setMaximumFractionDigits(2);
+        column.setCellFactory(tableColumn -> new TableCell<>() {
+            @Override
+            public void updateItem(BigDecimal item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item == null || empty) {
+                    setText(null);
+                } else {
+                    setText("$" + salaryFormat.format(item));
+                }
+            }
+        });
     }
 
     private void addTeam(ActionEvent event) {
