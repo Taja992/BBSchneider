@@ -16,7 +16,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<TabPane fx:id="mainTabPane" prefHeight="558.0" prefWidth="900.0" styleClass="mainTabPane" stylesheets="/GUI/view/main.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.controller.AppController">
+<TabPane fx:id="mainTabPane" prefHeight="558.0" prefWidth="900.0" styleClass="mainTabPane" stylesheets="/GUI/view/main.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.controller.AppController">
    <tabs>
       <Tab closable="false" text="Overview">
          <content>
@@ -33,9 +33,9 @@
                               <TableColumn fx:id="overHeadMultiCol" prefWidth="92.0" text="Overhead %" />
                               <TableColumn fx:id="annualAmountCol" prefWidth="104.0" text="Annual Amount" />
                               <TableColumn fx:id="countryCol" prefWidth="73.0" text="Country" />
-                              <TableColumn fx:id="teamCol" prefWidth="53.0" text="Team" />
-                              <TableColumn fx:id="hoursCol" prefWidth="81.0" text="Annual Hrs" />
-                              <TableColumn fx:id="utilCol" prefWidth="72.0" text="Util %" />
+                              <TableColumn fx:id="teamCol" prefWidth="90.0" text="Team" />
+                              <TableColumn fx:id="hoursCol" prefWidth="75.0" text="Annual Hrs" />
+                              <TableColumn fx:id="utilCol" prefWidth="41.0" text="Util %" />
                               <TableColumn fx:id="overheadCol" prefWidth="73.0" text="Overhead" />
                            </columns>
                         </TableView>

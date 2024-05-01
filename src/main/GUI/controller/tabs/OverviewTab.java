@@ -139,15 +139,52 @@ public class OverviewTab {
     private TableView<Employee> createTableForTeam(Team team){
         //creating table and its columns and adding columns to table
         TableView<Employee> teamTblView = new TableView<>();
+
         TableColumn<Employee, String> nameCol = new TableColumn<>();
         nameCol.setText("Name");
         teamTblView.getColumns().add(nameCol);
+
+        TableColumn<Employee, String> salaryCol = new TableColumn<>();
+        salaryCol.setText("Annual Salary");
+        teamTblView.getColumns().add(salaryCol);
+
+        TableColumn<Employee, String> overHeadPerCol = new TableColumn<>();
+        overHeadPerCol.setText("Overhead %");
+        teamTblView.getColumns().add(overHeadPerCol);
+
+        TableColumn<Employee, String> annualCol = new TableColumn<>();
+        annualCol.setText("Annual Amount");
+        teamTblView.getColumns().add(annualCol);
+
+        TableColumn<Employee, String> countryCol = new TableColumn<>();
+        countryCol.setText("Overhead %");
+        teamTblView.getColumns().add(countryCol);
+
+        TableColumn<Employee, String> hoursCol = new TableColumn<>();
+        hoursCol.setText("Annual Hrs");
+        teamTblView.getColumns().add(hoursCol);
+
+        TableColumn<Employee, String> utilCol = new TableColumn<>();
+        utilCol.setText("util %");
+        teamTblView.getColumns().add(utilCol);
+
+        TableColumn<Employee, String> overHeadCol = new TableColumn<>();
+        overHeadCol.setText("Overhead");
+        teamTblView.getColumns().add(overHeadCol);
+
         TableColumn<Employee, String> rateCol = new TableColumn<>();
         rateCol.setText("Rates");
         teamTblView.getColumns().add(rateCol);
 
-
+        //setting the column values to their values in the database
         nameCol.setCellValueFactory(new PropertyValueFactory<>("Name"));
+        salaryCol.setCellValueFactory(new PropertyValueFactory<>("AnnualSalary"));
+        overHeadPerCol.setCellValueFactory(new PropertyValueFactory<>("OverheadMultiPercent"));
+        annualCol.setCellValueFactory(new PropertyValueFactory<>("AnnualAmount"));
+        countryCol.setCellValueFactory(new PropertyValueFactory<>("Country"));
+        hoursCol.setCellValueFactory(new PropertyValueFactory<>("WorkingHours"));
+        utilCol.setCellValueFactory(new PropertyValueFactory<>("Utilization"));
+        overHeadCol.setCellValueFactory(new PropertyValueFactory<>("isOverheadCost"));
 
         // Get the list of employees for the team
         ObservableList<Employee> employeesInTeam = employeeModel.getAllEmployeesFromTeam(team.getId());
