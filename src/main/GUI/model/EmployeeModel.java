@@ -52,7 +52,7 @@ public class EmployeeModel {
         return filteredEmployees;
     }
 
-    public int addNewEmployee(Employee employee) throws BBExceptions {
+    public void addNewEmployee(Employee employee) throws BBExceptions {
         //add employee to database and get the generated ID
         int newEmployeeId = employeeBLL.addNewEmployee(employee);
         //set the ID of the employee
@@ -61,7 +61,6 @@ public class EmployeeModel {
         employees.add(employee);
         //this needs to be done this way to get the generated employee ID from the database so we are able
         //edit new employees
-        return newEmployeeId;
     }
 
 

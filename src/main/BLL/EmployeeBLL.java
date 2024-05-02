@@ -35,7 +35,7 @@ public class EmployeeBLL {
 
     public Double calculateHourlyRate(Employee selectedEmployee) {
         double rate = calculateRate(selectedEmployee);
-        double hourlyRate = rate / 8; // Assuming 8 working hours in a day, have to ask in sprintreview
+        double hourlyRate = rate / 8; // Assuming 8 working hours in a day, have to ask in sprint review
         return Double.valueOf(String.format("%.2f", hourlyRate));
     }
 
