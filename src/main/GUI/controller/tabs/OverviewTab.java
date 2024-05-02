@@ -90,8 +90,14 @@ public class OverviewTab {
         populateEmployeeTableView();
         setSearchEvent();
         addTableTabs();
+        teamRatesListener();
 
 
+
+
+    }
+
+    public void teamRatesListener() {
         //adding a listener to tabPane so the daily/hourly rates of the selected team will be shown
         teamTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             TableView<Employee> selectedTable = (TableView<Employee>) newValue.getContent();
@@ -104,7 +110,6 @@ public class OverviewTab {
             }
 
         });
-
     }
 
     private void setSearchEvent() {
