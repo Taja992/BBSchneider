@@ -202,13 +202,13 @@ public class OverviewTab {
         ObservableList<Employee> employeesInTeam = employeeModel.getAllEmployeesFromTeam(team.getEmployeeId());
 
         // Add a listener to the list
-        employeesInTeam.addListener(new ListChangeListener<Employee>() {
-            @Override
-            public void onChanged(Change<? extends Employee> change) {
-                // When the list changes, update the items of the table
-                teamTblView.setItems(employeesInTeam);
-            }
-        });
+//        employeesInTeam.addListener(new ListChangeListener<Employee>() {
+//            @Override
+//            public void onChanged(Change<? extends Employee> change) {
+//                // When the list changes, update the items of the table
+//                teamTblView.setItems(employeesInTeam);
+//            }
+//        });
 
         teamTblView.setItems(employeesInTeam);
 
