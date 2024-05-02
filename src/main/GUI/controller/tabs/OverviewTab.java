@@ -505,11 +505,18 @@ public class OverviewTab {
             //when we use .put the first parameter is the "Key" so when we call .keySet it gives us team names
             teamNameToId.put(team.getEmployeeName(), team.getEmployeeId());
         }
-        allTeamNames.add("No Team");
+        //Add No team to our list to be able to set things to Null
+        //we use addFirst so it stays ontop after sort
+        allTeamNames.addFirst("No Team");
         allTeamNames.addAll(teamNameToId.keySet());
         //now using our hashmap we make an observable list of the names by calling .keySet
         teamCol.setCellValueFactory(new PropertyValueFactory<>("teamName"));
         teamCol.setCellFactory(ComboBoxTableCell.forTableColumn(allTeamNames));
+        //Sorts things alphabetically
+        FXCollections.sort(allTeamNames);
+
+
+
 
         teamCol.setOnEditCommit(event -> {
             Employee employee = event.getRowValue();
