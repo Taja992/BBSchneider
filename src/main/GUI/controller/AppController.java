@@ -94,7 +94,7 @@ public class AppController {
     // -------------------------------------
     //-------------Teams Tab----------------
     @FXML
-    private ListView<Team> teamLV;
+    private ListView<Team> teamsLV;
 
     private final EmployeeModel employeeModel;
     private final TeamModel teamModel;
@@ -119,7 +119,7 @@ public class AppController {
        employeeTab.initialize();
 
          //This is where we handle our TeamTab
-       TeamTab teamTab = new TeamTab(teamLV, teamModel);
+       TeamTab teamTab = new TeamTab(teamsLV, teamModel);
        teamTab.initialize();
 
         teamTab.initialize();

@@ -219,7 +219,7 @@
          <content>
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                <children>
-                  <ListView fx:id="TeamsLV" layoutX="108.0" layoutY="76.0" prefHeight="348.0" prefWidth="200.0" />
+                  <ListView fx:id="teamsLV" layoutX="108.0" layoutY="76.0" prefHeight="348.0" prefWidth="200.0" />
                </children></AnchorPane>
          </content>
       </Tab>

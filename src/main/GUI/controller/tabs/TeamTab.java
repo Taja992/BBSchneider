@@ -4,6 +4,7 @@ import BE.Team;
 import Exceptions.BBExceptions;
 import GUI.model.TeamModel;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListCell;
@@ -33,6 +34,16 @@ public class TeamTab {
 
             // Convert the list of teams to an ObservableList
             ObservableList<Team> observableTeams = FXCollections.observableArrayList(teams);
+
+            // Add a listener to the ObservableList
+            observableTeams.addListener((ListChangeListener.Change<? extends Team> change) -> {
+                while (change.next()) {
+                    if (change.wasUpdated()) {
+                        // If a team was updated, refresh the ListView
+                        teamsLV.refresh();
+                    }
+                }
+            });
 
             // Set the items of the ListView
             teamsLV.setItems(observableTeams);
