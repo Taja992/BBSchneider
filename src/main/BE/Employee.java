@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 
 //we extend team so we can carry the team_id and team_name from Team Table as well
 public class Employee extends Team {
-    private int id;
-    private String name;
+    private int employeeId;
+    private String employeeName;
     private BigDecimal annualSalary;
     private BigDecimal overheadMultiPercent;
     private BigDecimal annualAmount;
@@ -16,20 +16,20 @@ public class Employee extends Team {
     private boolean isOverheadCost;
 
 
-    public int getId() {
-        return id;
+    public int getEmployeeId() {
+        return employeeId;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setEmployeeId(int employeeId) {
+        this.employeeId = employeeId;
     }
 
-    public String getName() {
-        return name;
+    public String getEmployeeName() {
+        return employeeName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setEmployeeName(String employeeName) {
+        this.employeeName = employeeName;
     }
 
     public BigDecimal getAnnualSalary() {
@@ -68,7 +68,7 @@ public class Employee extends Team {
         return teamIdEmployee;
     }
 
-    public void setTeamIdEmployee(int teamIdEmployee) {
+    public void setTeamIdEmployee(Integer teamIdEmployee) {
         this.teamIdEmployee = teamIdEmployee;
     }
 
@@ -98,19 +98,19 @@ public class Employee extends Team {
 
     //we return super here to be able to pull the info out of the Team class
     public String getTeamName() {
-        return super.getName();
+        return super.getEmployeeName();
     }
 
     public void setTeamName(String teamName) {
-        super.setName(teamName);
+        super.setEmployeeName(teamName);
     }
 
     public int getTeamId() {
-        return super.getId();
+        return super.getEmployeeId();
     }
 
     public void setTeamId(int teamId) {
-        super.setId(teamId);
+        super.setEmployeeId(teamId);
     }
 
 }

@@ -7,8 +7,6 @@ import GUI.model.EmployeeModel;
 import GUI.model.TeamModel;
 import com.neovisionaries.i18n.CountryCode;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -24,7 +22,6 @@ import javafx.util.converter.IntegerStringConverter;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.text.Format;
 import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.List;
@@ -51,7 +48,8 @@ public class OverviewTab {
     private final Button addTeambtn;
     private Label teamDayRateLbl;
     private Label teamHourlyRateLbl;
-
+    private final Map<String, Integer> teamNameToId = new HashMap<>();
+    private final ObservableList<String> allTeamNames = FXCollections.observableArrayList();
 
     public OverviewTab(EmployeeModel employeeModel, TableColumn<Employee, String> nameCol,
                        TableColumn<Employee, BigDecimal> annualSalaryCol, TableColumn<Employee, BigDecimal> overHeadMultiCol,
@@ -127,7 +125,7 @@ public class OverviewTab {
         try {
             teams = teamModel.getAllTeams(); //all the teams
             for (Team team: teams){ //for each team...
-                Tab tab = new Tab(team.getName()); //create a new tab for that team
+                Tab tab = new Tab(team.getEmployeeName()); //create a new tab for that team
                 tab.setClosable(false);
                 tab.setContent(createTableForTeam(team)); //adds a table with the employees from team to the tab
                 teamTabPane.getTabs().add(tab); //add that tab to TabPane
@@ -142,7 +140,7 @@ public class OverviewTab {
         TableView<Employee> teamTblView = new TableView<>();
 
         TableColumn<Employee, String> nameCol = new TableColumn<>();
-        nameCol.setText("Name");
+        nameCol.setText("employeeName");
         teamTblView.getColumns().add(nameCol);
 
         TableColumn<Employee, BigDecimal> salaryCol = new TableColumn<>();
@@ -178,7 +176,7 @@ public class OverviewTab {
         teamTblView.getColumns().add(rateCol);
 
         //setting the column values to their values in the database
-        nameCol.setCellValueFactory(new PropertyValueFactory<>("Name"));
+        nameCol.setCellValueFactory(new PropertyValueFactory<>("employeeName"));
         salaryCol.setCellValueFactory(new PropertyValueFactory<>("AnnualSalary"));
         overHeadPerCol.setCellValueFactory(new PropertyValueFactory<>("OverheadMultiPercent"));
         annualCol.setCellValueFactory(new PropertyValueFactory<>("AnnualAmount"));
@@ -196,7 +194,7 @@ public class OverviewTab {
 
 
         // Get the list of employees for the team
-        ObservableList<Employee> employeesInTeam = employeeModel.getAllEmployeesFromTeam(team.getId());
+        ObservableList<Employee> employeesInTeam = employeeModel.getAllEmployeesFromTeam(team.getEmployeeId());
 
         // Add a listener to the list
         employeesInTeam.addListener(new ListChangeListener<Employee>() {
@@ -243,7 +241,10 @@ public class OverviewTab {
         try {
             Team newTeam = new Team(teamModel.getLastTeamId() + 1, "untitled team");
             teamModel.newTeam(newTeam);
-            Tab tab = new Tab(newTeam.getName());
+            //put our newly created team into the hashmap/observable list for employees teamsCol
+            teamNameToId.put(newTeam.getEmployeeName(), newTeam.getEmployeeId());
+            allTeamNames.add(newTeam.getEmployeeName());
+            Tab tab = new Tab(newTeam.getEmployeeName());
             tab.setClosable(false);
             tab.setContent(createTableForTeam(newTeam));
             teamTabPane.getTabs().add(tab);
@@ -255,36 +256,6 @@ public class OverviewTab {
     private void setTeamRatesLabel(int teamId){
         teamHourlyRateLbl.setText("$" + teamModel.calculateTotalHourlyRate(teamId) + "/Hour");
         teamDayRateLbl.setText("$" + teamModel.calculateTotalDailyRate(teamId) + "/Day");
-    }
-
-
-    public void populateEmployeeTableView() {
-        try {
-            // Get the list of employees from the model
-            ObservableList<Employee> employees = employeeModel.getEmployees();
-
-            // Populate the TableView
-            nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
-            //Makes name editable
-            makeNameEditable();
-            overHeadMultiCol.setCellValueFactory(new PropertyValueFactory<>("overheadMultiPercent"));
-           // countryCol.setCellValueFactory(new PropertyValueFactory<>("country"));
-            makeCountryEditable();
-            makeTeamEditable();
-            hoursCol.setCellValueFactory(new PropertyValueFactory<>("workingHours"));
-            makeAnnualHoursEditable();
-            //These methods format the tableview to have $ and commas as well as allows them to be editable
-            formatAnnualSalaryCol();
-            formatAnnualAmountCol();
-            //These methods format the tableview to have % as well as allows them to be editable
-            formatOverheadMultiPercent();
-            formatUtilization();
-
-            makeOverheadEditable();
-            overviewEmployeeTblView.setItems(employees);
-        } catch (BBExceptions e) {
-            e.printStackTrace();
-        }
     }
 
     public void calculateEmployeeRates() {
@@ -310,13 +281,52 @@ public class OverviewTab {
     ///////////////Editing Employee Table/////////////////////
     //////////////////////////////////////////////////////////
 
+    public void populateEmployeeTableView() {
+        try {
+            // Setup the TableView
+            setupTableView();
+
+            // Get the list of employees from the model
+            ObservableList<Employee> employees = employeeModel.getEmployees();
+
+            //Makes columns editable
+            makeNameEditable();
+            makeCountryEditable();
+            makeTeamEditable();
+            makeAnnualHoursEditable();
+            //These methods format the tableview to have $ and commas as well as allows them to be editable
+            formatAnnualSalaryCol();
+            formatAnnualAmountCol();
+            //These methods format the tableview to have % as well as allows them to be editable
+            formatOverheadMultiPercent();
+            formatUtilization();
+            makeOverheadEditable();
+
+            overviewEmployeeTblView.setItems(employees);
+        } catch (BBExceptions e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setupTableView() {
+        nameCol.setCellValueFactory(new PropertyValueFactory<>("employeeName"));
+        overHeadMultiCol.setCellValueFactory(new PropertyValueFactory<>("overheadMultiPercent"));
+        hoursCol.setCellValueFactory(new PropertyValueFactory<>("workingHours"));
+        annualSalaryCol.setCellValueFactory(new PropertyValueFactory<>("annualSalary"));
+        annualAmountCol.setCellValueFactory(new PropertyValueFactory<>("annualAmount"));
+        utilCol.setCellValueFactory(new PropertyValueFactory<>("utilization"));
+        overHeadMultiCol.setCellValueFactory(new PropertyValueFactory<>("overheadMultiPercent"));
+        countryCol.setCellValueFactory(new PropertyValueFactory<>("country"));
+        overheadCol.setCellValueFactory(cellData -> new SimpleBooleanProperty(cellData.getValue().getIsOverheadCost()));
+    }
+
     public void makeNameEditable() {
         // Make the cell able to become a textfield
         nameCol.setCellFactory(TextFieldTableCell.forTableColumn());
         // After editing, it sets the name in the database with .setOnEditCommit
         nameCol.setOnEditCommit(event -> {
             Employee employee = event.getRowValue();
-            employee.setName(event.getNewValue());
+            employee.setEmployeeName(event.getNewValue());
             try {
                 employeeModel.updateEmployee(employee);
             } catch (BBExceptions e) {
@@ -345,9 +355,6 @@ public class OverviewTab {
         NumberFormat format = NumberFormat.getNumberInstance();
         format.setMinimumFractionDigits(2);
         format.setMaximumFractionDigits(2);
-
-        // Set the cell value factory
-        annualSalaryCol.setCellValueFactory(new PropertyValueFactory<>("annualSalary"));
 
         // Make the cell able to become a textfield
         annualSalaryCol.setCellFactory(tableColumn -> new TextFieldTableCell<>(new BigDecimalStringConverter()) {
@@ -382,9 +389,6 @@ public class OverviewTab {
         format.setMinimumFractionDigits(2);
         format.setMaximumFractionDigits(2);
 
-        // Set the cell value factory
-        annualAmountCol.setCellValueFactory(new PropertyValueFactory<>("annualAmount"));
-
         // Make the cell able to become a textfield
         annualAmountCol.setCellFactory(tableColumn -> new TextFieldTableCell<>(new BigDecimalStringConverter()) {
             @Override
@@ -415,7 +419,6 @@ public class OverviewTab {
 
 
     public void formatUtilization() {
-        utilCol.setCellValueFactory(new PropertyValueFactory<>("utilization"));
 
         utilCol.setCellFactory(tableColumn -> new TextFieldTableCell<>(new BigDecimalStringConverter()) {
             @Override
@@ -445,7 +448,6 @@ public class OverviewTab {
 
 
     public void formatOverheadMultiPercent() {
-        overHeadMultiCol.setCellValueFactory(new PropertyValueFactory<>("overheadMultiPercent"));
 
         overHeadMultiCol.setCellFactory(tableColumn -> new TextFieldTableCell<>(new BigDecimalStringConverter()) {
             @Override
@@ -479,8 +481,7 @@ public class OverviewTab {
         for (CountryCode code : CountryCode.values()) {
             countries.add(code.getName());
         }
-        countryCol.setCellValueFactory(new PropertyValueFactory<>("country"));
-        //Give the cell the ability to become a combobox and fill it with our countries library
+
         countryCol.setCellFactory(ComboBoxTableCell.forTableColumn(countries));
 
         countryCol.setOnEditCommit(event -> {
@@ -495,16 +496,18 @@ public class OverviewTab {
     }
 
     private void makeTeamEditable() throws BBExceptions {
+        //We dont need the clear yet but maybe once we add a way to remove/rename teams
+//        teamNameToId.clear();
+//        allTeamNames.clear();
         //First we set up a hashmap so we can have a quick link between IDs and Names on the ComboBox
         //we use the getAllTeams method to populate this
-        Map<String, Integer> teamNameToId = new HashMap<>();
         for (Team team : teamModel.getAllTeams()) {
             //when we use .put the first parameter is the "Key" so when we call .keySet it gives us team names
-            teamNameToId.put(team.getName(), team.getId());
+            teamNameToId.put(team.getEmployeeName(), team.getEmployeeId());
         }
-
+        allTeamNames.add("No Team");
+        allTeamNames.addAll(teamNameToId.keySet());
         //now using our hashmap we make an observable list of the names by calling .keySet
-        ObservableList<String> allTeamNames = FXCollections.observableArrayList(teamNameToId.keySet());
         teamCol.setCellValueFactory(new PropertyValueFactory<>("teamName"));
         teamCol.setCellFactory(ComboBoxTableCell.forTableColumn(allTeamNames));
 
@@ -513,16 +516,20 @@ public class OverviewTab {
             String newTeamName = event.getNewValue();
             //We then can get our new team Id by inputting the new team name into .get
             Integer newTeamId = teamNameToId.get(newTeamName);
-            if (newTeamId != null) {
+            //Added an if statement to deal with no team and setting ID to Null
+            if("No Team".equals(newTeamName)){
+                employee.setTeamIdEmployee(null);
+                employee.setTeamName("No Team");
+            } else if (newTeamId != null) {
                 employee.setTeamIdEmployee(newTeamId);
                 //Because we extend team we are able to set the new team name easily
                 employee.setTeamName(newTeamName);
+            }
                 try {
                     employeeModel.updateEmployee(employee);
                 } catch (BBExceptions e){
                     e.printStackTrace();
                 }
-            }
         });
     }
 
