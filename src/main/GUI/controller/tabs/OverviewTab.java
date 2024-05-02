@@ -7,8 +7,6 @@ import GUI.model.EmployeeModel;
 import GUI.model.TeamModel;
 import com.neovisionaries.i18n.CountryCode;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -25,7 +23,6 @@ import javafx.util.converter.IntegerStringConverter;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.text.Format;
 import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.List;
@@ -48,8 +45,9 @@ public class OverviewTab {
     private final EmployeeModel employeeModel;
     private final TextField searchTextField;
     private final TabPane teamTabPane;
-    private final TeamModel teamModel;
+    private TeamModel teamModel;
     private final Button addTeambtn;
+    private ListView<Team> teamsLV;
     private Label teamDayRateLbl;
     private Label teamHourlyRateLbl;
 

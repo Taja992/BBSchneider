@@ -1,8 +1,10 @@
 package GUI.controller;
 
 import BE.Employee;
+import BE.Team;
 import GUI.controller.tabs.EmployeeTab;
 import GUI.controller.tabs.OverviewTab;
+import GUI.controller.tabs.TeamTab;
 import GUI.model.EmployeeModel;
 import GUI.model.TeamModel;
 import javafx.fxml.FXML;
@@ -90,7 +92,9 @@ public class AppController {
     @FXML
     private Button addTeambtn;
     // -------------------------------------
-
+    //-------------Teams Tab----------------
+    @FXML
+    private ListView<Team> teamLV;
 
     private final EmployeeModel employeeModel;
     private final TeamModel teamModel;
@@ -113,6 +117,12 @@ public class AppController {
                overheadMultiTxt, annualAmtTxt, overheadChkBox,yearlyHrsTxt, utilizationTxt, addEmployeeBtn, employeesSearchTxt);
 
        employeeTab.initialize();
+
+         //This is where we handle our TeamTab
+       TeamTab teamTab = new TeamTab(teamLV, teamModel);
+       teamTab.initialize();
+
+        teamTab.initialize();
    }
 
 }
