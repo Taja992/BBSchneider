@@ -121,3 +121,8 @@
     -fx-max-width: 17px;
     -fx-max-height: 17px;
 }*/
+
+.addEmployeeHbox {
+    -fx-background-color: #e8e8e8;
+    -fx-background-radius: 10;
+}
