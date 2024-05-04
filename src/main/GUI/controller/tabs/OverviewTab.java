@@ -111,7 +111,7 @@ public class OverviewTab {
         ObservableList<Team> teams = teamModel.getAllTeams();
 
         // Set the items of the ListView to the observable list of teams
-        teamsLV.setItems(teams);
+        
 
         // Add a listener to the observable list of teams
         teams.addListener(new ListChangeListener<Team>() {
