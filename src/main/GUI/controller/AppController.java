@@ -2,6 +2,7 @@ package GUI.controller;
 
 import BE.Employee;
 import BE.Team;
+import Exceptions.BBExceptions;
 import GUI.controller.tabs.EmployeeTab;
 import GUI.controller.tabs.OverviewTab;
 import GUI.controller.tabs.TeamTab;
@@ -104,7 +105,7 @@ public class AppController {
         employeeModel = new EmployeeModel();
     }
 
-   public void initialize() {
+   public void initialize() throws BBExceptions {
         //We pass all our FXML elements and employeeModel to the overviewTab class constructor
        OverviewTab overviewTab = new OverviewTab(employeeModel, nameCol, annualSalaryCol, overHeadMultiCol, annualAmountCol,
                countryCol, teamCol, hoursCol, utilCol, overheadCol, overviewEmployeeTblView,

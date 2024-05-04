@@ -6,7 +6,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EmployeeDAO {
+public class
+EmployeeDAO {
     private ConnectionManager connectionManager;
 
     public EmployeeDAO(){

@@ -86,7 +86,7 @@ public class OverviewTab {
     }
 
 
-    public void initialize(){
+    public void initialize() throws BBExceptions {
         overviewEmployeeTblView.setEditable(true);
         ratesListener();
         populateEmployeeTableView();
@@ -106,6 +106,22 @@ public class OverviewTab {
             }
 
         });
+
+        // Get the observable list of teams from the model
+        ObservableList<Team> teams = teamModel.getAllTeams();
+
+        // Set the items of the ListView to the observable list of teams
+        teamsLV.setItems(teams);
+
+        // Add a listener to the observable list of teams
+        teams.addListener(new ListChangeListener<Team>() {
+            @Override
+            public void onChanged(Change<? extends Team> change) {
+                // When the list changes, update the items of the ListView
+                teamsLV.setItems(teams);
+            }
+        });
+
 
     }
 
@@ -135,19 +151,21 @@ public class OverviewTab {
             }
         });
 
-        // When the user presses Enter, save the new title and hide the text field
+        // When the user presses Enter or the text field loses focus, save the new title and hide the text field
         textField.setOnAction(event -> {
-            tab.setText(textField.getText());
-            label.setText(textField.getText());
-            textField.setVisible(false);
+            try {
+                updateTeamName(tab, label, textField);
+            } catch (BBExceptions e) {
+                throw new RuntimeException(e);
+            }
         });
-
-        // When the text field loses focus, save the new title and hide the text field
         textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue) {
-                tab.setText(textField.getText());
-                label.setText(textField.getText());
-                textField.setVisible(false);
+                try {
+                    updateTeamName(tab, label, textField);
+                } catch (BBExceptions e) {
+                    throw new RuntimeException(e);
+                }
             }
         });
 
@@ -157,6 +175,24 @@ public class OverviewTab {
 
         // Set the StackPane as the tab's graphic
         tab.setGraphic(stackPane);
+    }
+
+    private void updateTeamName(Tab tab, Label label, TextField textField) throws BBExceptions {
+        String newTeamName = textField.getText();
+        String oldTeamName = tab.getText();
+        tab.setText(newTeamName);
+        label.setText(newTeamName);
+        textField.setVisible(false);
+
+        Integer teamId = teamNameToId.get(oldTeamName);
+        if (teamId != null) {
+            Team team = new Team(teamId, newTeamName);
+            teamModel.updateTeamName(team);
+            teamNameToId.remove(oldTeamName);
+            teamNameToId.put(newTeamName, teamId);
+            allTeamNames.remove(oldTeamName);
+            allTeamNames.add(newTeamName);
+        }
     }
 
 

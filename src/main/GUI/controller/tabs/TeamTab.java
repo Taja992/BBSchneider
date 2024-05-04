@@ -29,11 +29,10 @@ public class TeamTab {
 
     private void teamListView()  {
         try {
-            // Fetch the list of teams
-            List<Team> teams = teamModel.getAllTeams();
+
 
             // Convert the list of teams to an ObservableList
-            ObservableList<Team> observableTeams = FXCollections.observableArrayList(teams);
+            ObservableList<Team> observableTeams = teamModel.getAllTeams();
 
             // Add a listener to the ObservableList
             observableTeams.addListener((ListChangeListener.Change<? extends Team> change) -> {

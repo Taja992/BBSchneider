@@ -116,4 +116,17 @@ public class TeamDAO {
     }
 
 
+    public void updateTeamName(int teamId, String newTeamName) throws BBExceptions {
+        try(Connection con = connectionManager.getConnection()){
+            String sql = "UPDATE Team SET Team_Name = ? WHERE Team_Id = ?";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setString(1, newTeamName);
+            ps.setInt(2, teamId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new BBExceptions("Error updating team name", e);
+        }
+    }
+
+
 }

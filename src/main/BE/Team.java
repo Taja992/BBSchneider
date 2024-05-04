@@ -13,6 +13,10 @@ public class Team {
         this.name = name;
     }
 
+    public Team(int id){
+        this.Id = id;
+    }
+
     public Team(int id, String name) {
         Id = id;
         this.name = name;
@@ -32,5 +36,9 @@ public class Team {
 
     public void setEmployeeName(String employeeName) {
         this.name = employeeName;
+    }
+
+    public String getName() {
+        return name;
     }
 }
