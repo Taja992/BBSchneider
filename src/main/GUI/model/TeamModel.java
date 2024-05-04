@@ -14,7 +14,10 @@ public class TeamModel {
 
     TeamBLL teamBLL = new TeamBLL();
     TeamDAO teamDAO = new TeamDAO();
+
     private ObservableList<Team> allTeams;
+
+   
 
 
 // change into oberverable list

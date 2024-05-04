@@ -99,7 +99,7 @@ public class OverviewTab {
 
     }
 
-    public void teamRatesListener() {
+    public void teamRatesListener() throws BBExceptions {
         //adding a listener to tabPane so the daily/hourly rates of the selected team will be shown
         teamTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             TableView<Employee> selectedTable = (TableView<Employee>) newValue.getContent();
@@ -112,7 +112,7 @@ public class OverviewTab {
             }
 
         });
-<<<<<<< HEAD
+
 
         // Get the observable list of teams from the model
         ObservableList<Team> teams = teamModel.getAllTeams();
@@ -130,8 +130,7 @@ public class OverviewTab {
         });
 
 
-=======
->>>>>>> main
+
     }
 
     private void setSearchEvent() {
