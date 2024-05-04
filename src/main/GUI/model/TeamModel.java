@@ -14,12 +14,16 @@ public class TeamModel {
 
     TeamBLL teamBLL = new TeamBLL();
     TeamDAO teamDAO = new TeamDAO();
+    private ObservableList<Team> allTeams;
 
 
 // change into oberverable list
 public ObservableList<Team> getAllTeams() throws BBExceptions {
-    List<Team> teamList = teamBLL.getAllTeams();
-    return FXCollections.observableArrayList(teamList);
+    if (allTeams == null) {
+        List<Team> teamList = teamBLL.getAllTeams();
+        allTeams = FXCollections.observableArrayList(teamList);
+    }
+    return allTeams;
 }
 
     public void newTeam(Team team) throws BBExceptions {
@@ -38,7 +42,14 @@ public ObservableList<Team> getAllTeams() throws BBExceptions {
         return teamBLL.calculateTotalDailyRate(teamId);
     }
 
+
     public void updateTeamName(Team team) throws BBExceptions {
-        teamDAO.updateTeamName(team.getEmployeeId(), team.getEmployeeName());
+        teamBLL.updateTeamName(team.getEmployeeId(), team.getEmployeeName());
+        for (Team t : allTeams) {
+            if (t.getEmployeeId() == team.getEmployeeId()) {
+                t.setEmployeeName(team.getEmployeeName());
+                break;
+            }
+        }
     }
 }

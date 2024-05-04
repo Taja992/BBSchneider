@@ -2,6 +2,7 @@ package BE;
 
 public class Team {
 
+
     private int Id;
     private String name;
 
@@ -40,5 +41,17 @@ public class Team {
 
     public String getName() {
         return name;
+    }
+
+    public int getId() {
+        return Id;
+    }
+
+    public void setId(int id) {
+        Id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
