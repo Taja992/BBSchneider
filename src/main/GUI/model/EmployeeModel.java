@@ -91,6 +91,30 @@ public class EmployeeModel {
         return teamEmployees.get(TeamId);
     }
 
+    public ObservableList<Employee> filterEmployeesByCountry(String country) {
+
+        if(country.equals("All Countries")){
+            try {
+                return getEmployees();
+            } catch (BBExceptions e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        ObservableList<Employee> filteredEmployees = FXCollections.observableArrayList();
+
+        for(Employee employee: employees){
+            if(employee.getCountry().equals(country)){
+                filteredEmployees.add(employee);
+            }
+        }
+
+        return filteredEmployees;
+    }
+
+
+
+
     public void updateEmployee(Employee employee) throws BBExceptions{
 
 

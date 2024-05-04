@@ -98,19 +98,19 @@ public class Employee extends Team {
 
     //we return super here to be able to pull the info out of the Team class
     public String getTeamName() {
-        return super.getEmployeeName();
+        return super.getName();
     }
 
     public void setTeamName(String teamName) {
-        super.setEmployeeName(teamName);
+        super.setName(teamName);
     }
 
     public int getTeamId() {
-        return super.getEmployeeId();
+        return super.getId();
     }
 
     public void setTeamId(int teamId) {
-        super.setEmployeeId(teamId);
+        super.setId(teamId);
     }
 
 }

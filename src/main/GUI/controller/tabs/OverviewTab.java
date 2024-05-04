@@ -7,10 +7,13 @@ import GUI.model.EmployeeModel;
 import GUI.model.TeamModel;
 import com.neovisionaries.i18n.CountryCode;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ComboBoxTableCell;
@@ -51,6 +54,7 @@ public class OverviewTab {
     private Label teamHourlyRateLbl;
     private final Map<String, Integer> teamNameToId = new HashMap<>();
     private final ObservableList<String> allTeamNames = FXCollections.observableArrayList();
+    private ChoiceBox countryChcBox;
 
     public OverviewTab(EmployeeModel employeeModel, TableColumn<Employee, String> nameCol,
                        TableColumn<Employee, BigDecimal> annualSalaryCol, TableColumn<Employee, BigDecimal> overHeadMultiCol,
@@ -59,7 +63,7 @@ public class OverviewTab {
                        TableColumn<Employee, BigDecimal> utilCol, TableColumn<Employee, Boolean> overheadCol,
                        TableView<Employee> overviewEmployeeTblView, Label employeeDayRateLbl, Label employeeHourlyRateLbl, TextField searchTextField,
                        TabPane teamTabPane, TeamModel teamModel, Button addTeambtn,
-                       Label teamDayRateLbl, Label teamHourlyRateLbl) {
+                       Label teamDayRateLbl, Label teamHourlyRateLbl, ChoiceBox countryChcBox) {
         this.employeeModel = employeeModel;
         this.nameCol = nameCol;
         this.annualSalaryCol = annualSalaryCol;
@@ -82,6 +86,7 @@ public class OverviewTab {
 
         this.teamDayRateLbl = teamDayRateLbl;
         this.teamHourlyRateLbl = teamHourlyRateLbl;
+        this.countryChcBox = countryChcBox;
     }
 
 
@@ -92,10 +97,28 @@ public class OverviewTab {
         setSearchEvent();
         addTableTabs();
         teamRatesListener();
+        setupCountryBox();
 
+    }
 
+    private void setupCountryBox(){
+        List<String> allCountries = FXCollections.observableArrayList();
+        allCountries.add("All Countries");
+        for(CountryCode code : CountryCode.values()){ //adding list of all countries
+            allCountries.add(code.getName());
+        }
 
+        countryChcBox.getItems().addAll(allCountries);
+        countryChcBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+                filterEmployeeTableByCountry((String) newValue);
+            }
+        });
+    }
 
+    private void filterEmployeeTableByCountry(String country){
+        overviewEmployeeTblView.setItems(employeeModel.filterEmployeesByCountry(country));
     }
 
     public void teamRatesListener() {
@@ -169,7 +192,7 @@ public class OverviewTab {
         try {
             teams = teamModel.getAllTeams(); //all the teams
             for (Team team: teams){ //for each team...
-                Tab tab = new Tab(team.getEmployeeName()); //create a new tab for that team
+                Tab tab = new Tab(team.getName()); //create a new tab for that team
                 tab.setClosable(false);
                 tab.setContent(createTableForTeam(team)); //adds a table with the employees from team to the tab
                 teamTabPane.getTabs().add(tab); //add that tab to TabPane
@@ -239,7 +262,7 @@ public class OverviewTab {
 
 
         // Get the list of employees for the team
-        ObservableList<Employee> employeesInTeam = employeeModel.getAllEmployeesFromTeam(team.getEmployeeId());
+        ObservableList<Employee> employeesInTeam = employeeModel.getAllEmployeesFromTeam(team.getId());
 
         // Add a listener to the list
 //        employeesInTeam.addListener(new ListChangeListener<Employee>() {
@@ -285,11 +308,12 @@ public class OverviewTab {
     private void addTeam(ActionEvent event) {
         try {
             Team newTeam = new Team(teamModel.getLastTeamId() + 1, "untitled team");
+            System.out.println(newTeam.getId());
             teamModel.newTeam(newTeam);
             //put our newly created team into the hashmap/observable list for employees teamsCol
-            teamNameToId.put(newTeam.getEmployeeName(), newTeam.getEmployeeId());
-            allTeamNames.add(newTeam.getEmployeeName());
-            Tab tab = new Tab(newTeam.getEmployeeName());
+            teamNameToId.put(newTeam.getName(), newTeam.getId());
+            allTeamNames.add(newTeam.getName());
+            Tab tab = new Tab(newTeam.getName());
             tab.setClosable(false);
             tab.setContent(createTableForTeam(newTeam));
             teamTabPane.getTabs().add(tab);
@@ -550,7 +574,7 @@ public class OverviewTab {
         //we use the getAllTeams method to populate this
         for (Team team : teamModel.getAllTeams()) {
             //when we use .put the first parameter is the "Key" so when we call .keySet it gives us team names
-            teamNameToId.put(team.getEmployeeName(), team.getEmployeeId());
+            teamNameToId.put(team.getName(), team.getId());
         }
         //Add No team to our list to be able to set things to Null
         //we use addFirst so it stays ontop after sort
