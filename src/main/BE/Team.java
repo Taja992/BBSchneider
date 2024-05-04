@@ -10,9 +10,6 @@ public class Team {
 
     }
 
-    public Team(String name){
-        this.name = name;
-    }
 
     public Team(int id){
         this.Id = id;

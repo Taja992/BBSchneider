@@ -92,8 +92,14 @@ public class OverviewTab {
         populateEmployeeTableView();
         setSearchEvent();
         addTableTabs();
+        teamRatesListener();
 
 
+
+
+    }
+
+    public void teamRatesListener() {
         //adding a listener to tabPane so the daily/hourly rates of the selected team will be shown
         teamTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             TableView<Employee> selectedTable = (TableView<Employee>) newValue.getContent();
@@ -106,6 +112,7 @@ public class OverviewTab {
             }
 
         });
+<<<<<<< HEAD
 
         // Get the observable list of teams from the model
         ObservableList<Team> teams = teamModel.getAllTeams();
@@ -123,6 +130,8 @@ public class OverviewTab {
         });
 
 
+=======
+>>>>>>> main
     }
 
     private void setSearchEvent() {
@@ -274,13 +283,13 @@ public class OverviewTab {
         ObservableList<Employee> employeesInTeam = employeeModel.getAllEmployeesFromTeam(team.getEmployeeId());
 
         // Add a listener to the list
-        employeesInTeam.addListener(new ListChangeListener<Employee>() {
-            @Override
-            public void onChanged(Change<? extends Employee> change) {
-                // When the list changes, update the items of the table
-                teamTblView.setItems(employeesInTeam);
-            }
-        });
+//        employeesInTeam.addListener(new ListChangeListener<Employee>() {
+//            @Override
+//            public void onChanged(Change<? extends Employee> change) {
+//                // When the list changes, update the items of the table
+//                teamTblView.setItems(employeesInTeam);
+//            }
+//        });
 
         teamTblView.setItems(employeesInTeam);
 
