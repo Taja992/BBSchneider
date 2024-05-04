@@ -39,8 +39,15 @@ public class EmployeeModel {
     }
 
 
-    public ObservableList<Employee> searchEmployees(String keyword) throws BBExceptions {
-        ObservableList<Employee> allEmployees = getEmployees();
+    public ObservableList<Employee> searchEmployees(String keyword, String country) throws BBExceptions {
+        ObservableList<Employee> allEmployees;
+
+        if(country == null || country.isEmpty()){
+            allEmployees = getEmployees();
+        } else {
+            allEmployees = filterEmployeesByCountry(country);
+        }
+
         ObservableList<Employee> filteredEmployees = FXCollections.observableArrayList();
 
         for (Employee employee : allEmployees) {

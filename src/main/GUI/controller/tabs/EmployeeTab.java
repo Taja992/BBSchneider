@@ -54,7 +54,7 @@ public class EmployeeTab {
             String keyword = employeesSearchTxt.getText();
 
             try {
-                ObservableList<Employee> filteredEmployees = employeeModel.searchEmployees(keyword);
+                ObservableList<Employee> filteredEmployees = employeeModel.searchEmployees(keyword, null);
                 employeeLV.setItems(filteredEmployees);
             } catch (BBExceptions e) {
                 e.printStackTrace();

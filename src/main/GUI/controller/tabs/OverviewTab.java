@@ -140,7 +140,7 @@ public class OverviewTab {
         searchTextField.setOnKeyReleased(event -> {
             String keyword = searchTextField.getText();
             try {
-                ObservableList<Employee> filteredEmployees = employeeModel.searchEmployees(keyword);
+                ObservableList<Employee> filteredEmployees = employeeModel.searchEmployees(keyword, (String) countryChcBox.getSelectionModel().getSelectedItem());
                 overviewEmployeeTblView.setItems(filteredEmployees);
             } catch (BBExceptions e) {
                 e.printStackTrace();
