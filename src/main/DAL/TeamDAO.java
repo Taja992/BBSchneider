@@ -76,7 +76,7 @@ public class TeamDAO {
         try(Connection con = connectionManager.getConnection()){
             String sql = "INSERT INTO Team (Team_Name) VALUES (?)";
             PreparedStatement ps = con.prepareStatement(sql);
-            ps.setString(1, team.getName());
+            ps.setString(1, team.getEmployeeName());
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new BBExceptions("Error inserting new team", e);

@@ -44,7 +44,7 @@ public class EmployeeModel {
         ObservableList<Employee> filteredEmployees = FXCollections.observableArrayList();
 
         for (Employee employee : allEmployees) {
-            if (employee.getName().toLowerCase().contains(keyword.toLowerCase())) {
+            if (employee.getEmployeeName().toLowerCase().contains(keyword.toLowerCase())) {
                 filteredEmployees.add(employee);
             }
         }
@@ -52,16 +52,15 @@ public class EmployeeModel {
         return filteredEmployees;
     }
 
-    public int addNewEmployee(Employee employee) throws BBExceptions {
+    public void addNewEmployee(Employee employee) throws BBExceptions {
         //add employee to database and get the generated ID
         int newEmployeeId = employeeBLL.addNewEmployee(employee);
         //set the ID of the employee
-        employee.setId(newEmployeeId);
+        employee.setEmployeeId(newEmployeeId);
         //add employees to the observable list
         employees.add(employee);
         //this needs to be done this way to get the generated employee ID from the database so we are able
         //edit new employees
-        return newEmployeeId;
     }
 
 

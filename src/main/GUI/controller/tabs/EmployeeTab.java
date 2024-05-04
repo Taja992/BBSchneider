@@ -78,7 +78,7 @@ public class EmployeeTab {
                         setText(null);
                     } else {
                         //We set the text to show the employee name
-                        setText("ID# - " +employee.getName());
+                        setText("ID# - " +employee.getEmployeeName());
                     }
                 }
             });
@@ -96,7 +96,7 @@ public class EmployeeTab {
 
     private void addEmployee(ActionEvent actionEvent) {
         Employee employee = new Employee();
-        employee.setName(nameTxt.getText());
+        employee.setEmployeeName(nameTxt.getText());
         employee.setAnnualSalary(convertToBigDecimal(annualSalaryTxt.getText()));
         employee.setOverheadMultiPercent(convertToBigDecimal(overheadMultiTxt.getText()));
         employee.setAnnualAmount(convertToBigDecimal(annualAmtTxt.getText()));
