@@ -322,15 +322,27 @@ public class OverviewTab {
     }
 
     private void setTeamRatesLabel(int teamId){
-        teamHourlyRateLbl.setText(currencySymbol + teamModel.calculateTotalHourlyRate(teamId) + "/Hour");
-        teamDayRateLbl.setText(currencySymbol + teamModel.calculateTotalDailyRate(teamId) + "/Day");
+        double hourlyRate = teamModel.calculateTotalHourlyRate(teamId);
+        double dailyRate = teamModel.calculateTotalDailyRate(teamId);
+        if ("€".equals(currencySymbol)) {
+            hourlyRate *= 0.93;
+            dailyRate *= 0.93;
+        }
+        teamHourlyRateLbl.setText(currencySymbol +  String.format("%.2f", hourlyRate)+ "/Hour");
+        teamDayRateLbl.setText(currencySymbol + String.format("%.2f", dailyRate) + "/Day");
     }
 
     public void calculateEmployeeRates() {
         Employee selectedEmployee = overviewEmployeeTblView.getSelectionModel().getSelectedItem();
         if(selectedEmployee != null){
-            employeeHourlyRateLbl.setText(currencySymbol + employeeModel.calculateHourlyRate(selectedEmployee) + "/Hour");
-            employeeDayRateLbl.setText(currencySymbol + employeeModel.calculateDailyRate(selectedEmployee) + "/Day");
+            double hourlyRate = employeeModel.calculateHourlyRate(selectedEmployee);
+            double dailyRate = employeeModel.calculateDailyRate(selectedEmployee);
+            if ("€".equals(currencySymbol)) {
+                hourlyRate *= 0.93;
+                dailyRate *= 0.93;
+            }
+            employeeHourlyRateLbl.setText(currencySymbol + String.format("%.2f", hourlyRate) + "/Hour");
+            employeeDayRateLbl.setText(currencySymbol +  String.format("%.2f", dailyRate)+ "/Day");
         }
     }
 
