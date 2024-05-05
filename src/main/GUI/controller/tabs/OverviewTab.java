@@ -29,6 +29,7 @@ import java.util.Map;
 
 public class OverviewTab {
 
+    private String currencySymbol = "$";
     private final TableColumn<Employee, String> nameCol;
     private final TableColumn<Employee, BigDecimal> annualSalaryCol;
     private final TableColumn<Employee, BigDecimal> overHeadMultiCol;
@@ -102,10 +103,17 @@ public class OverviewTab {
     public void currencyChangeToggleBtnListener() {
         changeCurrencyToggleBtn.setOnAction(event -> {
             if (!changeCurrencyToggleBtn.isSelected()) {
+                // USD selected
                 System.out.println("Currency is USD");
+                currencySymbol = "$";
             } else {
+                // EUR selected
                 System.out.println("Currency is EUR");
+                currencySymbol = "€";
             }
+            // Recalculate and update the rates (recalculation to dollar or euro is not yet implemented)
+            calculateEmployeeRates();
+            setTeamRatesLabel(1);
         });
     }
 
@@ -312,15 +320,15 @@ public class OverviewTab {
     }
 
     private void setTeamRatesLabel(int teamId){
-        teamHourlyRateLbl.setText("$" + teamModel.calculateTotalHourlyRate(teamId) + "/Hour");
-        teamDayRateLbl.setText("$" + teamModel.calculateTotalDailyRate(teamId) + "/Day");
+        teamHourlyRateLbl.setText(currencySymbol + teamModel.calculateTotalHourlyRate(teamId) + "/Hour");
+        teamDayRateLbl.setText(currencySymbol + teamModel.calculateTotalDailyRate(teamId) + "/Day");
     }
 
     public void calculateEmployeeRates() {
         Employee selectedEmployee = overviewEmployeeTblView.getSelectionModel().getSelectedItem();
         if(selectedEmployee != null){
-            employeeHourlyRateLbl.setText("$" + employeeModel.calculateHourlyRate(selectedEmployee) + "/Hour");
-            employeeDayRateLbl.setText("$" + employeeModel.calculateDailyRate(selectedEmployee) + "/Day");
+            employeeHourlyRateLbl.setText(currencySymbol + employeeModel.calculateHourlyRate(selectedEmployee) + "/Hour");
+            employeeDayRateLbl.setText(currencySymbol + employeeModel.calculateDailyRate(selectedEmployee) + "/Day");
         }
     }
 
