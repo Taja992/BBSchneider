@@ -29,6 +29,7 @@ import java.util.Map;
 
 public class OverviewTab {
 
+    private double conversionRate = 0.93;
     private String currencySymbol = "$";
     private final TableColumn<Employee, String> nameCol;
     private final TableColumn<Employee, BigDecimal> annualSalaryCol;
