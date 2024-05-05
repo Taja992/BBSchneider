@@ -5,13 +5,13 @@ import GUI.controller.tabs.EmployeeTab;
 import GUI.controller.tabs.OverviewTab;
 import GUI.model.EmployeeModel;
 import GUI.model.TeamModel;
+import io.github.palexdev.materialfx.controls.MFXToggleButton;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
 import java.math.BigDecimal;
 
 public class AppController {
-
 
 
     // --------Employee tab ---------------

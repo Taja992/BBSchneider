@@ -126,3 +126,19 @@
     -fx-background-color: #e8e8e8;
     -fx-background-radius: 10;
 }
+
+.mfx-toggle-button .mfx-toggle-node .mfx-toggle-node-line {
+    -fx-stroke: Grey; /* Change this to your desired color */
+}
+
+.mfx-toggle-button .mfx-toggle-node .mfx-toggle-node-circle {
+    -fx-fill: Grey; /* Change this to your desired color */
+}
+
+.mfx-toggle-button:selected .mfx-toggle-node .mfx-toggle-node-line {
+    -fx-stroke: Grey; /* Change this to your desired color */
+}
+
+.mfx-toggle-button:selected .mfx-toggle-node .mfx-toggle-node-circle {
+    -fx-fill: Grey; /* Change this to your desired color */
+}
