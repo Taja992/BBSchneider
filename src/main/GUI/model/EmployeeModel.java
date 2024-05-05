@@ -3,6 +3,8 @@ package GUI.model;
 import BE.Employee;
 import BLL.EmployeeBLL;
 import Exceptions.BBExceptions;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -17,11 +19,17 @@ public class EmployeeModel {
     //Added 2 Hashmaps in order to track if an employees Team Id has changed and reflect changes on the tableviews
     private final Map<Employee, Integer> previousTeamIds = new HashMap<>();
     private final Map<Integer, ObservableList<Employee>> teamEmployees = new HashMap<>();
+    private final BooleanProperty employeeAdded = new SimpleBooleanProperty(false);
 
 
     public EmployeeModel(){
         employeeBLL = new EmployeeBLL();
         employees = FXCollections.observableArrayList();
+    }
+
+    //Boolean property added as a switch to tell the employeeTableview to update
+    public BooleanProperty employeeAddedProperty() {
+        return employeeAdded;
     }
 
     public ObservableList<Employee> getEmployees() throws BBExceptions {
@@ -59,6 +67,8 @@ public class EmployeeModel {
         employee.setId(newEmployeeId);
         //add employees to the observable list
         employees.add(employee);
+        //Tell our boolean property that a new employee was added and to refresh Tableview
+        employeeAdded.set(true);
         //this needs to be done this way to get the generated employee ID from the database so we are able
         //edit new employees
     }

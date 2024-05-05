@@ -91,10 +91,7 @@ public class OverviewTab {
         setSearchEvent();
         addTableTabs();
         teamRatesListener();
-
-
-
-
+        addEmployeeListener();
     }
 
     public void teamRatesListener() {
@@ -333,7 +330,7 @@ public class OverviewTab {
             setupTableView();
 
             // Get the list of employees from the model
-            ObservableList<Employee> employees = employeeModel.getEmployees();
+          //  ObservableList<Employee> employees = employeeModel.getEmployees();
 
             //Makes columns editable
             makeNameEditable();
@@ -348,10 +345,21 @@ public class OverviewTab {
             formatUtilization();
             makeOverheadEditable();
 
-            overviewEmployeeTblView.setItems(employees);
+            overviewEmployeeTblView.setItems(employeeModel.getEmployees());
         } catch (BBExceptions e) {
             e.printStackTrace();
         }
+    }
+
+    //This listener was added because of a weird bug that once you update an employee the add employee
+    //button wasnt properly updating the tableview anymore
+    public void addEmployeeListener(){
+        employeeModel.employeeAddedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                populateEmployeeTableView();
+                employeeModel.employeeAddedProperty().set(false);
+            }
+        });
     }
 
     public void setupTableView() {
