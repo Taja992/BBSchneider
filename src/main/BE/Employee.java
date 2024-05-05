@@ -2,7 +2,6 @@ package BE;
 import java.math.BigDecimal;
 
 
-//we extend team so we can carry the team_id and team_name from Team Table as well
 public class Employee {
     private int employeeId;
     private String employeeName;
@@ -113,22 +112,5 @@ public class Employee {
     public void setIsOverheadCost(boolean overheadCost) {
         isOverheadCost = overheadCost;
     }
-
-    //we return super here to be able to pull the info out of the Team class
-//    public String getTeamName() {
-//        return super.getName();
-//    }
-//
-//    public void setTeamName(String teamName) {
-//        super.setName(teamName);
-//    }
-//
-//    public int getTeamId() {
-//        return super.getId();
-//    }
-//
-//    public void setTeamId(int teamId) {
-//        super.setId(teamId);
-//    }
 
 }

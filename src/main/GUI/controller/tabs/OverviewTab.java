@@ -10,6 +10,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -118,6 +119,7 @@ public class OverviewTab {
 
     private void filterEmployeeTableByCountry(String country){
         overviewEmployeeTblView.setItems(employeeModel.filterEmployeesByCountry(country));
+        addEmployeeListener();
     }
 
     public void teamRatesListener() {
@@ -372,10 +374,22 @@ public class OverviewTab {
             formatUtilization();
             makeOverheadEditable();
 
+
             overviewEmployeeTblView.setItems(employees);
         } catch (BBExceptions e) {
             e.printStackTrace();
         }
+    }
+
+    //This listener was added because of a weird bug that once you update an employee the add employee
+    //button wasnt properly updating the tableview anymore
+    public void addEmployeeListener(){
+        employeeModel.employeeAddedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                populateEmployeeTableView();
+                employeeModel.employeeAddedProperty().set(false);
+            }
+        });
     }
 
     public void setupTableView() {
@@ -566,9 +580,10 @@ public class OverviewTab {
     }
 
     private void makeTeamEditable() throws BBExceptions {
-        //We dont need the clear yet but maybe once we add a way to remove/rename teams
-//        teamNameToId.clear();
-//        allTeamNames.clear();
+        //we clear these to prevent getting duplicated lists
+        //teamNameToId = HashMap, allTeamNames = ObservableList- clear both to prevent duplicating
+        teamNameToId.clear();
+        allTeamNames.clear();
         //First we set up a hashmap so we can have a quick link between IDs and Names on the ComboBox
         //we use the getAllTeams method to populate this
         for (Team team : teamModel.getAllTeams()) {
@@ -618,9 +633,12 @@ public class OverviewTab {
             public void updateItem(Boolean item, boolean empty) {
                 super.updateItem(item, empty);
                 if (!empty) {
+                    //we use .getGraphic for a visual representation of the checkbox
                     CheckBox checkBox = (CheckBox) this.getGraphic();
+                    //add a listener onto our checkbox
                     checkBox.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
                         if (isSelected != wasSelected) {
+                            //.getIndex for getting the employee of selected cell
                             Employee employee = this.getTableView().getItems().get(this.getIndex());
                             employee.setIsOverheadCost(isSelected);
                             try {
