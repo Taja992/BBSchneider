@@ -113,7 +113,9 @@ public class OverviewTab {
             }
             // Recalculate and update the rates (recalculation to dollar or euro is not yet implemented)
             calculateEmployeeRates();
-            setTeamRatesLabel(1);
+            if (overviewEmployeeTblView.getSelectionModel().getSelectedItem().getTeamIdEmployee() != null) {
+                setTeamRatesLabel(overviewEmployeeTblView.getSelectionModel().getSelectedItem().getTeamIdEmployee());
+            }
         });
     }
 
