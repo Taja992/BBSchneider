@@ -92,8 +92,9 @@ public class TeamDAO {
 
         try(Connection con = connectionManager.getConnection()){
             String sql;
+
             if (!connectionManager.isSQLite()) {
-                sql = "SELECT * FROM Team WHERE Team_Id = (SELECT IDENT_CURRENT('Team'))";
+                sql = "SELECT IDENT_CURRENT('Team')";
             } else {
                 sql = "SELECT MAX(Team_Id) FROM Team ";
             }
@@ -101,11 +102,7 @@ public class TeamDAO {
             PreparedStatement ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             while(rs.next()){
-                if (!connectionManager.isSQLite()) {
-                    lastId = rs.getInt("Team_Id");
-                } else {
-                    lastId = rs.getInt(1);
-                }
+                lastId = rs.getInt(1);
             }
 
         } catch (SQLException e) {

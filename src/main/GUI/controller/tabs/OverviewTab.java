@@ -98,7 +98,7 @@ public class OverviewTab {
         addTableTabs();
         teamRatesListener();
         setupCountryBox();
-
+        addEmployeeListener();
     }
 
     private void setupCountryBox(){
@@ -119,7 +119,7 @@ public class OverviewTab {
 
     private void filterEmployeeTableByCountry(String country){
         overviewEmployeeTblView.setItems(employeeModel.filterEmployeesByCountry(country));
-        addEmployeeListener();
+
     }
 
     public void teamRatesListener() {
