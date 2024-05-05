@@ -6,6 +6,7 @@ import Exceptions.BBExceptions;
 import GUI.model.EmployeeModel;
 import GUI.model.TeamModel;
 import com.neovisionaries.i18n.CountryCode;
+import io.github.palexdev.materialfx.controls.MFXToggleButton;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -16,7 +17,6 @@ import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.layout.StackPane;
 import javafx.util.converter.BigDecimalStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 
@@ -46,6 +46,7 @@ public class OverviewTab {
     private final TabPane teamTabPane;
     private final TeamModel teamModel;
     private final Button addTeambtn;
+    private MFXToggleButton changeCurrencyToggleBtn;
     private Label teamDayRateLbl;
     private Label teamHourlyRateLbl;
     private final Map<String, Integer> teamNameToId = new HashMap<>();
@@ -58,7 +59,7 @@ public class OverviewTab {
                        TableColumn<Employee, BigDecimal> utilCol, TableColumn<Employee, Boolean> overheadCol,
                        TableView<Employee> overviewEmployeeTblView, Label employeeDayRateLbl, Label employeeHourlyRateLbl, TextField searchTextField,
                        TabPane teamTabPane, TeamModel teamModel, Button addTeambtn,
-                       Label teamDayRateLbl, Label teamHourlyRateLbl) {
+                       Label teamDayRateLbl, Label teamHourlyRateLbl, MFXToggleButton currencyChangeToggleBtn) {
         this.employeeModel = employeeModel;
         this.nameCol = nameCol;
         this.annualSalaryCol = annualSalaryCol;
@@ -76,6 +77,7 @@ public class OverviewTab {
         this.teamTabPane = teamTabPane;
         this.teamModel = teamModel;
         this.addTeambtn = addTeambtn;
+        this.changeCurrencyToggleBtn = currencyChangeToggleBtn;
 
         addTeambtn.setOnAction(this::addTeam);
 
@@ -91,10 +93,20 @@ public class OverviewTab {
         setSearchEvent();
         addTableTabs();
         teamRatesListener();
+        currencyChangeToggleBtnListener();
 
 
 
+    }
 
+    public void currencyChangeToggleBtnListener() {
+        changeCurrencyToggleBtn.setOnAction(event -> {
+            if (!changeCurrencyToggleBtn.isSelected()) {
+                System.out.println("Currency is USD");
+            } else {
+                System.out.println("Currency is EUR");
+            }
+        });
     }
 
     public void teamRatesListener() {

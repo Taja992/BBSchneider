@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 public class AppController {
 
 
+
     // --------Employee tab ---------------
     @FXML
     private Label annualSalaryLbl;
@@ -53,6 +54,8 @@ public class AppController {
     private Button addEmployeeBtn;
     //--------------------------------------
     //----------Overview Tab----------------
+    @FXML
+    public MFXToggleButton currencyChangeToggleBtn;
     @FXML
     private Label employeeDayRateLbl;
     @FXML
@@ -104,7 +107,7 @@ public class AppController {
         //We pass all our FXML elements and employeeModel to the overviewTab class constructor
        OverviewTab overviewTab = new OverviewTab(employeeModel, nameCol, annualSalaryCol, overHeadMultiCol, annualAmountCol,
                countryCol, teamCol, hoursCol, utilCol, overheadCol, overviewEmployeeTblView,
-               employeeDayRateLbl, employeeHourlyRateLbl, searchTextField, teamTabPane, teamModel, addTeambtn, teamDayRateLbl, teamHourlyRateLbl);
+               employeeDayRateLbl, employeeHourlyRateLbl, searchTextField, teamTabPane, teamModel, addTeambtn, teamDayRateLbl, teamHourlyRateLbl, currencyChangeToggleBtn);
        //Create our own initialize to easily call the methods in the class
        overviewTab.initialize();
 
