@@ -44,7 +44,7 @@ public class EmployeeModel {
         ObservableList<Employee> filteredEmployees = FXCollections.observableArrayList();
 
         for (Employee employee : allEmployees) {
-            if (employee.getEmployeeName().toLowerCase().contains(keyword.toLowerCase())) {
+            if (employee.getName().toLowerCase().contains(keyword.toLowerCase())) {
                 filteredEmployees.add(employee);
             }
         }
@@ -56,7 +56,7 @@ public class EmployeeModel {
         //add employee to database and get the generated ID
         int newEmployeeId = employeeBLL.addNewEmployee(employee);
         //set the ID of the employee
-        employee.setEmployeeId(newEmployeeId);
+        employee.setId(newEmployeeId);
         //add employees to the observable list
         employees.add(employee);
         //this needs to be done this way to get the generated employee ID from the database so we are able
@@ -102,11 +102,12 @@ public class EmployeeModel {
             previousTeamId = -1;
         }
 
-        if(currentTeamId == null){
-            currentTeamId = -1;
-        }
+//        if(currentTeamId == null){
+//            currentTeamId = -1;
+//        }
 
         employeeBLL.updateEmployee(employee);
+
         //if the previous Id(hashmap) does not match the current Id, we call the refresh method
         if (previousTeamId != null && !previousTeamId.equals(currentTeamId)) {
             //we call this method twice so both lists get updated
