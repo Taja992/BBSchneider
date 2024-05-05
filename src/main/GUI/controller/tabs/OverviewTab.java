@@ -105,11 +105,9 @@ public class OverviewTab {
         changeCurrencyToggleBtn.setOnAction(event -> {
             if (!changeCurrencyToggleBtn.isSelected()) {
                 // USD selected
-                System.out.println("Currency is USD");
                 currencySymbol = "$";
             } else {
                 // EUR selected
-                System.out.println("Currency is EUR");
                 currencySymbol = "€";
             }
             // Recalculate and update the rates (recalculation to dollar or euro is not yet implemented)
