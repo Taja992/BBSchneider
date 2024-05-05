@@ -8,6 +8,7 @@ import GUI.model.TeamModel;
 import com.neovisionaries.i18n.CountryCode;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
@@ -330,7 +331,7 @@ public class OverviewTab {
             setupTableView();
 
             // Get the list of employees from the model
-          //  ObservableList<Employee> employees = employeeModel.getEmployees();
+            ObservableList<Employee> employees = employeeModel.getEmployees();
 
             //Makes columns editable
             makeNameEditable();
@@ -345,7 +346,8 @@ public class OverviewTab {
             formatUtilization();
             makeOverheadEditable();
 
-            overviewEmployeeTblView.setItems(employeeModel.getEmployees());
+
+            overviewEmployeeTblView.setItems(employees);
         } catch (BBExceptions e) {
             e.printStackTrace();
         }
@@ -550,9 +552,10 @@ public class OverviewTab {
     }
 
     private void makeTeamEditable() throws BBExceptions {
-        //We dont need the clear yet but maybe once we add a way to remove/rename teams
-//        teamNameToId.clear();
-//        allTeamNames.clear();
+        //we clear these to prevent getting duplicated lists
+        //teamNameToId = HashMap, allTeamNames = ObservableList- clear both to prevent duplicating
+        teamNameToId.clear();
+        allTeamNames.clear();
         //First we set up a hashmap so we can have a quick link between IDs and Names on the ComboBox
         //we use the getAllTeams method to populate this
         for (Team team : teamModel.getAllTeams()) {

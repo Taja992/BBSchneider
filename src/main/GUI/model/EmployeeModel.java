@@ -107,10 +107,11 @@ public class EmployeeModel {
         Integer previousTeamId = previousTeamIds.get(employee);
         Integer currentTeamId = employee.getTeamIdEmployee();
 
-        //I make these -1 because the hashmap cannot handle null
-//        if(previousTeamId == null){
-//            previousTeamId = -1;
-//        }
+        //Make these -1 because the hashmap cannot handle null
+        //this is necessary when you add a new employee
+        if(previousTeamId == null){
+            previousTeamId = -1;
+        }
 
         if(currentTeamId == null){
             currentTeamId = -1;
