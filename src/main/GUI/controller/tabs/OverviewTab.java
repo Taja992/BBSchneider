@@ -8,7 +8,6 @@ import GUI.model.TeamModel;
 import com.neovisionaries.i18n.CountryCode;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
@@ -130,7 +129,7 @@ public class OverviewTab {
         try {
             teams = teamModel.getAllTeams(); //all the teams
             for (Team team: teams){ //for each team...
-                Tab tab = new Tab(team.getEmployeeName()); //create a new tab for that team
+                Tab tab = new Tab(team.getName()); //create a new tab for that team
                 tab.setClosable(false);
                 tab.setContent(createTableForTeam(team)); //adds a table with the employees from team to the tab
                 teamTabPane.getTabs().add(tab); //add that tab to TabPane
@@ -145,7 +144,7 @@ public class OverviewTab {
         TableView<Employee> teamTblView = new TableView<>();
 
         TableColumn<Employee, String> nameCol = new TableColumn<>();
-        nameCol.setText("employeeName");
+        nameCol.setText("Name");
         teamTblView.getColumns().add(nameCol);
 
         TableColumn<Employee, BigDecimal> salaryCol = new TableColumn<>();
@@ -181,7 +180,7 @@ public class OverviewTab {
         teamTblView.getColumns().add(rateCol);
 
         //setting the column values to their values in the database
-        nameCol.setCellValueFactory(new PropertyValueFactory<>("employeeName"));
+        nameCol.setCellValueFactory(new PropertyValueFactory<>("Name"));
         salaryCol.setCellValueFactory(new PropertyValueFactory<>("AnnualSalary"));
         overHeadPerCol.setCellValueFactory(new PropertyValueFactory<>("OverheadMultiPercent"));
         annualCol.setCellValueFactory(new PropertyValueFactory<>("AnnualAmount"));
@@ -199,7 +198,7 @@ public class OverviewTab {
 
 
         // Get the list of employees for the team
-        ObservableList<Employee> employeesInTeam = employeeModel.getAllEmployeesFromTeam(team.getEmployeeId());
+        ObservableList<Employee> employeesInTeam = employeeModel.getAllEmployeesFromTeam(team.getId());
 
         // Add a listener to the list
 //        employeesInTeam.addListener(new ListChangeListener<Employee>() {
@@ -247,9 +246,9 @@ public class OverviewTab {
             Team newTeam = new Team(teamModel.getLastTeamId() + 1, "untitled team");
             teamModel.newTeam(newTeam);
             //put our newly created team into the hashmap/observable list for employees teamsCol
-            teamNameToId.put(newTeam.getEmployeeName(), newTeam.getEmployeeId());
-            allTeamNames.add(newTeam.getEmployeeName());
-            Tab tab = new Tab(newTeam.getEmployeeName());
+            teamNameToId.put(newTeam.getName(), newTeam.getId());
+            allTeamNames.add(newTeam.getName());
+            Tab tab = new Tab(newTeam.getName());
             tab.setClosable(false);
             tab.setContent(createTableForTeam(newTeam));
             teamTabPane.getTabs().add(tab);
@@ -314,7 +313,7 @@ public class OverviewTab {
     }
 
     public void setupTableView() {
-        nameCol.setCellValueFactory(new PropertyValueFactory<>("employeeName"));
+        nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
         overHeadMultiCol.setCellValueFactory(new PropertyValueFactory<>("overheadMultiPercent"));
         hoursCol.setCellValueFactory(new PropertyValueFactory<>("workingHours"));
         annualSalaryCol.setCellValueFactory(new PropertyValueFactory<>("annualSalary"));
@@ -331,7 +330,7 @@ public class OverviewTab {
         // After editing, it sets the name in the database with .setOnEditCommit
         nameCol.setOnEditCommit(event -> {
             Employee employee = event.getRowValue();
-            employee.setEmployeeName(event.getNewValue());
+            employee.setName(event.getNewValue());
             try {
                 employeeModel.updateEmployee(employee);
             } catch (BBExceptions e) {
@@ -508,7 +507,7 @@ public class OverviewTab {
         //we use the getAllTeams method to populate this
         for (Team team : teamModel.getAllTeams()) {
             //when we use .put the first parameter is the "Key" so when we call .keySet it gives us team names
-            teamNameToId.put(team.getEmployeeName(), team.getEmployeeId());
+            teamNameToId.put(team.getName(), team.getId());
         }
         //Add No team to our list to be able to set things to Null
         //we use addFirst so it stays ontop after sort
