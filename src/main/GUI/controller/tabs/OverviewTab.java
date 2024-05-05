@@ -10,7 +10,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -148,43 +147,43 @@ public class OverviewTab {
         });
     }
 
-    public void makeTabTitleEditable(Tab tab) {
-        final Label label = new Label(tab.getText());
-        final TextField textField = new TextField(tab.getText());
-
-        textField.setVisible(false); // Initially hide the text field
-
-        // When the user clicks the label, show the text field
-        label.setOnMouseClicked(event -> {
-            if (event.getClickCount() == 2) {
-                textField.setVisible(true);
-                textField.requestFocus();
-            }
-        });
-
-        // When the user presses Enter, save the new title and hide the text field
-        textField.setOnAction(event -> {
-            tab.setText(textField.getText());
-            label.setText(textField.getText());
-            textField.setVisible(false);
-        });
-
-        // When the text field loses focus, save the new title and hide the text field
-        textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue) {
-                tab.setText(textField.getText());
-                label.setText(textField.getText());
-                textField.setVisible(false);
-            }
-        });
-
-        // Create a StackPane to hold the label and text field
-        StackPane stackPane = new StackPane();
-        stackPane.getChildren().addAll(label, textField);
-
-        // Set the StackPane as the tab's graphic
-        tab.setGraphic(stackPane);
-    }
+//    public void makeTabTitleEditable(Tab tab) {
+//        final Label label = new Label(tab.getText());
+//        final TextField textField = new TextField(tab.getText());
+//
+//        textField.setVisible(false); // Initially hide the text field
+//
+//        // When the user clicks the label, show the text field
+//        label.setOnMouseClicked(event -> {
+//            if (event.getClickCount() == 2) {
+//                textField.setVisible(true);
+//                textField.requestFocus();
+//            }
+//        });
+//
+//        // When the user presses Enter, save the new title and hide the text field
+//        textField.setOnAction(event -> {
+//            tab.setText(textField.getText());
+//            label.setText(textField.getText());
+//            textField.setVisible(false);
+//        });
+//
+//        // When the text field loses focus, save the new title and hide the text field
+//        textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+//            if (!newValue) {
+//                tab.setText(textField.getText());
+//                label.setText(textField.getText());
+//                textField.setVisible(false);
+//            }
+//        });
+//
+//        // Create a StackPane to hold the label and text field
+//        StackPane stackPane = new StackPane();
+//        stackPane.getChildren().addAll(label, textField);
+//
+//        // Set the StackPane as the tab's graphic
+//        tab.setGraphic(stackPane);
+//    }
 
 
     private void addTableTabs()  {
@@ -196,7 +195,7 @@ public class OverviewTab {
                 tab.setClosable(false);
                 tab.setContent(createTableForTeam(team)); //adds a table with the employees from team to the tab
                 teamTabPane.getTabs().add(tab); //add that tab to TabPane
-                makeTabTitleEditable(tab); // make the tab title editable
+                //makeTabTitleEditable(tab); // make the tab title editable
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -208,7 +207,7 @@ public class OverviewTab {
         TableView<Employee> teamTblView = new TableView<>();
 
         TableColumn<Employee, String> nameCol = new TableColumn<>();
-        nameCol.setText("employeeName");
+        nameCol.setText("Name");
         teamTblView.getColumns().add(nameCol);
 
         TableColumn<Employee, BigDecimal> salaryCol = new TableColumn<>();
@@ -244,7 +243,7 @@ public class OverviewTab {
         teamTblView.getColumns().add(rateCol);
 
         //setting the column values to their values in the database
-        nameCol.setCellValueFactory(new PropertyValueFactory<>("employeeName"));
+        nameCol.setCellValueFactory(new PropertyValueFactory<>("Name"));
         salaryCol.setCellValueFactory(new PropertyValueFactory<>("AnnualSalary"));
         overHeadPerCol.setCellValueFactory(new PropertyValueFactory<>("OverheadMultiPercent"));
         annualCol.setCellValueFactory(new PropertyValueFactory<>("AnnualAmount"));
@@ -317,7 +316,7 @@ public class OverviewTab {
             tab.setClosable(false);
             tab.setContent(createTableForTeam(newTeam));
             teamTabPane.getTabs().add(tab);
-            makeTabTitleEditable(tab);
+            //makeTabTitleEditable(tab);
 
         } catch (BBExceptions e) {
             e.printStackTrace();
@@ -380,7 +379,7 @@ public class OverviewTab {
     }
 
     public void setupTableView() {
-        nameCol.setCellValueFactory(new PropertyValueFactory<>("employeeName"));
+        nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
         overHeadMultiCol.setCellValueFactory(new PropertyValueFactory<>("overheadMultiPercent"));
         hoursCol.setCellValueFactory(new PropertyValueFactory<>("workingHours"));
         annualSalaryCol.setCellValueFactory(new PropertyValueFactory<>("annualSalary"));
@@ -397,7 +396,7 @@ public class OverviewTab {
         // After editing, it sets the name in the database with .setOnEditCommit
         nameCol.setOnEditCommit(event -> {
             Employee employee = event.getRowValue();
-            employee.setEmployeeName(event.getNewValue());
+            employee.setName(event.getNewValue());
             try {
                 employeeModel.updateEmployee(employee);
             } catch (BBExceptions e) {
