@@ -92,7 +92,6 @@ public class TeamDAO {
 
         try(Connection con = connectionManager.getConnection()){
             String sql;
-
             if (!connectionManager.isSQLite()) {
                 sql = "SELECT * FROM Team WHERE Team_Id = (SELECT IDENT_CURRENT('Team'))";
             } else {
