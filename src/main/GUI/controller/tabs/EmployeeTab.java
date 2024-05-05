@@ -21,8 +21,8 @@ public class EmployeeTab {
     private final CheckBox overheadChkBox;
     private final TextField yearlyHrsTxt;
     private final TextField utilizationTxt;
-
     private final TextField employeesSearchTxt;
+
 
 
     public EmployeeTab(EmployeeModel employeeModel, ListView<Employee> employeeLV, ComboBox<String> countryCmbBox,

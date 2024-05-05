@@ -98,13 +98,13 @@ public class EmployeeModel {
         Integer currentTeamId = employee.getTeamIdEmployee();
 
         //I make these -1 because the hashmap cannot handle null
-        if(previousTeamId == null){
-            previousTeamId = -1;
-        }
-
-//        if(currentTeamId == null){
-//            currentTeamId = -1;
+//        if(previousTeamId == null){
+//            previousTeamId = -1;
 //        }
+
+        if(currentTeamId == null){
+            currentTeamId = -1;
+        }
 
         employeeBLL.updateEmployee(employee);
 

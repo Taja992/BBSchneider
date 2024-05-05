@@ -594,9 +594,12 @@ public class OverviewTab {
             public void updateItem(Boolean item, boolean empty) {
                 super.updateItem(item, empty);
                 if (!empty) {
+                    //we use .getGraphic for a visual representation of the checkbox
                     CheckBox checkBox = (CheckBox) this.getGraphic();
+                    //add a listener onto our checkbox
                     checkBox.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
                         if (isSelected != wasSelected) {
+                            //.getIndex for getting the employee of selected cell
                             Employee employee = this.getTableView().getItems().get(this.getIndex());
                             employee.setIsOverheadCost(isSelected);
                             try {
