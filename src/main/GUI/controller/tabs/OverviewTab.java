@@ -326,8 +326,8 @@ public class OverviewTab {
         double hourlyRate = teamModel.calculateTotalHourlyRate(teamId);
         double dailyRate = teamModel.calculateTotalDailyRate(teamId);
         if ("€".equals(currencySymbol)) {
-            hourlyRate *= 0.93;
-            dailyRate *= 0.93;
+            hourlyRate *= conversionRate;
+            dailyRate *= conversionRate;
         }
         teamHourlyRateLbl.setText(currencySymbol +  String.format("%.2f", hourlyRate)+ "/Hour");
         teamDayRateLbl.setText(currencySymbol + String.format("%.2f", dailyRate) + "/Day");
@@ -339,8 +339,8 @@ public class OverviewTab {
             double hourlyRate = employeeModel.calculateHourlyRate(selectedEmployee);
             double dailyRate = employeeModel.calculateDailyRate(selectedEmployee);
             if ("€".equals(currencySymbol)) {
-                hourlyRate *= 0.93;
-                dailyRate *= 0.93;
+                hourlyRate *= conversionRate;
+                dailyRate *= conversionRate;
             }
             employeeHourlyRateLbl.setText(currencySymbol + String.format("%.2f", hourlyRate) + "/Hour");
             employeeDayRateLbl.setText(currencySymbol +  String.format("%.2f", dailyRate)+ "/Day");
