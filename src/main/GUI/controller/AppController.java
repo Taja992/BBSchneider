@@ -15,7 +15,6 @@ public class AppController {
 
 
 
-
     // --------Employee tab ---------------
     @FXML
     private Label annualSalaryLbl;
@@ -56,7 +55,7 @@ public class AppController {
     //--------------------------------------
     //----------Overview Tab----------------
     @FXML
-    public TextField grossMarginTxt;
+    public ComboBox grossMarginComboBox;
     @FXML
     public TextField markUpTxt;
     @FXML
@@ -113,7 +112,7 @@ public class AppController {
        OverviewTab overviewTab = new OverviewTab(employeeModel, nameCol, annualSalaryCol, overHeadMultiCol, annualAmountCol,
                countryCol, teamCol, hoursCol, utilCol, overheadCol, overviewEmployeeTblView,
                employeeDayRateLbl, employeeHourlyRateLbl, searchTextField, teamTabPane, teamModel, addTeambtn, teamDayRateLbl, teamHourlyRateLbl, currencyChangeToggleBtn,
-               grossMarginTxt, markUpTxt);
+               grossMarginComboBox, markUpTxt);
        //Create our own initialize to easily call the methods in the class
        overviewTab.initialize();
 

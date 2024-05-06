@@ -30,7 +30,7 @@ import java.util.Map;
 public class OverviewTab {
 
     private TextField markUpTxt;
-    private TextField grossMarginTxt;
+    private ComboBox grossMarginComboBox;
     private double conversionRate = 0.93;
     private String currencySymbol = "$";
     private final TableColumn<Employee, String> nameCol;
@@ -64,7 +64,7 @@ public class OverviewTab {
                        TableView<Employee> overviewEmployeeTblView, Label employeeDayRateLbl, Label employeeHourlyRateLbl, TextField searchTextField,
                        TabPane teamTabPane, TeamModel teamModel, Button addTeambtn,
                        Label teamDayRateLbl, Label teamHourlyRateLbl, MFXToggleButton currencyChangeToggleBtn,
-                       TextField grossMarginTxt, TextField markUpTxt) {
+                       ComboBox grossMarginComboBox, TextField markUpTxt) {
         this.employeeModel = employeeModel;
         this.nameCol = nameCol;
         this.annualSalaryCol = annualSalaryCol;
@@ -83,7 +83,7 @@ public class OverviewTab {
         this.teamModel = teamModel;
         this.addTeambtn = addTeambtn;
         this.changeCurrencyToggleBtn = currencyChangeToggleBtn;
-        this.grossMarginTxt = grossMarginTxt;
+        this.grossMarginComboBox = grossMarginComboBox;
         this.markUpTxt = markUpTxt;
 
         addTeambtn.setOnAction(this::addTeam);
