@@ -48,4 +48,5 @@ public class Main extends Application {
 //        // Add functionality to close the window
 //        closeButton.setOnAction(event -> primaryStage.close());
 //    }
+
 }

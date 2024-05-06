@@ -5,7 +5,7 @@ import GUI.controller.tabs.EmployeeTab;
 import GUI.controller.tabs.OverviewTab;
 import GUI.model.EmployeeModel;
 import GUI.model.TeamModel;
-import io.github.palexdev.materialfx.controls.MFXToggleButton;
+import com.jfoenix.controls.JFXToggleButton;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
@@ -13,8 +13,8 @@ import java.math.BigDecimal;
 
 public class AppController {
 
-
-
+    @FXML
+    private JFXToggleButton currencyChangeToggleBtn;
     // --------Employee tab ---------------
     @FXML
     private Label annualSalaryLbl;
@@ -58,8 +58,7 @@ public class AppController {
     public ComboBox grossMarginComboBox;
     @FXML
     public TextField markUpTxt;
-    @FXML
-    public MFXToggleButton currencyChangeToggleBtn;
+
     @FXML
     private Label employeeDayRateLbl;
     @FXML

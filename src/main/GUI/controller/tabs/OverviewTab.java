@@ -5,8 +5,9 @@ import BE.Team;
 import Exceptions.BBExceptions;
 import GUI.model.EmployeeModel;
 import GUI.model.TeamModel;
+import com.jfoenix.controls.JFXToggleButton;
 import com.neovisionaries.i18n.CountryCode;
-import io.github.palexdev.materialfx.controls.MFXToggleButton;
+
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -54,7 +55,7 @@ public class OverviewTab {
     private final TabPane teamTabPane;
     private final TeamModel teamModel;
     private final Button addTeambtn;
-    private MFXToggleButton changeCurrencyToggleBtn;
+    private JFXToggleButton changeCurrencyToggleBtn;
     private Label teamDayRateLbl;
     private Label teamHourlyRateLbl;
     private final Map<String, Integer> teamNameToId = new HashMap<>();
@@ -68,7 +69,7 @@ public class OverviewTab {
                        TableColumn<Employee, BigDecimal> utilCol, TableColumn<Employee, Boolean> overheadCol,
                        TableView<Employee> overviewEmployeeTblView, Label employeeDayRateLbl, Label employeeHourlyRateLbl, TextField searchTextField,
                        TabPane teamTabPane, TeamModel teamModel, Button addTeambtn,
-                       Label teamDayRateLbl, Label teamHourlyRateLbl, MFXToggleButton currencyChangeToggleBtn,
+                       Label teamDayRateLbl, Label teamHourlyRateLbl, JFXToggleButton currencyChangeToggleBtn,
                        ComboBox grossMarginComboBox, TextField markUpTxt, ChoiceBox countryChcBox) {
         this.employeeModel = employeeModel;
         this.nameCol = nameCol;
