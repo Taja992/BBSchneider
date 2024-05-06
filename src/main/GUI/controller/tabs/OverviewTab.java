@@ -101,7 +101,7 @@ public class OverviewTab {
         addTableTabs();
         teamRatesListener();
         currencyChangeToggleBtnListener();
-
+        markUpListener();
 
 
     }
@@ -348,6 +348,29 @@ public class OverviewTab {
             employeeHourlyRateLbl.setText(currencySymbol + String.format("%.2f", hourlyRate) + "/Hour");
             employeeDayRateLbl.setText(currencySymbol +  String.format("%.2f", dailyRate)+ "/Day");
         }
+    }
+
+    public void markUpListener() {
+        markUpTxt.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                // Parse the new value to a double
+                double markupValue = Double.parseDouble(markUpTxt.getText());
+
+                // If the value is greater than 100, set it to 100
+                if (markupValue > 100) {
+                    markUpTxt.setText("100.00");
+                } else if (markupValue < 0) {
+                    // If the value is less than 0, set it to 0
+                    markUpTxt.setText("0.00");
+                } else {
+                    // If the value is within the range, format it to two decimal places
+                    markUpTxt.setText(String.format("%.2f", markupValue));
+                }
+            } catch (NumberFormatException e) {
+                // If the new value is not a number, revert to 0
+                markUpTxt.setText("0.00");
+            }
+        });
     }
 
     public void ratesListener() {

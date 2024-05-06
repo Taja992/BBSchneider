@@ -63,13 +63,13 @@
                               <VBox>
                                  <children>
                                     <Label text="Mark Up %" />
-                                    <TextField />
+                                    <TextField fx:id="markUpTxt" />
                                  </children>
                               </VBox>
                               <VBox>
                                  <children>
                                     <Label text="Gross Margin" />
-                                    <TextField />
+                                    <TextField fx:id="grossMarginTxt" />
                                  </children>
                               </VBox>
                            </children>
