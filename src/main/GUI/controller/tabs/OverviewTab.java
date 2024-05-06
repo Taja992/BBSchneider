@@ -308,7 +308,8 @@ public class OverviewTab {
 
     private void addTeam(ActionEvent event) {
         try {
-            Team newTeam = new Team(teamModel.getLastTeamId() + 1, "untitled team");
+            int generatedId = teamModel.getLastTeamId() + 1;
+            Team newTeam = new Team(generatedId, "Team (" + generatedId + ")");
             System.out.println(newTeam.getId());
             teamModel.newTeam(newTeam);
             //put our newly created team into the hashmap/observable list for employees teamsCol
