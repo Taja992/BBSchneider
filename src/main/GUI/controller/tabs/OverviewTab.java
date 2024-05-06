@@ -6,6 +6,7 @@ import Exceptions.BBExceptions;
 import GUI.model.EmployeeModel;
 import GUI.model.TeamModel;
 import com.neovisionaries.i18n.CountryCode;
+import io.github.palexdev.materialfx.controls.MFXToggleButton;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -20,7 +21,6 @@ import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.layout.StackPane;
 import javafx.util.converter.BigDecimalStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 
@@ -33,6 +33,10 @@ import java.util.Map;
 
 public class OverviewTab {
 
+    private TextField markUpTxt;
+    private ComboBox grossMarginComboBox;
+    private double conversionRate = 0.93;
+    private String currencySymbol = "$";
     private final TableColumn<Employee, String> nameCol;
     private final TableColumn<Employee, BigDecimal> annualSalaryCol;
     private final TableColumn<Employee, BigDecimal> overHeadMultiCol;
@@ -50,6 +54,7 @@ public class OverviewTab {
     private final TabPane teamTabPane;
     private final TeamModel teamModel;
     private final Button addTeambtn;
+    private MFXToggleButton changeCurrencyToggleBtn;
     private Label teamDayRateLbl;
     private Label teamHourlyRateLbl;
     private final Map<String, Integer> teamNameToId = new HashMap<>();
@@ -63,7 +68,8 @@ public class OverviewTab {
                        TableColumn<Employee, BigDecimal> utilCol, TableColumn<Employee, Boolean> overheadCol,
                        TableView<Employee> overviewEmployeeTblView, Label employeeDayRateLbl, Label employeeHourlyRateLbl, TextField searchTextField,
                        TabPane teamTabPane, TeamModel teamModel, Button addTeambtn,
-                       Label teamDayRateLbl, Label teamHourlyRateLbl, ChoiceBox countryChcBox) {
+                       Label teamDayRateLbl, Label teamHourlyRateLbl, MFXToggleButton currencyChangeToggleBtn,
+                       ComboBox grossMarginComboBox, TextField markUpTxt, ChoiceBox countryChcBox) {
         this.employeeModel = employeeModel;
         this.nameCol = nameCol;
         this.annualSalaryCol = annualSalaryCol;
@@ -81,6 +87,9 @@ public class OverviewTab {
         this.teamTabPane = teamTabPane;
         this.teamModel = teamModel;
         this.addTeambtn = addTeambtn;
+        this.changeCurrencyToggleBtn = currencyChangeToggleBtn;
+        this.grossMarginComboBox = grossMarginComboBox;
+        this.markUpTxt = markUpTxt;
 
         addTeambtn.setOnAction(this::addTeam);
 
@@ -97,29 +106,57 @@ public class OverviewTab {
         setSearchEvent();
         addTableTabs();
         teamRatesListener();
+        currencyChangeToggleBtnListener();
+        markUpListener();
+        populateComboBox();
         setupCountryBox();
         addEmployeeListener();
     }
 
-    private void setupCountryBox(){
-        List<String> allCountries = FXCollections.observableArrayList();
-        allCountries.add("All Countries");
-        for(CountryCode code : CountryCode.values()){ //adding list of all countries
-            allCountries.add(code.getName());
-        }
-
-        countryChcBox.getItems().addAll(allCountries);
-        countryChcBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
-            @Override
-            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-                filterEmployeeTableByCountry((String) newValue);
+    public void currencyChangeToggleBtnListener() {
+        changeCurrencyToggleBtn.setOnAction(event -> {
+            if (!changeCurrencyToggleBtn.isSelected()) {
+                // USD selected
+                currencySymbol = "$";
+            } else {
+                // EUR selected
+                currencySymbol = "€";
+            }
+            // Recalculate and update the rates (recalculation to dollar or euro is not yet implemented)
+            calculateEmployeeRates();
+            if (overviewEmployeeTblView.getSelectionModel().getSelectedItem().getTeamIdEmployee() != null) {
+                setTeamRatesLabel(overviewEmployeeTblView.getSelectionModel().getSelectedItem().getTeamIdEmployee());
             }
         });
     }
 
+
+private void setupCountryBox(){
+    List<String> allCountries = FXCollections.observableArrayList();
+    allCountries.add("All Countries");
+    for(CountryCode code : CountryCode.values()){ //adding list of all countries
+        allCountries.add(code.getName());
+    }
+
+    countryChcBox.getItems().addAll(allCountries);
+    countryChcBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
+        @Override
+        public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+            filterEmployeeTableByCountry((String) newValue);
+        }
+    });
+}
+        
+    
+
+
+    public void populateComboBox() {
+        for (int i = 0; i <= 100; i++) {
+            grossMarginComboBox.getItems().add(i + "%");
+        }
+    }
     private void filterEmployeeTableByCountry(String country){
         overviewEmployeeTblView.setItems(employeeModel.filterEmployeesByCountry(country));
-
     }
 
     public void teamRatesListener() {
@@ -327,16 +364,67 @@ public class OverviewTab {
     }
 
     private void setTeamRatesLabel(int teamId){
-        teamHourlyRateLbl.setText("$" + teamModel.calculateTotalHourlyRate(teamId) + "/Hour");
-        teamDayRateLbl.setText("$" + teamModel.calculateTotalDailyRate(teamId) + "/Day");
+        double hourlyRate = teamModel.calculateTotalHourlyRate(teamId);
+        double dailyRate = teamModel.calculateTotalDailyRate(teamId);
+        if ("€".equals(currencySymbol)) {
+            hourlyRate *= conversionRate;
+            dailyRate *= conversionRate;
+        }
+        teamHourlyRateLbl.setText(currencySymbol +  String.format("%.2f", hourlyRate)+ "/Hour");
+        teamDayRateLbl.setText(currencySymbol + String.format("%.2f", dailyRate) + "/Day");
     }
 
     public void calculateEmployeeRates() {
         Employee selectedEmployee = overviewEmployeeTblView.getSelectionModel().getSelectedItem();
         if(selectedEmployee != null){
-            employeeHourlyRateLbl.setText("$" + employeeModel.calculateHourlyRate(selectedEmployee) + "/Hour");
-            employeeDayRateLbl.setText("$" + employeeModel.calculateDailyRate(selectedEmployee) + "/Day");
+            double hourlyRate = employeeModel.calculateHourlyRate(selectedEmployee);
+            double dailyRate = employeeModel.calculateDailyRate(selectedEmployee);
+            if ("€".equals(currencySymbol)) {
+                hourlyRate *= conversionRate;
+                dailyRate *= conversionRate;
+            }
+            employeeHourlyRateLbl.setText(currencySymbol + String.format("%.2f", hourlyRate) + "/Hour");
+            employeeDayRateLbl.setText(currencySymbol +  String.format("%.2f", dailyRate)+ "/Day");
         }
+    }
+
+    public void markUpListener() {
+        markUpTxt.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                // Parse the new value to a double
+                double markupValue = Double.parseDouble(markUpTxt.getText());
+
+                // If the value is greater than 100, set it to 100
+                if (markupValue > 100) {
+                    markUpTxt.setText("100.00");
+                } else if (markupValue < 0) {
+                    // If the value is less than 0, set it to 0
+                    markUpTxt.setText("0.00");
+                } else {
+                    // If the value is within the range, format it to two decimal places
+                    markUpTxt.setText(String.format("%.2f", markupValue));
+                }
+
+                // Calculate the multiplier
+                double multiplier = 1 + (markupValue / 100);
+
+                // Get the current hourly and daily rates
+                double hourlyRate = employeeModel.calculateHourlyRate(overviewEmployeeTblView.getSelectionModel().getSelectedItem());
+                double dailyRate = employeeModel.calculateDailyRate(overviewEmployeeTblView.getSelectionModel().getSelectedItem());
+
+                // Apply the multiplier
+                hourlyRate *= multiplier;
+                dailyRate *= multiplier;
+
+                // Update the labels
+                employeeHourlyRateLbl.setText(currencySymbol + String.format("%.2f", hourlyRate) + "/Hour");
+                employeeDayRateLbl.setText(currencySymbol +  String.format("%.2f", dailyRate)+ "/Day");
+
+            } catch (NumberFormatException e) {
+                // If the new value is not a number, revert to 0
+                markUpTxt.setText("0.00");
+            }
+        });
     }
 
     public void ratesListener() {
