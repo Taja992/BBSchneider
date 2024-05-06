@@ -3,6 +3,8 @@ package GUI.model;
 import BE.Employee;
 import BLL.EmployeeBLL;
 import Exceptions.BBExceptions;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -17,11 +19,17 @@ public class EmployeeModel {
     //Added 2 Hashmaps in order to track if an employees Team Id has changed and reflect changes on the tableviews
     private final Map<Employee, Integer> previousTeamIds = new HashMap<>();
     private final Map<Integer, ObservableList<Employee>> teamEmployees = new HashMap<>();
+    private final BooleanProperty employeeAdded = new SimpleBooleanProperty(false);
 
 
     public EmployeeModel(){
         employeeBLL = new EmployeeBLL();
         employees = FXCollections.observableArrayList();
+    }
+
+    //Boolean property added as a switch to tell the employeeTableview to update
+    public BooleanProperty employeeAddedProperty() {
+        return employeeAdded;
     }
 
     public ObservableList<Employee> getEmployees() throws BBExceptions {
@@ -39,12 +47,19 @@ public class EmployeeModel {
     }
 
 
-    public ObservableList<Employee> searchEmployees(String keyword) throws BBExceptions {
-        ObservableList<Employee> allEmployees = getEmployees();
+    public ObservableList<Employee> searchEmployees(String keyword, String country) throws BBExceptions {
+        ObservableList<Employee> allEmployees;
+
+        if(country == null || country.isEmpty()){
+            allEmployees = getEmployees();
+        } else {
+            allEmployees = filterEmployeesByCountry(country);
+        }
+
         ObservableList<Employee> filteredEmployees = FXCollections.observableArrayList();
 
         for (Employee employee : allEmployees) {
-            if (employee.getEmployeeName().toLowerCase().contains(keyword.toLowerCase())) {
+            if (employee.getName().toLowerCase().contains(keyword.toLowerCase())) {
                 filteredEmployees.add(employee);
             }
         }
@@ -56,9 +71,11 @@ public class EmployeeModel {
         //add employee to database and get the generated ID
         int newEmployeeId = employeeBLL.addNewEmployee(employee);
         //set the ID of the employee
-        employee.setEmployeeId(newEmployeeId);
+        employee.setId(newEmployeeId);
         //add employees to the observable list
         employees.add(employee);
+        //Tell our boolean property that a new employee was added and to refresh Tableview
+        employeeAdded.set(true);
         //this needs to be done this way to get the generated employee ID from the database so we are able
         //edit new employees
     }
@@ -91,13 +108,38 @@ public class EmployeeModel {
         return teamEmployees.get(TeamId);
     }
 
+    public ObservableList<Employee> filterEmployeesByCountry(String country) {
+
+        if(country.equals("All Countries")){
+            try {
+                return getEmployees();
+            } catch (BBExceptions e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        ObservableList<Employee> filteredEmployees = FXCollections.observableArrayList();
+
+        for(Employee employee: employees){
+            if(employee.getCountry().equals(country)){
+                filteredEmployees.add(employee);
+            }
+        }
+
+        return filteredEmployees;
+    }
+
+
+
+
     public void updateEmployee(Employee employee) throws BBExceptions{
 
 
         Integer previousTeamId = previousTeamIds.get(employee);
         Integer currentTeamId = employee.getTeamIdEmployee();
 
-        //I make these -1 because the hashmap cannot handle null
+        //Make these -1 because the hashmap cannot handle null
+        //this is necessary when you add a new employee
         if(previousTeamId == null){
             previousTeamId = -1;
         }
@@ -107,6 +149,7 @@ public class EmployeeModel {
         }
 
         employeeBLL.updateEmployee(employee);
+
         //if the previous Id(hashmap) does not match the current Id, we call the refresh method
         if (previousTeamId != null && !previousTeamId.equals(currentTeamId)) {
             //we call this method twice so both lists get updated

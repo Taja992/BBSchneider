@@ -28,7 +28,7 @@ EmployeeDAO {
         try (Connection connection = connectionManager.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            ps.setString(1, employee.getEmployeeName());
+            ps.setString(1, employee.getName());
             ps.setBigDecimal(2, employee.getAnnualSalary());
             ps.setBigDecimal(3, employee.getOverheadMultiPercent());
             ps.setBigDecimal(4, employee.getAnnualAmount());
@@ -73,8 +73,8 @@ EmployeeDAO {
 
             while (rs.next()) {
                 Employee employee = new Employee();
-                employee.setEmployeeId(rs.getInt("Employee_Id"));
-                employee.setEmployeeName(rs.getString("Name"));
+                employee.setId(rs.getInt("Employee_Id"));
+                employee.setName(rs.getString("Name"));
                 employee.setAnnualSalary(rs.getBigDecimal("AnnualSalary"));
                 employee.setOverheadMultiPercent(rs.getBigDecimal("OverheadMultiPercent"));
                 employee.setAnnualAmount(rs.getBigDecimal("AnnualAmount"));
@@ -111,8 +111,8 @@ EmployeeDAO {
 
             while(rs.next()){
                 Employee employee = new Employee();
-                employee.setEmployeeId(rs.getInt("Employee_Id"));
-                employee.setEmployeeName(rs.getString("Name"));
+                employee.setId(rs.getInt("Employee_Id"));
+                employee.setName(rs.getString("Name"));
                 employee.setAnnualSalary(rs.getBigDecimal("AnnualSalary"));
                 employee.setOverheadMultiPercent(rs.getBigDecimal("OverheadMultiPercent"));
                 employee.setAnnualAmount(rs.getBigDecimal("AnnualAmount"));
@@ -133,47 +133,12 @@ EmployeeDAO {
         return employees;
     }
 
-    public List<Employee> getAllEmployeesFromLocation(String Location) throws BBExceptions {
-        List<Employee> employees = new ArrayList<>();
-
-        String sql = "SELECT * FROM Employee WHERE Country = ?";
-
-        try(Connection con = connectionManager.getConnection()){
-            PreparedStatement ps = con.prepareStatement(sql);
-            ps.setString(1, Location);
-
-            ResultSet rs = ps.executeQuery();
-
-            while(rs.next()){
-                Employee employee = new Employee();
-                employee.setEmployeeId(rs.getInt("Employee_Id"));
-                employee.setEmployeeName(rs.getString("Name"));
-                employee.setAnnualSalary(rs.getBigDecimal("AnnualSalary"));
-                employee.setOverheadMultiPercent(rs.getBigDecimal("OverheadMultiPercent"));
-                employee.setAnnualAmount(rs.getBigDecimal("AnnualAmount"));
-                employee.setCountry(rs.getString("Country"));
-                employee.setTeamIdEmployee(rs.getInt("Team_Id"));
-                employee.setWorkingHours(rs.getInt("WorkingHours"));
-                employee.setUtilization(rs.getBigDecimal("Utilization"));
-                employee.setIsOverheadCost(rs.getBoolean("isOverheadCost"));
-
-                employees.add(employee);
-            }
-
-        } catch (SQLException e){
-            throw new BBExceptions("Error retrieving all employees from team from location " + Location, e);
-        }
-
-
-        return employees;
-    }
-
     public void updateEmployee(Employee employee) throws BBExceptions {
         String sql = "UPDATE Employee SET Name = ?, AnnualSalary = ?, OverheadMultiPercent = ?, AnnualAmount = ?, Country = ?, Team_Id = ?, WorkingHours = ?, Utilization = ?, isOverheadCost = ? WHERE Employee_Id = ?";
         try (Connection connection = connectionManager.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql)) {
 
-            ps.setString(1, employee.getEmployeeName());
+            ps.setString(1, employee.getName());
             ps.setBigDecimal(2, employee.getAnnualSalary());
             ps.setBigDecimal(3, employee.getOverheadMultiPercent());
             ps.setBigDecimal(4, employee.getAnnualAmount());
@@ -188,7 +153,7 @@ EmployeeDAO {
             ps.setInt(7, employee.getWorkingHours());
             ps.setBigDecimal(8, employee.getUtilization());
             ps.setBoolean(9, employee.getIsOverheadCost());
-            ps.setInt(10, employee.getEmployeeId());
+            ps.setInt(10, employee.getId());
 
             ps.executeUpdate();
         } catch (SQLException e) {

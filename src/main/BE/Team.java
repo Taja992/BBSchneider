@@ -20,19 +20,19 @@ public class Team {
         this.name = name;
     }
 
-    public int getEmployeeId() {
+    public int getId() {
         return Id;
     }
 
-    public void setEmployeeId(int employeeId) {
+    public void setId(int employeeId) {
         Id = employeeId;
     }
 
-    public String getEmployeeName() {
+    public String getName() {
         return name;
     }
 
-    public void setEmployeeName(String employeeName) {
+    public void setName(String employeeName) {
         this.name = employeeName;
     }
 

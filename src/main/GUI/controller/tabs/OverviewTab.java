@@ -7,10 +7,13 @@ import GUI.model.EmployeeModel;
 import GUI.model.TeamModel;
 import com.neovisionaries.i18n.CountryCode;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ComboBoxTableCell;
@@ -45,13 +48,13 @@ public class OverviewTab {
     private final EmployeeModel employeeModel;
     private final TextField searchTextField;
     private final TabPane teamTabPane;
-    private TeamModel teamModel;
+    private final TeamModel teamModel;
     private final Button addTeambtn;
-    private ListView<Team> teamsLV;
     private Label teamDayRateLbl;
     private Label teamHourlyRateLbl;
     private final Map<String, Integer> teamNameToId = new HashMap<>();
     private final ObservableList<String> allTeamNames = FXCollections.observableArrayList();
+    private ChoiceBox countryChcBox;
 
     public OverviewTab(EmployeeModel employeeModel, TableColumn<Employee, String> nameCol,
                        TableColumn<Employee, BigDecimal> annualSalaryCol, TableColumn<Employee, BigDecimal> overHeadMultiCol,
@@ -60,7 +63,7 @@ public class OverviewTab {
                        TableColumn<Employee, BigDecimal> utilCol, TableColumn<Employee, Boolean> overheadCol,
                        TableView<Employee> overviewEmployeeTblView, Label employeeDayRateLbl, Label employeeHourlyRateLbl, TextField searchTextField,
                        TabPane teamTabPane, TeamModel teamModel, Button addTeambtn,
-                       Label teamDayRateLbl, Label teamHourlyRateLbl) {
+                       Label teamDayRateLbl, Label teamHourlyRateLbl, ChoiceBox countryChcBox) {
         this.employeeModel = employeeModel;
         this.nameCol = nameCol;
         this.annualSalaryCol = annualSalaryCol;
@@ -83,23 +86,43 @@ public class OverviewTab {
 
         this.teamDayRateLbl = teamDayRateLbl;
         this.teamHourlyRateLbl = teamHourlyRateLbl;
+        this.countryChcBox = countryChcBox;
     }
 
 
-    public void initialize() throws BBExceptions {
+    public void initialize(){
         overviewEmployeeTblView.setEditable(true);
         ratesListener();
         populateEmployeeTableView();
         setSearchEvent();
         addTableTabs();
         teamRatesListener();
+        setupCountryBox();
+        addEmployeeListener();
+    }
 
+    private void setupCountryBox(){
+        List<String> allCountries = FXCollections.observableArrayList();
+        allCountries.add("All Countries");
+        for(CountryCode code : CountryCode.values()){ //adding list of all countries
+            allCountries.add(code.getName());
+        }
 
+        countryChcBox.getItems().addAll(allCountries);
+        countryChcBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+                filterEmployeeTableByCountry((String) newValue);
+            }
+        });
+    }
 
+    private void filterEmployeeTableByCountry(String country){
+        overviewEmployeeTblView.setItems(employeeModel.filterEmployeesByCountry(country));
 
     }
 
-    public void teamRatesListener() throws BBExceptions {
+    public void teamRatesListener() {
         //adding a listener to tabPane so the daily/hourly rates of the selected team will be shown
         teamTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             TableView<Employee> selectedTable = (TableView<Employee>) newValue.getContent();
@@ -112,32 +135,13 @@ public class OverviewTab {
             }
 
         });
-
-
-        // Get the observable list of teams from the model
-        ObservableList<Team> teams = teamModel.getAllTeams();
-
-        // Set the items of the ListView to the observable list of teams
-        
-
-        // Add a listener to the observable list of teams
-        teams.addListener(new ListChangeListener<Team>() {
-            @Override
-            public void onChanged(Change<? extends Team> change) {
-                // When the list changes, update the items of the ListView
-                teamsLV.setItems(teams);
-            }
-        });
-
-
-
     }
 
     private void setSearchEvent() {
         searchTextField.setOnKeyReleased(event -> {
             String keyword = searchTextField.getText();
             try {
-                ObservableList<Employee> filteredEmployees = employeeModel.searchEmployees(keyword);
+                ObservableList<Employee> filteredEmployees = employeeModel.searchEmployees(keyword, (String) countryChcBox.getSelectionModel().getSelectedItem());
                 overviewEmployeeTblView.setItems(filteredEmployees);
             } catch (BBExceptions e) {
                 e.printStackTrace();
@@ -145,63 +149,43 @@ public class OverviewTab {
         });
     }
 
-    public void makeTabTitleEditable(Tab tab) {
-        final Label label = new Label(tab.getText());
-        final TextField textField = new TextField(tab.getText());
-
-        textField.setVisible(false); // Initially hide the text field
-
-        // When the user clicks the label, show the text field
-        label.setOnMouseClicked(event -> {
-            if (event.getClickCount() == 2) {
-                textField.setVisible(true);
-                textField.requestFocus();
-            }
-        });
-
-        // When the user presses Enter or the text field loses focus, save the new title and hide the text field
-        textField.setOnAction(event -> {
-            try {
-                updateTeamName(tab, label, textField);
-            } catch (BBExceptions e) {
-                throw new RuntimeException(e);
-            }
-        });
-        textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue) {
-                try {
-                    updateTeamName(tab, label, textField);
-                } catch (BBExceptions e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
-
-        // Create a StackPane to hold the label and text field
-        StackPane stackPane = new StackPane();
-        stackPane.getChildren().addAll(label, textField);
-
-        // Set the StackPane as the tab's graphic
-        tab.setGraphic(stackPane);
-    }
-
-    private void updateTeamName(Tab tab, Label label, TextField textField) throws BBExceptions {
-        String newTeamName = textField.getText();
-        String oldTeamName = tab.getText();
-        tab.setText(newTeamName);
-        label.setText(newTeamName);
-        textField.setVisible(false);
-
-        Integer teamId = teamNameToId.get(oldTeamName);
-        if (teamId != null) {
-            Team team = new Team(teamId, newTeamName);
-            teamModel.updateTeamName(team);
-            teamNameToId.remove(oldTeamName);
-            teamNameToId.put(newTeamName, teamId);
-            allTeamNames.remove(oldTeamName);
-            allTeamNames.add(newTeamName);
-        }
-    }
+//    public void makeTabTitleEditable(Tab tab) {
+//        final Label label = new Label(tab.getText());
+//        final TextField textField = new TextField(tab.getText());
+//
+//        textField.setVisible(false); // Initially hide the text field
+//
+//        // When the user clicks the label, show the text field
+//        label.setOnMouseClicked(event -> {
+//            if (event.getClickCount() == 2) {
+//                textField.setVisible(true);
+//                textField.requestFocus();
+//            }
+//        });
+//
+//        // When the user presses Enter, save the new title and hide the text field
+//        textField.setOnAction(event -> {
+//            tab.setText(textField.getText());
+//            label.setText(textField.getText());
+//            textField.setVisible(false);
+//        });
+//
+//        // When the text field loses focus, save the new title and hide the text field
+//        textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+//            if (!newValue) {
+//                tab.setText(textField.getText());
+//                label.setText(textField.getText());
+//                textField.setVisible(false);
+//            }
+//        });
+//
+//        // Create a StackPane to hold the label and text field
+//        StackPane stackPane = new StackPane();
+//        stackPane.getChildren().addAll(label, textField);
+//
+//        // Set the StackPane as the tab's graphic
+//        tab.setGraphic(stackPane);
+//    }
 
 
     private void addTableTabs()  {
@@ -209,11 +193,11 @@ public class OverviewTab {
         try {
             teams = teamModel.getAllTeams(); //all the teams
             for (Team team: teams){ //for each team...
-                Tab tab = new Tab(team.getEmployeeName()); //create a new tab for that team
+                Tab tab = new Tab(team.getName()); //create a new tab for that team
                 tab.setClosable(false);
                 tab.setContent(createTableForTeam(team)); //adds a table with the employees from team to the tab
                 teamTabPane.getTabs().add(tab); //add that tab to TabPane
-                makeTabTitleEditable(tab); // make the tab title editable
+                //makeTabTitleEditable(tab); // make the tab title editable
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -225,7 +209,7 @@ public class OverviewTab {
         TableView<Employee> teamTblView = new TableView<>();
 
         TableColumn<Employee, String> nameCol = new TableColumn<>();
-        nameCol.setText("employeeName");
+        nameCol.setText("Name");
         teamTblView.getColumns().add(nameCol);
 
         TableColumn<Employee, BigDecimal> salaryCol = new TableColumn<>();
@@ -261,7 +245,7 @@ public class OverviewTab {
         teamTblView.getColumns().add(rateCol);
 
         //setting the column values to their values in the database
-        nameCol.setCellValueFactory(new PropertyValueFactory<>("employeeName"));
+        nameCol.setCellValueFactory(new PropertyValueFactory<>("Name"));
         salaryCol.setCellValueFactory(new PropertyValueFactory<>("AnnualSalary"));
         overHeadPerCol.setCellValueFactory(new PropertyValueFactory<>("OverheadMultiPercent"));
         annualCol.setCellValueFactory(new PropertyValueFactory<>("AnnualAmount"));
@@ -279,7 +263,7 @@ public class OverviewTab {
 
 
         // Get the list of employees for the team
-        ObservableList<Employee> employeesInTeam = employeeModel.getAllEmployeesFromTeam(team.getEmployeeId());
+        ObservableList<Employee> employeesInTeam = employeeModel.getAllEmployeesFromTeam(team.getId());
 
         // Add a listener to the list
 //        employeesInTeam.addListener(new ListChangeListener<Employee>() {
@@ -325,15 +309,16 @@ public class OverviewTab {
     private void addTeam(ActionEvent event) {
         try {
             Team newTeam = new Team(teamModel.getLastTeamId() + 1, "untitled team");
+            System.out.println(newTeam.getId());
             teamModel.newTeam(newTeam);
             //put our newly created team into the hashmap/observable list for employees teamsCol
-            teamNameToId.put(newTeam.getEmployeeName(), newTeam.getEmployeeId());
-            allTeamNames.add(newTeam.getEmployeeName());
-            Tab tab = new Tab(newTeam.getEmployeeName());
+            teamNameToId.put(newTeam.getName(), newTeam.getId());
+            allTeamNames.add(newTeam.getName());
+            Tab tab = new Tab(newTeam.getName());
             tab.setClosable(false);
             tab.setContent(createTableForTeam(newTeam));
             teamTabPane.getTabs().add(tab);
-            makeTabTitleEditable(tab);
+            //makeTabTitleEditable(tab);
 
         } catch (BBExceptions e) {
             e.printStackTrace();
@@ -389,14 +374,26 @@ public class OverviewTab {
             formatUtilization();
             makeOverheadEditable();
 
+
             overviewEmployeeTblView.setItems(employees);
         } catch (BBExceptions e) {
             e.printStackTrace();
         }
     }
 
+    //This listener was added because of a weird bug that once you update an employee the add employee
+    //button wasnt properly updating the tableview anymore
+    public void addEmployeeListener(){
+        employeeModel.employeeAddedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                populateEmployeeTableView();
+                employeeModel.employeeAddedProperty().set(false);
+            }
+        });
+    }
+
     public void setupTableView() {
-        nameCol.setCellValueFactory(new PropertyValueFactory<>("employeeName"));
+        nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
         overHeadMultiCol.setCellValueFactory(new PropertyValueFactory<>("overheadMultiPercent"));
         hoursCol.setCellValueFactory(new PropertyValueFactory<>("workingHours"));
         annualSalaryCol.setCellValueFactory(new PropertyValueFactory<>("annualSalary"));
@@ -413,7 +410,7 @@ public class OverviewTab {
         // After editing, it sets the name in the database with .setOnEditCommit
         nameCol.setOnEditCommit(event -> {
             Employee employee = event.getRowValue();
-            employee.setEmployeeName(event.getNewValue());
+            employee.setName(event.getNewValue());
             try {
                 employeeModel.updateEmployee(employee);
             } catch (BBExceptions e) {
@@ -583,14 +580,15 @@ public class OverviewTab {
     }
 
     private void makeTeamEditable() throws BBExceptions {
-        //We dont need the clear yet but maybe once we add a way to remove/rename teams
-//        teamNameToId.clear();
-//        allTeamNames.clear();
+        //we clear these to prevent getting duplicated lists
+        //teamNameToId = HashMap, allTeamNames = ObservableList- clear both to prevent duplicating
+        teamNameToId.clear();
+        allTeamNames.clear();
         //First we set up a hashmap so we can have a quick link between IDs and Names on the ComboBox
         //we use the getAllTeams method to populate this
         for (Team team : teamModel.getAllTeams()) {
             //when we use .put the first parameter is the "Key" so when we call .keySet it gives us team names
-            teamNameToId.put(team.getEmployeeName(), team.getEmployeeId());
+            teamNameToId.put(team.getName(), team.getId());
         }
         //Add No team to our list to be able to set things to Null
         //we use addFirst so it stays ontop after sort
@@ -635,9 +633,12 @@ public class OverviewTab {
             public void updateItem(Boolean item, boolean empty) {
                 super.updateItem(item, empty);
                 if (!empty) {
+                    //we use .getGraphic for a visual representation of the checkbox
                     CheckBox checkBox = (CheckBox) this.getGraphic();
+                    //add a listener onto our checkbox
                     checkBox.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
                         if (isSelected != wasSelected) {
+                            //.getIndex for getting the employee of selected cell
                             Employee employee = this.getTableView().getItems().get(this.getIndex());
                             employee.setIsOverheadCost(isSelected);
                             try {

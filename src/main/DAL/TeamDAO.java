@@ -76,7 +76,7 @@ public class TeamDAO {
         try(Connection con = connectionManager.getConnection()){
             String sql = "INSERT INTO Team (Team_Name) VALUES (?)";
             PreparedStatement ps = con.prepareStatement(sql);
-            ps.setString(1, team.getEmployeeName());
+            ps.setString(1, team.getName());
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new BBExceptions("Error inserting new team", e);
@@ -92,20 +92,17 @@ public class TeamDAO {
 
         try(Connection con = connectionManager.getConnection()){
             String sql;
+
             if (!connectionManager.isSQLite()) {
-                sql = "SELECT * FROM Team WHERE Team_Id = (SELECT IDENT_CURRENT('Team'))";
+                sql = "SELECT IDENT_CURRENT('Team')";
             } else {
-                sql = "SELECT last_insert_rowid()";
+                sql = "SELECT MAX(Team_Id) FROM Team ";
             }
 
             PreparedStatement ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             while(rs.next()){
-                if (!connectionManager.isSQLite()) {
-                    lastId = rs.getInt("Team_Id");
-                } else {
-                    lastId = rs.getInt(1);
-                }
+                lastId = rs.getInt(1);
             }
 
         } catch (SQLException e) {
