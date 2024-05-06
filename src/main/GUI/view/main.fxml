@@ -87,7 +87,7 @@
                               <VBox>
                                  <children>
                                     <Label text="Conversion Rate:" />
-                                    <TextField fx:id="conversionTxt" promptText="USD &gt; EUR (0.97 Default)" />
+                                    <TextField fx:id="conversionTxt" promptText="USD &gt; EUR (0.92 Default)" />
                                     <HBox alignment="CENTER" prefWidth="151.0">
                                        <children>
                                           <Label alignment="CENTER" contentDisplay="CENTER" text="USD" />

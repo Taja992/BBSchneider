@@ -373,7 +373,7 @@ private void setupCountryBox(){
         double dailyRate = teamModel.calculateTotalDailyRate(teamId);
         if ("€".equals(currencySymbol)) {
             String conversionText = conversionRate.getText();
-            double conversion = 0.97;
+            double conversion = 0.92;
             if (conversionText != null && !conversionText.isEmpty()) {
                 try {
                     conversion = Double.parseDouble(conversionText);
@@ -395,7 +395,7 @@ private void setupCountryBox(){
             double dailyRate = employeeModel.calculateDailyRate(selectedEmployee);
             if ("€".equals(currencySymbol)) {
                 String conversionText = conversionRate.getText();
-                double conversion = 0.97;
+                double conversion = 0.92;
                 if (conversionText != null && !conversionText.isEmpty()) {
                     try {
                         conversion = Double.parseDouble(conversionText);
