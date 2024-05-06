@@ -128,7 +128,7 @@ public class OverviewTab {
             grossMarginComboBox.getItems().add(i + "%");
         }
     }
-    
+
     public void teamRatesListener() {
         //adding a listener to tabPane so the daily/hourly rates of the selected team will be shown
         teamTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -372,6 +372,22 @@ public class OverviewTab {
                     // If the value is within the range, format it to two decimal places
                     markUpTxt.setText(String.format("%.2f", markupValue));
                 }
+
+                // Calculate the multiplier
+                double multiplier = 1 + (markupValue / 100);
+
+                // Get the current hourly and daily rates
+                double hourlyRate = employeeModel.calculateHourlyRate(overviewEmployeeTblView.getSelectionModel().getSelectedItem());
+                double dailyRate = employeeModel.calculateDailyRate(overviewEmployeeTblView.getSelectionModel().getSelectedItem());
+
+                // Apply the multiplier
+                hourlyRate *= multiplier;
+                dailyRate *= multiplier;
+
+                // Update the labels
+                employeeHourlyRateLbl.setText(currencySymbol + String.format("%.2f", hourlyRate) + "/Hour");
+                employeeDayRateLbl.setText(currencySymbol +  String.format("%.2f", dailyRate)+ "/Day");
+
             } catch (NumberFormatException e) {
                 // If the new value is not a number, revert to 0
                 markUpTxt.setText("0.00");
