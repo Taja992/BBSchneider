@@ -96,6 +96,8 @@ public class AppController {
     private TabPane teamTabPane;
     @FXML
     private Button addTeambtn;
+    @FXML
+    private ChoiceBox countryChcBox;
     // -------------------------------------
 
 
@@ -111,14 +113,15 @@ public class AppController {
         //We pass all our FXML elements and employeeModel to the overviewTab class constructor
        OverviewTab overviewTab = new OverviewTab(employeeModel, nameCol, annualSalaryCol, overHeadMultiCol, annualAmountCol,
                countryCol, teamCol, hoursCol, utilCol, overheadCol, overviewEmployeeTblView,
-               employeeDayRateLbl, employeeHourlyRateLbl, searchTextField, teamTabPane, teamModel, addTeambtn, teamDayRateLbl, teamHourlyRateLbl, currencyChangeToggleBtn,
+               employeeDayRateLbl, employeeHourlyRateLbl, searchTextField, teamTabPane, teamModel, addTeambtn, teamDayRateLbl, teamHourlyRateLbl, countryChcBox, currencyChangeToggleBtn,
                grossMarginComboBox, markUpTxt);
        //Create our own initialize to easily call the methods in the class
        overviewTab.initialize();
 
        //This is where we handle our EmployeeTab
        EmployeeTab employeeTab = new EmployeeTab(employeeModel, employeeLV, countryCmbBox, nameTxt, annualSalaryTxt,
-               overheadMultiTxt, annualAmtTxt, overheadChkBox,yearlyHrsTxt, utilizationTxt, addEmployeeBtn, employeesSearchTxt);
+               overheadMultiTxt, annualAmtTxt, overheadChkBox,yearlyHrsTxt, utilizationTxt, addEmployeeBtn,
+               employeesSearchTxt);
 
        employeeTab.initialize();
    }

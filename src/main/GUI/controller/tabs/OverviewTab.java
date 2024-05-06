@@ -8,9 +8,13 @@ import GUI.model.TeamModel;
 import com.neovisionaries.i18n.CountryCode;
 import io.github.palexdev.materialfx.controls.MFXToggleButton;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ComboBoxTableCell;
@@ -55,6 +59,7 @@ public class OverviewTab {
     private Label teamHourlyRateLbl;
     private final Map<String, Integer> teamNameToId = new HashMap<>();
     private final ObservableList<String> allTeamNames = FXCollections.observableArrayList();
+    private ChoiceBox countryChcBox;
 
     public OverviewTab(EmployeeModel employeeModel, TableColumn<Employee, String> nameCol,
                        TableColumn<Employee, BigDecimal> annualSalaryCol, TableColumn<Employee, BigDecimal> overHeadMultiCol,
@@ -64,7 +69,7 @@ public class OverviewTab {
                        TableView<Employee> overviewEmployeeTblView, Label employeeDayRateLbl, Label employeeHourlyRateLbl, TextField searchTextField,
                        TabPane teamTabPane, TeamModel teamModel, Button addTeambtn,
                        Label teamDayRateLbl, Label teamHourlyRateLbl, MFXToggleButton currencyChangeToggleBtn,
-                       ComboBox grossMarginComboBox, TextField markUpTxt) {
+                       ComboBox grossMarginComboBox, TextField markUpTxt, ChoiceBox countryChcBox) {
         this.employeeModel = employeeModel;
         this.nameCol = nameCol;
         this.annualSalaryCol = annualSalaryCol;
@@ -90,6 +95,7 @@ public class OverviewTab {
 
         this.teamDayRateLbl = teamDayRateLbl;
         this.teamHourlyRateLbl = teamHourlyRateLbl;
+        this.countryChcBox = countryChcBox;
     }
 
 
@@ -103,7 +109,8 @@ public class OverviewTab {
         currencyChangeToggleBtnListener();
         markUpListener();
         populateComboBox();
-
+        setupCountryBox();
+        addEmployeeListener();
     }
 
     public void currencyChangeToggleBtnListener() {
@@ -120,13 +127,35 @@ public class OverviewTab {
             if (overviewEmployeeTblView.getSelectionModel().getSelectedItem().getTeamIdEmployee() != null) {
                 setTeamRatesLabel(overviewEmployeeTblView.getSelectionModel().getSelectedItem().getTeamIdEmployee());
             }
-        });
+        }
     }
+
+private void setupCountryBox(){
+    List<String> allCountries = FXCollections.observableArrayList();
+    allCountries.add("All Countries");
+    for(CountryCode code : CountryCode.values()){ //adding list of all countries
+        allCountries.add(code.getName());
+    }
+
+    countryChcBox.getItems().addAll(allCountries);
+    countryChcBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
+        @Override
+        public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+            filterEmployeeTableByCountry((String) newValue);
+        }
+    });
+}
+        
+    
+
 
     public void populateComboBox() {
         for (int i = 0; i <= 100; i++) {
             grossMarginComboBox.getItems().add(i + "%");
         }
+    }
+    private void filterEmployeeTableByCountry(String country){
+        overviewEmployeeTblView.setItems(employeeModel.filterEmployeesByCountry(country));
     }
 
     public void teamRatesListener() {
@@ -148,7 +177,7 @@ public class OverviewTab {
         searchTextField.setOnKeyReleased(event -> {
             String keyword = searchTextField.getText();
             try {
-                ObservableList<Employee> filteredEmployees = employeeModel.searchEmployees(keyword);
+                ObservableList<Employee> filteredEmployees = employeeModel.searchEmployees(keyword, (String) countryChcBox.getSelectionModel().getSelectedItem());
                 overviewEmployeeTblView.setItems(filteredEmployees);
             } catch (BBExceptions e) {
                 e.printStackTrace();
@@ -316,6 +345,7 @@ public class OverviewTab {
     private void addTeam(ActionEvent event) {
         try {
             Team newTeam = new Team(teamModel.getLastTeamId() + 1, "untitled team");
+            System.out.println(newTeam.getId());
             teamModel.newTeam(newTeam);
             //put our newly created team into the hashmap/observable list for employees teamsCol
             teamNameToId.put(newTeam.getName(), newTeam.getId());
@@ -431,10 +461,22 @@ public class OverviewTab {
             formatUtilization();
             makeOverheadEditable();
 
+
             overviewEmployeeTblView.setItems(employees);
         } catch (BBExceptions e) {
             e.printStackTrace();
         }
+    }
+
+    //This listener was added because of a weird bug that once you update an employee the add employee
+    //button wasnt properly updating the tableview anymore
+    public void addEmployeeListener(){
+        employeeModel.employeeAddedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                populateEmployeeTableView();
+                employeeModel.employeeAddedProperty().set(false);
+            }
+        });
     }
 
     public void setupTableView() {
@@ -625,9 +667,10 @@ public class OverviewTab {
     }
 
     private void makeTeamEditable() throws BBExceptions {
-        //We dont need the clear yet but maybe once we add a way to remove/rename teams
-//        teamNameToId.clear();
-//        allTeamNames.clear();
+        //we clear these to prevent getting duplicated lists
+        //teamNameToId = HashMap, allTeamNames = ObservableList- clear both to prevent duplicating
+        teamNameToId.clear();
+        allTeamNames.clear();
         //First we set up a hashmap so we can have a quick link between IDs and Names on the ComboBox
         //we use the getAllTeams method to populate this
         for (Team team : teamModel.getAllTeams()) {
@@ -677,9 +720,12 @@ public class OverviewTab {
             public void updateItem(Boolean item, boolean empty) {
                 super.updateItem(item, empty);
                 if (!empty) {
+                    //we use .getGraphic for a visual representation of the checkbox
                     CheckBox checkBox = (CheckBox) this.getGraphic();
+                    //add a listener onto our checkbox
                     checkBox.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
                         if (isSelected != wasSelected) {
+                            //.getIndex for getting the employee of selected cell
                             Employee employee = this.getTableView().getItems().get(this.getIndex());
                             employee.setIsOverheadCost(isSelected);
                             try {

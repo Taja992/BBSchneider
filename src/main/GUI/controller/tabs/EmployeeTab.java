@@ -21,8 +21,8 @@ public class EmployeeTab {
     private final CheckBox overheadChkBox;
     private final TextField yearlyHrsTxt;
     private final TextField utilizationTxt;
-
     private final TextField employeesSearchTxt;
+
 
 
     public EmployeeTab(EmployeeModel employeeModel, ListView<Employee> employeeLV, ComboBox<String> countryCmbBox,
@@ -54,7 +54,7 @@ public class EmployeeTab {
             String keyword = employeesSearchTxt.getText();
 
             try {
-                ObservableList<Employee> filteredEmployees = employeeModel.searchEmployees(keyword);
+                ObservableList<Employee> filteredEmployees = employeeModel.searchEmployees(keyword, null);
                 employeeLV.setItems(filteredEmployees);
             } catch (BBExceptions e) {
                 e.printStackTrace();
