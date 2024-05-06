@@ -102,7 +102,7 @@ public class OverviewTab {
         teamRatesListener();
         currencyChangeToggleBtnListener();
         markUpListener();
-
+        populateComboBox();
 
     }
 
@@ -123,6 +123,12 @@ public class OverviewTab {
         });
     }
 
+    public void populateComboBox() {
+        for (int i = 0; i <= 100; i++) {
+            grossMarginComboBox.getItems().add(i + "%");
+        }
+    }
+    
     public void teamRatesListener() {
         //adding a listener to tabPane so the daily/hourly rates of the selected team will be shown
         teamTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
