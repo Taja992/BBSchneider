@@ -12,5 +12,7 @@
     <orderEntry type="library" name="mssql-jdbc-12.6.0.jre11" level="project" />
     <orderEntry type="library" name="neovisionaries.nv.i18n1" level="project" />
     <orderEntry type="library" name="xerial.sqlite.jdbc" level="project" />
+    <orderEntry type="library" name="io.github.palexdev.materialfx" level="project" />
+    <orderEntry type="library" name="junit" level="project" />
   </component>
 </module>
