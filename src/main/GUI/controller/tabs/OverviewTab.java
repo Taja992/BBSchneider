@@ -127,8 +127,9 @@ public class OverviewTab {
             if (overviewEmployeeTblView.getSelectionModel().getSelectedItem().getTeamIdEmployee() != null) {
                 setTeamRatesLabel(overviewEmployeeTblView.getSelectionModel().getSelectedItem().getTeamIdEmployee());
             }
-        }
+        });
     }
+
 
 private void setupCountryBox(){
     List<String> allCountries = FXCollections.observableArrayList();
