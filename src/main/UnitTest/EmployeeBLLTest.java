@@ -14,6 +14,8 @@ public class EmployeeBLLTest {
     // creating an instance fo the emplyoeeBLL
     private EmployeeBLL employeeBLL;
 
+    //  @before annotation is used to execute the method before each test
+    //  to set up the test environment and avoid code duplication
     @Before
     public void setUp() {
         employeeBLL = new EmployeeBLL();
