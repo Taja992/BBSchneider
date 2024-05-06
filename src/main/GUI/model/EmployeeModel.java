@@ -47,8 +47,15 @@ public class EmployeeModel {
     }
 
 
-    public ObservableList<Employee> searchEmployees(String keyword) throws BBExceptions {
-        ObservableList<Employee> allEmployees = getEmployees();
+    public ObservableList<Employee> searchEmployees(String keyword, String country) throws BBExceptions {
+        ObservableList<Employee> allEmployees;
+
+        if(country == null || country.isEmpty()){
+            allEmployees = getEmployees();
+        } else {
+            allEmployees = filterEmployeesByCountry(country);
+        }
+
         ObservableList<Employee> filteredEmployees = FXCollections.observableArrayList();
 
         for (Employee employee : allEmployees) {
@@ -100,6 +107,30 @@ public class EmployeeModel {
         // Return the list from the map with .get which gives us the key (TeamId)
         return teamEmployees.get(TeamId);
     }
+
+    public ObservableList<Employee> filterEmployeesByCountry(String country) {
+
+        if(country.equals("All Countries")){
+            try {
+                return getEmployees();
+            } catch (BBExceptions e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        ObservableList<Employee> filteredEmployees = FXCollections.observableArrayList();
+
+        for(Employee employee: employees){
+            if(employee.getCountry().equals(country)){
+                filteredEmployees.add(employee);
+            }
+        }
+
+        return filteredEmployees;
+    }
+
+
+
 
     public void updateEmployee(Employee employee) throws BBExceptions{
 
