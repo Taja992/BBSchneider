@@ -5,6 +5,7 @@ import GUI.controller.tabs.EmployeeTab;
 import GUI.controller.tabs.OverviewTab;
 import GUI.model.EmployeeModel;
 import GUI.model.TeamModel;
+import io.github.palexdev.materialfx.controls.MFXToggleButton;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
@@ -54,6 +55,12 @@ public class AppController {
     //--------------------------------------
     //----------Overview Tab----------------
     @FXML
+    public ComboBox grossMarginComboBox;
+    @FXML
+    public TextField markUpTxt;
+    @FXML
+    public MFXToggleButton currencyChangeToggleBtn;
+    @FXML
     private Label employeeDayRateLbl;
     @FXML
     private Label employeeHourlyRateLbl;
@@ -102,21 +109,21 @@ public class AppController {
         employeeModel = new EmployeeModel();
     }
 
-    public void initialize() {
+   public void initialize() {
         //We pass all our FXML elements and employeeModel to the overviewTab class constructor
-        OverviewTab overviewTab = new OverviewTab(employeeModel, nameCol, annualSalaryCol, overHeadMultiCol,
-                annualAmountCol, countryCol, teamCol, hoursCol, utilCol, overheadCol, overviewEmployeeTblView,
-                employeeDayRateLbl, employeeHourlyRateLbl, searchTextField, teamTabPane, teamModel, addTeambtn,
-                teamDayRateLbl, teamHourlyRateLbl, countryChcBox);
-        //Create our own initialize to easily call the methods in the class
-        overviewTab.initialize();
+       OverviewTab overviewTab = new OverviewTab(employeeModel, nameCol, annualSalaryCol, overHeadMultiCol, annualAmountCol,
+               countryCol, teamCol, hoursCol, utilCol, overheadCol, overviewEmployeeTblView,
+               employeeDayRateLbl, employeeHourlyRateLbl, searchTextField, teamTabPane, teamModel, addTeambtn, teamDayRateLbl, teamHourlyRateLbl, currencyChangeToggleBtn,
+               grossMarginComboBox, markUpTxt, countryChcBox);
+       //Create our own initialize to easily call the methods in the class
+       overviewTab.initialize();
 
-        //This is where we handle our EmployeeTab
-        EmployeeTab employeeTab = new EmployeeTab(employeeModel, employeeLV, countryCmbBox, nameTxt, annualSalaryTxt,
-                overheadMultiTxt, annualAmtTxt, overheadChkBox,yearlyHrsTxt, utilizationTxt, addEmployeeBtn,
-                employeesSearchTxt);
+       //This is where we handle our EmployeeTab
+       EmployeeTab employeeTab = new EmployeeTab(employeeModel, employeeLV, countryCmbBox, nameTxt, annualSalaryTxt,
+               overheadMultiTxt, annualAmtTxt, overheadChkBox,yearlyHrsTxt, utilizationTxt, addEmployeeBtn,
+               employeesSearchTxt);
 
-        employeeTab.initialize();
-    }
+       employeeTab.initialize();
+   }
 
 }
