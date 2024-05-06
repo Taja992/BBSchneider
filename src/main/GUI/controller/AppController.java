@@ -1,11 +1,8 @@
 package GUI.controller;
 
 import BE.Employee;
-import BE.Team;
-import Exceptions.BBExceptions;
 import GUI.controller.tabs.EmployeeTab;
 import GUI.controller.tabs.OverviewTab;
-import GUI.controller.tabs.TeamTab;
 import GUI.model.EmployeeModel;
 import GUI.model.TeamModel;
 import javafx.fxml.FXML;
@@ -95,9 +92,7 @@ public class AppController {
     @FXML
     private ChoiceBox countryChcBox;
     // -------------------------------------
-    //-------------Teams Tab----------------
-    @FXML
-    private ListView<Team> teamsLV;
+
 
     private final EmployeeModel employeeModel;
     private final TeamModel teamModel;
@@ -107,27 +102,21 @@ public class AppController {
         employeeModel = new EmployeeModel();
     }
 
-   public void initialize() throws BBExceptions {
+    public void initialize() {
         //We pass all our FXML elements and employeeModel to the overviewTab class constructor
-       OverviewTab overviewTab = new OverviewTab(employeeModel, nameCol, annualSalaryCol, overHeadMultiCol,
-               annualAmountCol, countryCol, teamCol, hoursCol, utilCol, overheadCol, overviewEmployeeTblView,
-               employeeDayRateLbl, employeeHourlyRateLbl, searchTextField, teamTabPane, teamModel, addTeambtn,
-               teamDayRateLbl, teamHourlyRateLbl, countryChcBox);
-       //Create our own initialize to easily call the methods in the class
-       overviewTab.initialize();
+        OverviewTab overviewTab = new OverviewTab(employeeModel, nameCol, annualSalaryCol, overHeadMultiCol,
+                annualAmountCol, countryCol, teamCol, hoursCol, utilCol, overheadCol, overviewEmployeeTblView,
+                employeeDayRateLbl, employeeHourlyRateLbl, searchTextField, teamTabPane, teamModel, addTeambtn,
+                teamDayRateLbl, teamHourlyRateLbl, countryChcBox);
+        //Create our own initialize to easily call the methods in the class
+        overviewTab.initialize();
 
-       //This is where we handle our EmployeeTab
-       EmployeeTab employeeTab = new EmployeeTab(employeeModel, employeeLV, countryCmbBox, nameTxt, annualSalaryTxt,
-               overheadMultiTxt, annualAmtTxt, overheadChkBox,yearlyHrsTxt, utilizationTxt, addEmployeeBtn,
-               employeesSearchTxt);
+        //This is where we handle our EmployeeTab
+        EmployeeTab employeeTab = new EmployeeTab(employeeModel, employeeLV, countryCmbBox, nameTxt, annualSalaryTxt,
+                overheadMultiTxt, annualAmtTxt, overheadChkBox,yearlyHrsTxt, utilizationTxt, addEmployeeBtn,
+                employeesSearchTxt);
 
-       employeeTab.initialize();
-
-         //This is where we handle our TeamTab
-       TeamTab teamTab = new TeamTab(teamsLV, teamModel);
-       teamTab.initialize();
-
-        teamTab.initialize();
-   }
+        employeeTab.initialize();
+    }
 
 }

@@ -617,11 +617,11 @@ public class OverviewTab {
                 //Because we extend team we are able to set the new team name easily
                 employee.setTeamName(newTeamName);
             }
-                try {
-                    employeeModel.updateEmployee(employee);
-                } catch (BBExceptions e){
-                    e.printStackTrace();
-                }
+            try {
+                employeeModel.updateEmployee(employee);
+            } catch (BBExceptions e){
+                e.printStackTrace();
+            }
         });
     }
 
