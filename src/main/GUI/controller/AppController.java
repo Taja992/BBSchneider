@@ -13,8 +13,8 @@ import java.math.BigDecimal;
 
 public class AppController {
 
-    @FXML
-    private JFXToggleButton currencyChangeToggleBtn;
+
+
     // --------Employee tab ---------------
     @FXML
     private Label annualSalaryLbl;
@@ -58,7 +58,8 @@ public class AppController {
     public ComboBox grossMarginComboBox;
     @FXML
     public TextField markUpTxt;
-
+    @FXML
+    private JFXToggleButton currencyChangeToggleBtn;
     @FXML
     private Label employeeDayRateLbl;
     @FXML
@@ -96,7 +97,9 @@ public class AppController {
     @FXML
     private Button addTeambtn;
     @FXML
-    private ChoiceBox countryChcBox;
+    private ComboBox<String> overviewCountryCmbBox;
+    @FXML
+    private TextField conversionTxt;
     // -------------------------------------
 
 
@@ -113,7 +116,7 @@ public class AppController {
        OverviewTab overviewTab = new OverviewTab(employeeModel, nameCol, annualSalaryCol, overHeadMultiCol, annualAmountCol,
                countryCol, teamCol, hoursCol, utilCol, overheadCol, overviewEmployeeTblView,
                employeeDayRateLbl, employeeHourlyRateLbl, searchTextField, teamTabPane, teamModel, addTeambtn, teamDayRateLbl, teamHourlyRateLbl, currencyChangeToggleBtn,
-               grossMarginComboBox, markUpTxt, countryChcBox);
+               grossMarginComboBox, markUpTxt, overviewCountryCmbBox, conversionTxt);
        //Create our own initialize to easily call the methods in the class
        overviewTab.initialize();
 

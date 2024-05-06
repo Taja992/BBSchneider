@@ -12,16 +12,16 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.layout.StackPane;
 import javafx.util.converter.BigDecimalStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 
@@ -34,9 +34,8 @@ import java.util.Map;
 
 public class OverviewTab {
 
-    private TextField markUpTxt;
+    private final TextField markUpTxt;
     private ComboBox grossMarginComboBox;
-    private double conversionRate = 0.93;
     private String currencySymbol = "$";
     private final TableColumn<Employee, String> nameCol;
     private final TableColumn<Employee, BigDecimal> annualSalaryCol;
@@ -55,12 +54,13 @@ public class OverviewTab {
     private final TabPane teamTabPane;
     private final TeamModel teamModel;
     private final Button addTeambtn;
-    private JFXToggleButton changeCurrencyToggleBtn;
+    private final JFXToggleButton changeCurrencyToggleBtn;
     private Label teamDayRateLbl;
     private Label teamHourlyRateLbl;
     private final Map<String, Integer> teamNameToId = new HashMap<>();
     private final ObservableList<String> allTeamNames = FXCollections.observableArrayList();
-    private ChoiceBox countryChcBox;
+    private final ComboBox<String> overviewCountryCmbBox;
+    private final TextField conversionRate;
 
     public OverviewTab(EmployeeModel employeeModel, TableColumn<Employee, String> nameCol,
                        TableColumn<Employee, BigDecimal> annualSalaryCol, TableColumn<Employee, BigDecimal> overHeadMultiCol,
@@ -70,7 +70,7 @@ public class OverviewTab {
                        TableView<Employee> overviewEmployeeTblView, Label employeeDayRateLbl, Label employeeHourlyRateLbl, TextField searchTextField,
                        TabPane teamTabPane, TeamModel teamModel, Button addTeambtn,
                        Label teamDayRateLbl, Label teamHourlyRateLbl, JFXToggleButton currencyChangeToggleBtn,
-                       ComboBox grossMarginComboBox, TextField markUpTxt, ChoiceBox countryChcBox) {
+                       ComboBox grossMarginComboBox, TextField markUpTxt, ComboBox<String> overviewCountryCmbBox, TextField conversionRate) {
         this.employeeModel = employeeModel;
         this.nameCol = nameCol;
         this.annualSalaryCol = annualSalaryCol;
@@ -91,12 +91,13 @@ public class OverviewTab {
         this.changeCurrencyToggleBtn = currencyChangeToggleBtn;
         this.grossMarginComboBox = grossMarginComboBox;
         this.markUpTxt = markUpTxt;
+        this.conversionRate = conversionRate;
 
         addTeambtn.setOnAction(this::addTeam);
 
         this.teamDayRateLbl = teamDayRateLbl;
         this.teamHourlyRateLbl = teamHourlyRateLbl;
-        this.countryChcBox = countryChcBox;
+        this.overviewCountryCmbBox = overviewCountryCmbBox;
     }
 
 
@@ -112,6 +113,8 @@ public class OverviewTab {
         populateComboBox();
         setupCountryBox();
         addEmployeeListener();
+
+
     }
 
     public void currencyChangeToggleBtnListener() {
@@ -139,8 +142,8 @@ private void setupCountryBox(){
         allCountries.add(code.getName());
     }
 
-    countryChcBox.getItems().addAll(allCountries);
-    countryChcBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
+    overviewCountryCmbBox.getItems().addAll(allCountries);
+    overviewCountryCmbBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
         @Override
         public void changed(ObservableValue observable, Object oldValue, Object newValue) {
             filterEmployeeTableByCountry((String) newValue);
@@ -156,6 +159,7 @@ private void setupCountryBox(){
             grossMarginComboBox.getItems().add(i + "%");
         }
     }
+
     private void filterEmployeeTableByCountry(String country){
         overviewEmployeeTblView.setItems(employeeModel.filterEmployeesByCountry(country));
     }
@@ -179,7 +183,7 @@ private void setupCountryBox(){
         searchTextField.setOnKeyReleased(event -> {
             String keyword = searchTextField.getText();
             try {
-                ObservableList<Employee> filteredEmployees = employeeModel.searchEmployees(keyword, (String) countryChcBox.getSelectionModel().getSelectedItem());
+                ObservableList<Employee> filteredEmployees = employeeModel.searchEmployees(keyword, (String) overviewCountryCmbBox.getSelectionModel().getSelectedItem());
                 overviewEmployeeTblView.setItems(filteredEmployees);
             } catch (BBExceptions e) {
                 e.printStackTrace();
@@ -187,43 +191,44 @@ private void setupCountryBox(){
         });
     }
 
-//    public void makeTabTitleEditable(Tab tab) {
-//        final Label label = new Label(tab.getText());
-//        final TextField textField = new TextField(tab.getText());
-//
-//        textField.setVisible(false); // Initially hide the text field
-//
-//        // When the user clicks the label, show the text field
-//        label.setOnMouseClicked(event -> {
-//            if (event.getClickCount() == 2) {
-//                textField.setVisible(true);
-//                textField.requestFocus();
-//            }
-//        });
-//
-//        // When the user presses Enter, save the new title and hide the text field
-//        textField.setOnAction(event -> {
-//            tab.setText(textField.getText());
-//            label.setText(textField.getText());
-//            textField.setVisible(false);
-//        });
-//
-//        // When the text field loses focus, save the new title and hide the text field
-//        textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
-//            if (!newValue) {
-//                tab.setText(textField.getText());
-//                label.setText(textField.getText());
-//                textField.setVisible(false);
-//            }
-//        });
-//
-//        // Create a StackPane to hold the label and text field
-//        StackPane stackPane = new StackPane();
-//        stackPane.getChildren().addAll(label, textField);
-//
-//        // Set the StackPane as the tab's graphic
-//        tab.setGraphic(stackPane);
-//    }
+    public void makeTabTitleEditable(Tab tab) {
+        final Label label = new Label(tab.getText());
+        final TextField textField = new TextField(tab.getText());
+
+        textField.setVisible(false); // Initially hide the text field
+
+        // When the user clicks the label, show the text field
+        label.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) {
+                textField.setVisible(true);
+                textField.requestFocus();
+            }
+        });
+
+        // When the user presses Enter, save the new title and hide the text field
+        textField.setOnAction(event -> {
+            tab.setText(textField.getText());
+            label.setText(textField.getText());
+            textField.setVisible(false);
+        });
+
+        // When the text field loses focus, save the new title and hide the text field
+        textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {
+                tab.setText(textField.getText());
+                label.setText(textField.getText());
+                textField.setVisible(false);
+            }
+        });
+
+        // Create a StackPane to hold the label and text field
+        StackPane stackPane = new StackPane();
+        stackPane.getChildren().addAll(label, textField);
+        stackPane.setAlignment(Pos.CENTER_LEFT);
+
+        // Set the StackPane as the tab's graphic
+        tab.setGraphic(stackPane);
+    }
 
 
     private void addTableTabs()  {
@@ -235,7 +240,7 @@ private void setupCountryBox(){
                 tab.setClosable(false);
                 tab.setContent(createTableForTeam(team)); //adds a table with the employees from team to the tab
                 teamTabPane.getTabs().add(tab); //add that tab to TabPane
-                //makeTabTitleEditable(tab); // make the tab title editable
+                makeTabTitleEditable(tab); // make the tab title editable
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -348,7 +353,6 @@ private void setupCountryBox(){
         try {
             int generatedId = teamModel.getLastTeamId() + 1;
             Team newTeam = new Team(generatedId, "Team (" + generatedId + ")");
-            System.out.println(newTeam.getId());
             teamModel.newTeam(newTeam);
             //put our newly created team into the hashmap/observable list for employees teamsCol
             teamNameToId.put(newTeam.getName(), newTeam.getId());
@@ -357,7 +361,7 @@ private void setupCountryBox(){
             tab.setClosable(false);
             tab.setContent(createTableForTeam(newTeam));
             teamTabPane.getTabs().add(tab);
-            //makeTabTitleEditable(tab);
+            makeTabTitleEditable(tab);
 
         } catch (BBExceptions e) {
             e.printStackTrace();
@@ -368,8 +372,17 @@ private void setupCountryBox(){
         double hourlyRate = teamModel.calculateTotalHourlyRate(teamId);
         double dailyRate = teamModel.calculateTotalDailyRate(teamId);
         if ("€".equals(currencySymbol)) {
-            hourlyRate *= conversionRate;
-            dailyRate *= conversionRate;
+            String conversionText = conversionRate.getText();
+            double conversion = 0.97;
+            if (conversionText != null && !conversionText.isEmpty()) {
+                try {
+                    conversion = Double.parseDouble(conversionText);
+                } catch (NumberFormatException e) {
+                    showAlert("Invalid input", "Please enter a valid number for the conversion rate.");
+                }
+            }
+            hourlyRate *= conversion;
+            dailyRate *= conversion;
         }
         teamHourlyRateLbl.setText(currencySymbol +  String.format("%.2f", hourlyRate)+ "/Hour");
         teamDayRateLbl.setText(currencySymbol + String.format("%.2f", dailyRate) + "/Day");
@@ -381,8 +394,17 @@ private void setupCountryBox(){
             double hourlyRate = employeeModel.calculateHourlyRate(selectedEmployee);
             double dailyRate = employeeModel.calculateDailyRate(selectedEmployee);
             if ("€".equals(currencySymbol)) {
-                hourlyRate *= conversionRate;
-                dailyRate *= conversionRate;
+                String conversionText = conversionRate.getText();
+                double conversion = 0.97;
+                if (conversionText != null && !conversionText.isEmpty()) {
+                    try {
+                        conversion = Double.parseDouble(conversionText);
+                    } catch (NumberFormatException e) {
+                        showAlert("Invalid input", "Please enter a valid number for the conversion rate.");
+                    }
+                }
+                hourlyRate *= conversion;
+                dailyRate *= conversion;
             }
             employeeHourlyRateLbl.setText(currencySymbol + String.format("%.2f", hourlyRate) + "/Hour");
             employeeDayRateLbl.setText(currencySymbol +  String.format("%.2f", dailyRate)+ "/Day");
@@ -746,5 +768,13 @@ private void setupCountryBox(){
     //////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////
+
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
 
 }
