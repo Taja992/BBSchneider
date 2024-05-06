@@ -126,15 +126,3 @@
     -fx-background-color: #e8e8e8;
     -fx-background-radius: 10;
 }
-
-.currencyTglBtn .line {
-    -fx-stroke: #00A652;
-}
-
-.currencyTglBtn .circle {
-    -fx-stroke: #b5d2c2;
-}
-
-.currencyTglBtn {
-    -fx-toggle-color: green;
-}
