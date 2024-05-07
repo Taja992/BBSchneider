@@ -5,7 +5,10 @@ import DAL.EmployeeDAO;
 import Exceptions.BBExceptions;
 
 import java.sql.SQLException;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.List;
+import java.util.Locale;
 
 public class EmployeeBLL {
     private final EmployeeDAO employeeDAO;
@@ -36,12 +39,30 @@ public class EmployeeBLL {
     public Double calculateHourlyRate(Employee selectedEmployee) {
         double rate = calculateRate(selectedEmployee);
         double hourlyRate = rate / 8; // Assuming 8 working hours in a day, have to ask in sprint review
-        return Double.valueOf(String.format("%.2f", hourlyRate));
+
+        NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
+        nf.setMaximumFractionDigits(2);
+        nf.setMinimumFractionDigits(2);
+
+        try {
+            return nf.parse(nf.format(hourlyRate)).doubleValue();
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public Double calculateDailyRate(Employee selectedEmployee) {
         double dailyRate = calculateRate(selectedEmployee); // The rate calculated is already a daily rate
-        return Double.valueOf(String.format("%.2f", dailyRate));
+
+        NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
+        nf.setMaximumFractionDigits(2);
+        nf.setMinimumFractionDigits(2);
+
+        try {
+            return nf.parse(nf.format(dailyRate)).doubleValue();
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public List<Employee> getAllEmployeesFromTeam(int TeamId) {
