@@ -117,25 +117,7 @@ public class OverviewTab {
 
     }
 
-    public void currencyChangeToggleBtnListener() {
-        changeCurrencyToggleBtn.setOnAction(event -> {
-            if (!changeCurrencyToggleBtn.isSelected()) {
-                // USD selected
-                currencySymbol = "$";
-            } else {
-                // EUR selected
-                currencySymbol = "€";
-            }
-            // Recalculate and update the rates (recalculation to dollar or euro is not yet implemented)
-            calculateEmployeeRates();
-            Employee selectedEmployee = overviewEmployeeTblView.getSelectionModel().getSelectedItem();
-            if (selectedEmployee != null && selectedEmployee.getTeamIdEmployee() != null) {
-                setTeamRatesLabel(selectedEmployee.getTeamIdEmployee());
-            } else {
-                showAlert("No Employee Selected", "Please select an employee before changing the currency.");
-            }
-        });
-    }
+
 
 
 private void setupCountryBox(){
@@ -369,6 +351,23 @@ private void setupCountryBox(){
         } catch (BBExceptions e) {
             e.printStackTrace();
         }
+    }
+
+    public void currencyChangeToggleBtnListener() {
+        changeCurrencyToggleBtn.setOnAction(event -> {
+            if (!changeCurrencyToggleBtn.isSelected()) {
+                // USD selected
+                currencySymbol = "$";
+            } else {
+                // EUR selected
+                currencySymbol = "€";
+            }
+            // Recalculate and update the rates (recalculation to dollar or euro is not yet implemented)
+            calculateEmployeeRates();
+            if (overviewEmployeeTblView.getSelectionModel().getSelectedItem().getTeamIdEmployee() != null) {
+                setTeamRatesLabel(overviewEmployeeTblView.getSelectionModel().getSelectedItem().getTeamIdEmployee());
+            }
+        });
     }
 
     private void setTeamRatesLabel(int teamId){
