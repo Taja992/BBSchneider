@@ -175,4 +175,8 @@ public class EmployeeModel {
         employeesInTeam.addAll(employeeBLL.getAllEmployeesFromTeam(teamId));
     }
 
+    public double calculateMarkUp(double markupValue){
+        return employeeBLL.calculateMarkUp(markupValue);
+    }
+
 }
