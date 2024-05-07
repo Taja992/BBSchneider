@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import io.github.palexdev.materialfx.controls.MFXToggleButton?>
+<?import com.jfoenix.controls.JFXToggleButton?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
-<?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
@@ -21,7 +20,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<TabPane fx:id="mainTabPane" prefHeight="558.0" prefWidth="900.0" styleClass="mainTabPane" stylesheets="/GUI/view/main.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.controller.AppController">
+<TabPane fx:id="mainTabPane" prefHeight="558.0" prefWidth="900.0" styleClass="mainTabPane" stylesheets="/GUI/view/main.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.controller.AppController">
    <tabs>
       <Tab closable="false" text="Overview">
          <content>
@@ -33,7 +32,7 @@
                         <HBox spacing="25.0">
                            <children>
                               <TextField fx:id="searchTextField" maxWidth="160.0" prefHeight="26.0" prefWidth="160.0" />
-                              <ChoiceBox fx:id="countryChcBox" prefWidth="150.0" />
+                              <ComboBox fx:id="overviewCountryCmbBox" prefWidth="150.0" />
                            </children>
                         </HBox>
                         <TableView fx:id="overviewEmployeeTblView">
@@ -83,31 +82,39 @@
                               <Insets top="70.0" />
                            </VBox.margin>
                         </HBox>
-                        <HBox alignment="TOP_CENTER">
+                        <HBox alignment="TOP_CENTER" prefHeight="82.0" prefWidth="168.0">
                            <children>
-                              <Label alignment="CENTER" contentDisplay="CENTER" text="USD">
-                                 <HBox.margin>
-                                    <Insets top="12.0" />
-                                 </HBox.margin>
-                              </Label>
-                              <MFXToggleButton fx:id="currencyChangeToggleBtn" contentDisplay="CENTER" contentDisposition="CENTER" />
-                              <Label alignment="CENTER" contentDisplay="CENTER" text="EUR">
-                                 <HBox.margin>
-                                    <Insets top="12.0" />
-                                 </HBox.margin>
-                              </Label>
+                              <VBox>
+                                 <children>
+                                    <Label text="Conversion Rate:" />
+                                    <TextField fx:id="conversionTxt" promptText="USD &gt; EUR (0.92 Default)" />
+                                    <HBox alignment="CENTER" prefWidth="151.0">
+                                       <children>
+                                          <Label alignment="CENTER" contentDisplay="CENTER" text="USD" />
+                                          <JFXToggleButton fx:id="currencyChangeToggleBtn" contentDisplay="CENTER" prefWidth="66.0" text=" " toggleColor="#00a652" toggleLineColor="#00a34f5a" />
+                                          <Label alignment="CENTER" contentDisplay="CENTER" text="EUR" />
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets />
+                                       </VBox.margin>
+                                    </HBox>
+                                 </children>
+                              </VBox>
                            </children>
+                           <padding>
+                              <Insets top="2.0" />
+                           </padding>
                         </HBox>
                         <Label text="Employee Rates:">
                            <VBox.margin>
-                              <Insets top="25.0" />
+                              <Insets />
                            </VBox.margin>
                         </Label>
                         <Label fx:id="employeeDayRateLbl" text="\$600/Day" />
                         <Label fx:id="employeeHourlyRateLbl" text="\$60/Hr" />
                         <Label text="Team Rates:">
                            <padding>
-                              <Insets top="100.0" />
+                              <Insets top="60.0" />
                            </padding>
                         </Label>
                         <Label fx:id="teamDayRateLbl" text="\$8000/Day" />
