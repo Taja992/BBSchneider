@@ -55,8 +55,8 @@ public class OverviewTab {
     private final TeamModel teamModel;
     private final Button addTeambtn;
     private final JFXToggleButton changeCurrencyToggleBtn;
-    private Label teamDayRateLbl;
-    private Label teamHourlyRateLbl;
+    private final Label teamDayRateLbl;
+    private final Label teamHourlyRateLbl;
     private final Map<String, Integer> teamNameToId = new HashMap<>();
     private final ObservableList<String> allTeamNames = FXCollections.observableArrayList();
     private final ComboBox<String> overviewCountryCmbBox;
@@ -103,7 +103,7 @@ public class OverviewTab {
 
     public void initialize(){
         overviewEmployeeTblView.setEditable(true);
-        ratesListener();
+        employeeRatesListener();
         populateEmployeeTableView();
         setSearchEvent();
         addTableTabs();
@@ -117,10 +117,18 @@ public class OverviewTab {
 
     }
 
+    public void populateComboBox() {
+        for (int i = 0; i <= 100; i++) {
+            grossMarginComboBox.getItems().add(i + "%");
+        }
+    }
 
 
+    ////////////////////////////////////////////////////////
+    //////////////////Filtering/////////////////////////////
+    ////////////////////////////////////////////////////////
 
-private void setupCountryBox(){
+    private void setupCountryBox(){
     List<String> allCountries = FXCollections.observableArrayList();
     allCountries.add("All Countries");
     for(CountryCode code : CountryCode.values()){ //adding list of all countries
@@ -135,33 +143,9 @@ private void setupCountryBox(){
         }
     });
 }
-        
-    
-
-
-    public void populateComboBox() {
-        for (int i = 0; i <= 100; i++) {
-            grossMarginComboBox.getItems().add(i + "%");
-        }
-    }
 
     private void filterEmployeeTableByCountry(String country){
         overviewEmployeeTblView.setItems(employeeModel.filterEmployeesByCountry(country));
-    }
-
-    public void teamRatesListener() {
-        //adding a listener to tabPane so the daily/hourly rates of the selected team will be shown
-        teamTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            TableView<Employee> selectedTable = (TableView<Employee>) newValue.getContent();
-            if(!selectedTable.getItems().isEmpty()){ //if the tableview in the tab isn't empty...
-                int teamId = selectedTable.getItems().getFirst().getTeamIdEmployee(); //get teamId from first row
-                setTeamRatesLabel(teamId); //set all the rates based on the team
-            } else{ //if the tableview is empty, then just print 0's for the rates
-                teamHourlyRateLbl.setText("$0/Hour");
-                teamDayRateLbl.setText("$0/Day");
-            }
-
-        });
     }
 
     private void setSearchEvent() {
@@ -176,7 +160,27 @@ private void setupCountryBox(){
         });
     }
 
-    public void makeTabTitleEditable(Tab tab) {
+    ////////////////////////////////////////////////////////
+    //////////////////Create Team///////////////////////////
+    ////////////////////////////////////////////////////////
+
+    private void addTableTabs()  {
+        List<Team> teams = null;
+        try {
+            teams = teamModel.getAllTeams(); //all the teams
+            for (Team team: teams){ //for each team...
+                Tab tab = new Tab(team.getName()); //create a new tab for that team
+                tab.setClosable(false);
+                tab.setContent(createTableForTeam(team)); //adds a table with the employees from team to the tab
+                teamTabPane.getTabs().add(tab); //add that tab to TabPane
+                makeTeamTabTitleEditable(tab); // make the tab title editable
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void makeTeamTabTitleEditable(Tab tab) {
         final Label label = new Label(tab.getText());
         final TextField textField = new TextField(tab.getText());
 
@@ -213,23 +217,6 @@ private void setupCountryBox(){
 
         // Set the StackPane as the tab's graphic
         tab.setGraphic(stackPane);
-    }
-
-
-    private void addTableTabs()  {
-        List<Team> teams = null;
-        try {
-            teams = teamModel.getAllTeams(); //all the teams
-            for (Team team: teams){ //for each team...
-                Tab tab = new Tab(team.getName()); //create a new tab for that team
-                tab.setClosable(false);
-                tab.setContent(createTableForTeam(team)); //adds a table with the employees from team to the tab
-                teamTabPane.getTabs().add(tab); //add that tab to TabPane
-                makeTabTitleEditable(tab); // make the tab title editable
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private TableView<Employee> createTableForTeam(Team team){
@@ -284,10 +271,10 @@ private void setupCountryBox(){
 
         //formatting all the columns that need it, check the "make editable" methods for more comments
 
-        formatSalaryColumn(salaryCol);
-        formatSalaryColumn(annualCol);
-        formatPercentageColumn(overHeadPerCol);
-        formatPercentageColumn(utilCol);
+        formatSalaryColumnForTeams(salaryCol);
+        formatSalaryColumnForTeams(annualCol);
+        formatPercentageColumnForTeams(overHeadPerCol);
+        formatPercentageColumnForTeams(utilCol);
 
 
         // Get the list of employees for the team
@@ -307,7 +294,7 @@ private void setupCountryBox(){
         return teamTblView;
     }
 
-    private void formatPercentageColumn(TableColumn<Employee, BigDecimal> column){
+    private void formatPercentageColumnForTeams(TableColumn<Employee, BigDecimal> column){
 
         column.setCellFactory(tableColumn -> new TableCell<>() {
             @Override
@@ -317,7 +304,8 @@ private void setupCountryBox(){
             }
         });
     }
-    private void formatSalaryColumn(TableColumn<Employee, BigDecimal> column){
+
+    private void formatSalaryColumnForTeams(TableColumn<Employee, BigDecimal> column){
         NumberFormat salaryFormat = NumberFormat.getNumberInstance();
         salaryFormat.setMinimumFractionDigits(2);
         salaryFormat.setMaximumFractionDigits(2);
@@ -346,12 +334,16 @@ private void setupCountryBox(){
             tab.setClosable(false);
             tab.setContent(createTableForTeam(newTeam));
             teamTabPane.getTabs().add(tab);
-            makeTabTitleEditable(tab);
+            makeTeamTabTitleEditable(tab);
 
         } catch (BBExceptions e) {
             e.printStackTrace();
         }
     }
+
+    ////////////////////////////////////////////////////////
+    ///////////////////////Rates////////////////////////////
+    ////////////////////////////////////////////////////////
 
     public void currencyChangeToggleBtnListener() {
         changeCurrencyToggleBtn.setOnAction(event -> {
@@ -362,15 +354,29 @@ private void setupCountryBox(){
                 // EUR selected
                 currencySymbol = "€";
             }
+            Employee selectedEmployee = overviewEmployeeTblView.getSelectionModel().getSelectedItem();
+            if (selectedEmployee != null) {
             // Recalculate and update the rates (recalculation to dollar or euro is not yet implemented)
             calculateEmployeeRates();
-            if (overviewEmployeeTblView.getSelectionModel().getSelectedItem().getTeamIdEmployee() != null) {
-                setTeamRatesLabel(overviewEmployeeTblView.getSelectionModel().getSelectedItem().getTeamIdEmployee());
+            } else {
+                employeeDayRateLbl.setText("No employee selected");
+                employeeHourlyRateLbl.setText("No employee selected");
+            }
+            Tab selectedTab = teamTabPane.getSelectionModel().getSelectedItem();
+            if (selectedTab != null && selectedTab.getContent() instanceof TableView<?>) {
+                TableView<Employee> selectedTable = (TableView<Employee>) selectedTab.getContent();
+                if (!selectedTable.getItems().isEmpty()) {
+                    int teamId = selectedTable.getItems().getFirst().getTeamIdEmployee();
+                    calculateTeamRates(teamId);
+                } else {
+                    teamDayRateLbl.setText("Team is empty");
+                    teamHourlyRateLbl.setText("Team is empty");
+                }
             }
         });
     }
 
-    private void setTeamRatesLabel(int teamId){
+    private void calculateTeamRates(int teamId){
         double hourlyRate = teamModel.calculateTotalHourlyRate(teamId);
         double dailyRate = teamModel.calculateTotalDailyRate(teamId);
         if ("€".equals(currencySymbol)) {
@@ -452,7 +458,7 @@ private void setupCountryBox(){
         });
     }
 
-    public void ratesListener() {
+    public void employeeRatesListener() {
         // Listener to the overview table view to calculate the rates
         overviewEmployeeTblView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
@@ -461,7 +467,20 @@ private void setupCountryBox(){
         });
     }
 
+    public void teamRatesListener() {
+        //adding a listener to tabPane so the daily/hourly rates of the selected team will be shown
+        teamTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            TableView<Employee> selectedTable = (TableView<Employee>) newValue.getContent();
+            if(!selectedTable.getItems().isEmpty()){ //if the tableview in the tab isn't empty...
+                int teamId = selectedTable.getItems().getFirst().getTeamIdEmployee(); //get teamId from first row
+                calculateTeamRates(teamId); //set all the rates based on the team and the conversion rate
+            } else{ //if the tableview is empty, then just print 0's for the rates
+                teamHourlyRateLbl.setText("$0/Hour");
+                teamDayRateLbl.setText("$0/Day");
+            }
 
+        });
+    }
 
     //////////////////////////////////////////////////////////
     ///////////////Editing Employee Table/////////////////////
@@ -549,7 +568,6 @@ private void setupCountryBox(){
         });
     }
 
-
     public void formatAnnualSalaryCol() {
         NumberFormat format = NumberFormat.getNumberInstance();
         format.setMinimumFractionDigits(2);
@@ -570,6 +588,7 @@ private void setupCountryBox(){
         // After editing, it sets the annual salary in the database with .setOnEditCommit
         makeAnnualSalaryColEditable();
     }
+
     public void makeAnnualSalaryColEditable() {
         annualSalaryCol.setOnEditCommit(event -> {
             Employee employee = event.getRowValue();
@@ -581,7 +600,6 @@ private void setupCountryBox(){
             }
         });
     }
-
 
     public void formatAnnualAmountCol() {
         NumberFormat format = NumberFormat.getNumberInstance();
@@ -603,6 +621,7 @@ private void setupCountryBox(){
         // After editing, it sets the annual salary in the database with .setOnEditCommit
         makeAnnualAmountColEditable();
     }
+
     public void makeAnnualAmountColEditable() {
         // After editing, it sets the annual salary in the database with .setOnEditCommit
         annualAmountCol.setOnEditCommit(event -> {
@@ -615,7 +634,6 @@ private void setupCountryBox(){
             }
         });
     }
-
 
     public void formatUtilization() {
 
@@ -633,6 +651,7 @@ private void setupCountryBox(){
         });
         makeutilizationEditable();
     }
+
     public void makeutilizationEditable(){
         utilCol.setOnEditCommit(event -> {
             Employee employee = event.getRowValue();
@@ -644,7 +663,6 @@ private void setupCountryBox(){
             }
         });
     }
-
 
     public void formatOverheadMultiPercent() {
 
@@ -662,6 +680,7 @@ private void setupCountryBox(){
         });
         makeOverheadMultiPercentEditable();
     }
+
     public void makeOverheadMultiPercentEditable(){
         overHeadMultiCol.setOnEditCommit(event -> {
             Employee employee = event.getRowValue();
@@ -673,7 +692,6 @@ private void setupCountryBox(){
             }
         });
     }
-
 
     public void makeCountryEditable(){
         ObservableList<String> countries = FXCollections.observableArrayList();
