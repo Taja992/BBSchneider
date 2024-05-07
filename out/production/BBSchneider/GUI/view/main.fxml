@@ -19,7 +19,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<TabPane fx:id="mainTabPane" prefHeight="586.0" prefWidth="951.0" styleClass="mainTabPane" stylesheets="/GUI/view/main.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.controller.AppController">
+<TabPane fx:id="mainTabPane" prefHeight="586.0" prefWidth="951.0" styleClass="mainTabPane" stylesheets="/GUI/view/main.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.controller.AppController">
    <tabs>
       <Tab closable="false" text="Overview">
          <content>
@@ -81,25 +81,7 @@
                               <Insets top="70.0" />
                            </VBox.margin>
                         </HBox>
-                        <HBox alignment="TOP_CENTER" prefHeight="82.0" prefWidth="168.0">
-                           <children>
-                              <VBox>
-                                 <children>
-                                    <Label text="Conversion Rate:" />
-                                    <TextField fx:id="conversionTxt" promptText="USD &gt; EUR (0.92 Default)" />
-                                    <HBox alignment="CENTER" prefWidth="151.0">
-                                       <children>
-                                          <Label alignment="CENTER" contentDisplay="CENTER" text="USD" />
-                                          <JFXToggleButton fx:id="currencyChangeToggleBtn" contentDisplay="CENTER" prefWidth="66.0" text=" " toggleColor="#00a652" toggleLineColor="#00a34f5a" />
-                                          <Label alignment="CENTER" contentDisplay="CENTER" text="EUR" />
-                                       </children>
-                                       <VBox.margin>
-                                          <Insets />
-                                       </VBox.margin>
-                                    </HBox>
-                                 </children>
-                              </VBox>
-                           </children>
+                        <HBox alignment="TOP_CENTER" prefHeight="46.0" prefWidth="168.0">
                            <padding>
                               <Insets top="2.0" />
                            </padding>
@@ -117,7 +99,28 @@
                            </padding>
                         </Label>
                         <Label fx:id="teamDayRateLbl" text="\$0/Day" />
-                        <Label fx:id="teamHourlyRateLbl" text="\$0/Hour" />
+                        <Label fx:id="teamHourlyRateLbl" text="\$0/Hour">
+                           <graphic>
+                              <VBox alignment="CENTER">
+                                 <children>
+                                    <Label alignment="CENTER" contentDisplay="CENTER" text="Conversion Rate:" />
+                                    <TextField fx:id="conversionTxt" prefHeight="27.0" prefWidth="100.0" promptText="USD &gt; EUR (0.92 Default)" />
+                                    <HBox alignment="CENTER" prefWidth="151.0">
+                                       <children>
+                                          <Label alignment="CENTER" contentDisplay="CENTER" text="USD" />
+                                          <JFXToggleButton fx:id="currencyChangeToggleBtn" contentDisplay="CENTER" prefWidth="66.0" text=" " toggleColor="#00a652" toggleLineColor="#00a34f5a" />
+                                          <Label alignment="CENTER" contentDisplay="CENTER" text="EUR" />
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets top="30.0" />
+                                       </VBox.margin>
+                                    </HBox>
+                                 </children>
+                                 <padding>
+                                    <Insets left="10.0" top="30.0" />
+                                 </padding>
+                              </VBox>
+                           </graphic></Label>
                      </children>
                      <BorderPane.margin>
                         <Insets left="10.0" right="10.0" />

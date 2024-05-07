@@ -461,16 +461,13 @@ public class OverviewTab {
                     markUpTxt.setText(String.format("%.2f", markupValue));
                 }
 
-                // Calculate the multiplier
-                double multiplier = 1 + (markupValue / 100);
-
                 // Get the current hourly and daily rates
                 double hourlyRate = employeeModel.calculateHourlyRate(overviewEmployeeTblView.getSelectionModel().getSelectedItem());
                 double dailyRate = employeeModel.calculateDailyRate(overviewEmployeeTblView.getSelectionModel().getSelectedItem());
 
-                // Apply the multiplier
-                hourlyRate *= multiplier;
-                dailyRate *= multiplier;
+                // Apply the multiplier using method in employeebll
+                hourlyRate *= employeeModel.calculateMarkUp(markupValue);
+                dailyRate *= employeeModel.calculateMarkUp(markupValue);
 
                 // Update the labels
                 employeeHourlyRateLbl.setText(currencySymbol + String.format("%.2f", hourlyRate) + "/Hour");
