@@ -272,7 +272,7 @@ public class OverviewTab {
         teamTblView.getColumns().add(hoursCol);
 
         TableColumn<Employee, BigDecimal> utilCol = new TableColumn<>();
-        utilCol.setText("util %");
+        utilCol.setText("Util %");
         teamTblView.getColumns().add(utilCol);
 
         TableColumn<Employee, String> overHeadCol = new TableColumn<>();
