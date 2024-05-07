@@ -12,7 +12,6 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -20,7 +19,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<TabPane fx:id="mainTabPane" prefHeight="558.0" prefWidth="900.0" styleClass="mainTabPane" stylesheets="/GUI/view/main.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.controller.AppController">
+<TabPane fx:id="mainTabPane" prefHeight="586.0" prefWidth="951.0" styleClass="mainTabPane" stylesheets="/GUI/view/main.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.controller.AppController">
    <tabs>
       <Tab closable="false" text="Overview">
          <content>
@@ -39,19 +38,19 @@
                            <columns>
                               <TableColumn fx:id="nameCol" prefWidth="63.0" text="Name" />
                               <TableColumn fx:id="annualSalaryCol" prefWidth="90.0" text="Annual Salary" />
-                              <TableColumn fx:id="overHeadMultiCol" prefWidth="92.0" text="Overhead %" />
+                              <TableColumn fx:id="overHeadMultiCol" prefWidth="109.0" text="Overhead %" />
                               <TableColumn fx:id="annualAmountCol" prefWidth="104.0" text="Annual Amount" />
-                              <TableColumn fx:id="countryCol" prefWidth="73.0" text="Country" />
-                              <TableColumn fx:id="teamCol" prefWidth="90.0" text="Team" />
-                              <TableColumn fx:id="hoursCol" prefWidth="75.0" text="Annual Hrs" />
-                              <TableColumn fx:id="utilCol" prefWidth="41.0" text="Util %" />
-                              <TableColumn fx:id="overheadCol" prefWidth="73.0" text="Overhead" />
+                              <TableColumn fx:id="countryCol" prefWidth="104.0" text="Country" />
+                              <TableColumn fx:id="teamCol" prefWidth="63.0" text="Team" />
+                              <TableColumn fx:id="hoursCol" prefWidth="88.0" text="Annual Hrs" />
+                              <TableColumn fx:id="utilCol" prefWidth="61.0" text="Util %" />
+                              <TableColumn fx:id="overheadCol" prefWidth="68.0" text="Overhead" />
                            </columns>
                         </TableView>
-                        <HBox prefHeight="450.0" prefWidth="702.0">
+                        <HBox prefHeight="450.0">
                            <children>
-                              <TabPane fx:id="teamTabPane" prefHeight="66.0" prefWidth="677.0" styleClass="teamTabPane" />
-                              <Button fx:id="addTeambtn" mnemonicParsing="false" text="+" />
+                              <TabPane fx:id="teamTabPane" prefHeight="260.0" prefWidth="728.0" styleClass="teamTabPane" HBox.hgrow="ALWAYS" />
+                              <Button fx:id="addTeambtn" mnemonicParsing="false" text="+" HBox.hgrow="ALWAYS" />
                            </children>
                         </HBox>
                      </children>
@@ -110,15 +109,15 @@
                               <Insets />
                            </VBox.margin>
                         </Label>
-                        <Label fx:id="employeeDayRateLbl" text="\$600/Day" />
-                        <Label fx:id="employeeHourlyRateLbl" text="\$60/Hr" />
+                        <Label fx:id="employeeDayRateLbl" text="No employee selected" />
+                        <Label fx:id="employeeHourlyRateLbl" text="No employee selected" />
                         <Label text="Team Rates:">
                            <padding>
                               <Insets top="60.0" />
                            </padding>
                         </Label>
-                        <Label fx:id="teamDayRateLbl" text="\$8000/Day" />
-                        <Label fx:id="teamHourlyRateLbl" text="\$200/Hr" />
+                        <Label fx:id="teamDayRateLbl" text="\$0/Day" />
+                        <Label fx:id="teamHourlyRateLbl" text="\$0/Hour" />
                      </children>
                      <BorderPane.margin>
                         <Insets left="10.0" right="10.0" />
@@ -279,23 +278,6 @@
             </BorderPane>
          </content>
       </Tab>
-      <Tab closable="false" text="Teams">
-         <content>
-            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-               <children>
-                  <ListView fx:id="teamsLV" layoutX="108.0" layoutY="76.0" prefHeight="348.0" prefWidth="200.0" />
-               </children></AnchorPane>
-         </content>
-      </Tab>
-      <Tab closable="false" text="Graphs">
-         <content>
-            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-         </content>
-      </Tab>
-      <Tab closable="false" text="Overhead">
-         <content>
-            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-         </content>
-      </Tab>
+      <Tab closable="false" text="Teams" />
    </tabs>
 </TabPane>
