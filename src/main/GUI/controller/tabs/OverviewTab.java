@@ -488,6 +488,7 @@ private void setupCountryBox(){
 
 
             overviewEmployeeTblView.setItems(employees);
+            overviewEmployeeTblView.getSelectionModel().selectFirst();
         } catch (BBExceptions e) {
             e.printStackTrace();
         }
