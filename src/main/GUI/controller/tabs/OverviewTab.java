@@ -231,7 +231,7 @@ public class OverviewTab {
                 tab.setClosable(false);
                 tab.setContent(createTableForTeam(team)); //adds a table with the employees from team to the tab
                 teamTabPane.getTabs().add(tab); //add that tab to TabPane
-                makeTabTitleEditable(tab); // make the tab title editable
+                makeTeamTabTitleEditable(tab); // make the tab title editable
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
