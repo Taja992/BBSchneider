@@ -152,7 +152,7 @@ public class OverviewTab {
         searchTextField.setOnKeyReleased(event -> {
             String keyword = searchTextField.getText();
             try {
-                ObservableList<Employee> filteredEmployees = employeeModel.searchEmployees(keyword, (String) overviewCountryCmbBox.getSelectionModel().getSelectedItem());
+                ObservableList<Employee> filteredEmployees = employeeModel.searchEmployees(keyword, overviewCountryCmbBox.getSelectionModel().getSelectedItem());
                 overviewEmployeeTblView.setItems(filteredEmployees);
             } catch (BBExceptions e) {
                 e.printStackTrace();
@@ -189,6 +189,8 @@ public class OverviewTab {
             Team team = (Team) tab.getUserData();
             try {
                 teamModel.updateTeamName(team.getId(), newTeamName);
+                //update combobox show new name
+                makeTeamEditable();
             } catch (BBExceptions e) {
                 e.printStackTrace();
             }
@@ -205,6 +207,8 @@ public class OverviewTab {
                 Team team = (Team) tab.getUserData();
                 try {
                     teamModel.updateTeamName(team.getId(), newTeamName);
+                    //update combobox show new name
+                    makeTeamEditable();
                 } catch (BBExceptions e) {
                     e.printStackTrace();
                 }
@@ -751,8 +755,6 @@ public class OverviewTab {
         teamCol.setCellFactory(ComboBoxTableCell.forTableColumn(allTeamNames));
         //Sorts things alphabetically
         FXCollections.sort(allTeamNames);
-
-
 
 
         teamCol.setOnEditCommit(event -> {
