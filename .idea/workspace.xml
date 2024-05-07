@@ -4,11 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="be1d74e2-6b3c-4baa-b27d-3bbe230e0b27" name="Changes" comment="Employee Team Combobox update to name">
-      <change beforePath="$PROJECT_DIR$/out/production/BBSchneider/localschneiderdatabase.db" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/BBSchneider/localschneiderdatabase.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/GUI/controller/tabs/OverviewTab.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/GUI/controller/tabs/OverviewTab.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/GUI/view/main.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/GUI/view/main.fxml" afterDir="false" />
-    </list>
+    <list default="true" id="be1d74e2-6b3c-4baa-b27d-3bbe230e0b27" name="Changes" comment="Formatting and FXML changes" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -140,39 +136,7 @@
       <workItem from="1714994986800" duration="8105000" />
       <workItem from="1715060729763" duration="58000" />
       <workItem from="1715060890119" duration="11144000" />
-      <workItem from="1715072502766" duration="2628000" />
-    </task>
-    <task id="LOCAL-00050" summary="db">
-      <option name="closed" value="true" />
-      <created>1714324377189</created>
-      <option name="number" value="00050" />
-      <option name="presentableId" value="LOCAL-00050" />
-      <option name="project" value="LOCAL" />
-      <updated>1714324377190</updated>
-    </task>
-    <task id="LOCAL-00051" summary="db">
-      <option name="closed" value="true" />
-      <created>1714325256177</created>
-      <option name="number" value="00051" />
-      <option name="presentableId" value="LOCAL-00051" />
-      <option name="project" value="LOCAL" />
-      <updated>1714325256177</updated>
-    </task>
-    <task id="LOCAL-00052" summary="db">
-      <option name="closed" value="true" />
-      <created>1714325349017</created>
-      <option name="number" value="00052" />
-      <option name="presentableId" value="LOCAL-00052" />
-      <option name="project" value="LOCAL" />
-      <updated>1714325349017</updated>
-    </task>
-    <task id="LOCAL-00053" summary="db">
-      <option name="closed" value="true" />
-      <created>1714325604570</created>
-      <option name="number" value="00053" />
-      <option name="presentableId" value="LOCAL-00053" />
-      <option name="project" value="LOCAL" />
-      <updated>1714325604570</updated>
+      <workItem from="1715072502766" duration="2950000" />
     </task>
     <task id="LOCAL-00054" summary="Fixed issues with editing">
       <option name="closed" value="true" />
@@ -534,7 +498,39 @@
       <option name="project" value="LOCAL" />
       <updated>1715071191572</updated>
     </task>
-    <option name="localTasksCounter" value="99" />
+    <task id="LOCAL-00099" summary="Formatting and FXML changes">
+      <option name="closed" value="true" />
+      <created>1715075377444</created>
+      <option name="number" value="00099" />
+      <option name="presentableId" value="LOCAL-00099" />
+      <option name="project" value="LOCAL" />
+      <updated>1715075377445</updated>
+    </task>
+    <task id="LOCAL-00100" summary="Formatting and FXML changes">
+      <option name="closed" value="true" />
+      <created>1715075398912</created>
+      <option name="number" value="00100" />
+      <option name="presentableId" value="LOCAL-00100" />
+      <option name="project" value="LOCAL" />
+      <updated>1715075398912</updated>
+    </task>
+    <task id="LOCAL-00101" summary="Formatting and FXML changes">
+      <option name="closed" value="true" />
+      <created>1715075438606</created>
+      <option name="number" value="00101" />
+      <option name="presentableId" value="LOCAL-00101" />
+      <option name="project" value="LOCAL" />
+      <updated>1715075438606</updated>
+    </task>
+    <task id="LOCAL-00102" summary="Formatting and FXML changes">
+      <option name="closed" value="true" />
+      <created>1715075450744</created>
+      <option name="number" value="00102" />
+      <option name="presentableId" value="LOCAL-00102" />
+      <option name="project" value="LOCAL" />
+      <updated>1715075450744</updated>
+    </task>
+    <option name="localTasksCounter" value="103" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -552,7 +548,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Changed the getAllEmployee SQL&#10;Extended Employee Object from Teams&#10;Displaying Team Name on table instead of ID" />
     <MESSAGE value="Added ComboBox for Teams to assign employees to teams&#10;set up the TeamDAO to throw BBExceptions&#10;Made teams tabs unclosable&#10;Made teams tabs width shorter" />
     <MESSAGE value="Added Listener + 2 Hashmaps&#10;-The listener is added to createTableForTeam so were able to detect when an employee is added or removed&#10;-The 2 Hashmaps were added to EmployeeModel so we could track changes" />
     <MESSAGE value="Changed the way we add employee so it returns the generated ID so we can edit newly created employees" />
@@ -577,6 +572,7 @@
     <MESSAGE value="undone" />
     <MESSAGE value="Fixed Currency Toggle and organized OverviewTab" />
     <MESSAGE value="Employee Team Combobox update to name" />
-    <option name="LAST_COMMIT_MESSAGE" value="Employee Team Combobox update to name" />
+    <MESSAGE value="Formatting and FXML changes" />
+    <option name="LAST_COMMIT_MESSAGE" value="Formatting and FXML changes" />
   </component>
 </project>
