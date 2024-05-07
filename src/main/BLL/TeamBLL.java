@@ -6,7 +6,10 @@ import DAL.TeamDAO;
 import Exceptions.BBExceptions;
 
 import java.sql.SQLException;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.List;
+import java.util.Locale;
 
 public class TeamBLL {
 
@@ -35,7 +38,16 @@ public class TeamBLL {
         for(Employee employee : employees){
             totalHourlyRate += employeeBLL.calculateHourlyRate(employee);
         }
-        return Double.valueOf(String.format("%.2f", totalHourlyRate));
+
+        NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
+        nf.setMaximumFractionDigits(2);
+        nf.setMinimumFractionDigits(2);
+
+        try {
+            return nf.parse(nf.format(totalHourlyRate)).doubleValue();
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public Double calculateTotalDailyRate(int teamId){
@@ -44,7 +56,16 @@ public class TeamBLL {
         for(Employee employee : employees){
             totalDailyRate += employeeBLL.calculateDailyRate(employee);
         }
-        return Double.valueOf(String.format("%.2f", totalDailyRate));
+
+        NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
+        nf.setMaximumFractionDigits(2);
+        nf.setMinimumFractionDigits(2);
+
+        try {
+            return nf.parse(nf.format(totalDailyRate)).doubleValue();
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void updateTeamName(int teamId, String newTeamName) throws BBExceptions {
