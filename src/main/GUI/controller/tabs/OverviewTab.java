@@ -8,6 +8,7 @@ import GUI.model.TeamModel;
 import com.jfoenix.controls.JFXToggleButton;
 import com.neovisionaries.i18n.CountryCode;
 
+import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -113,8 +114,7 @@ public class OverviewTab {
         populateComboBox();
         setupCountryBox();
         addEmployeeListener();
-
-
+        selectTeamOnStart();
     }
 
     public void populateComboBox() {
@@ -245,6 +245,7 @@ public class OverviewTab {
     private TableView<Employee> createTableForTeam(Team team){
         //creating table and its columns and adding columns to table
         TableView<Employee> teamTblView = new TableView<>();
+        teamTblView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
 
         TableColumn<Employee, String> nameCol = new TableColumn<>();
         nameCol.setText("Name");
@@ -278,9 +279,9 @@ public class OverviewTab {
         overHeadCol.setText("Overhead");
         teamTblView.getColumns().add(overHeadCol);
 
-        TableColumn<Employee, String> rateCol = new TableColumn<>();
-        rateCol.setText("Rates");
-        teamTblView.getColumns().add(rateCol);
+//        TableColumn<Employee, String> rateCol = new TableColumn<>();
+//        rateCol.setText("Rates");
+//        teamTblView.getColumns().add(rateCol);
 
         //setting the column values to their values in the database
         nameCol.setCellValueFactory(new PropertyValueFactory<>("Name"));
@@ -392,14 +393,15 @@ public class OverviewTab {
                     int teamId = selectedTable.getItems().getFirst().getTeamIdEmployee();
                     calculateTeamRates(teamId);
                 } else {
-                    teamDayRateLbl.setText("Team is empty");
-                    teamHourlyRateLbl.setText("Team is empty");
+                    teamDayRateLbl.setText("$0/Day");
+                    teamHourlyRateLbl.setText("$0/Hour");
                 }
             }
         });
     }
 
     private void calculateTeamRates(int teamId){
+
         double hourlyRate = teamModel.calculateTotalHourlyRate(teamId);
         double dailyRate = teamModel.calculateTotalDailyRate(teamId);
         if ("€".equals(currencySymbol)) {
@@ -501,8 +503,17 @@ public class OverviewTab {
                 teamHourlyRateLbl.setText("$0/Hour");
                 teamDayRateLbl.setText("$0/Day");
             }
-
         });
+    }
+
+    public void selectTeamOnStart() {
+
+            teamTabPane.getSelectionModel().selectFirst();
+            TableView<Employee> selectedTable = (TableView<Employee>) teamTabPane.getSelectionModel().getSelectedItem().getContent();
+            if (!selectedTable.getItems().isEmpty()) {
+                int teamId = selectedTable.getItems().getFirst().getTeamIdEmployee();
+                calculateTeamRates(teamId);
+            }
     }
 
     //////////////////////////////////////////////////////////
@@ -530,7 +541,7 @@ public class OverviewTab {
             formatUtilization();
             makeOverheadEditable();
 
-
+            overviewEmployeeTblView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
             overviewEmployeeTblView.setItems(employees);
             overviewEmployeeTblView.getSelectionModel().selectFirst();
         } catch (BBExceptions e) {
