@@ -33,4 +33,8 @@ public class TeamModel {
         return teamBLL.calculateTotalDailyRate(teamId);
     }
 
+    public void updateTeamName(int teamId, String newTeamName) throws BBExceptions {
+        teamBLL.updateTeamName(teamId, newTeamName);
+    }
+
 }

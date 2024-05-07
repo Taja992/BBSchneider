@@ -152,7 +152,7 @@ public class OverviewTab {
         searchTextField.setOnKeyReleased(event -> {
             String keyword = searchTextField.getText();
             try {
-                ObservableList<Employee> filteredEmployees = employeeModel.searchEmployees(keyword, (String) overviewCountryCmbBox.getSelectionModel().getSelectedItem());
+                ObservableList<Employee> filteredEmployees = employeeModel.searchEmployees(keyword, overviewCountryCmbBox.getSelectionModel().getSelectedItem());
                 overviewEmployeeTblView.setItems(filteredEmployees);
             } catch (BBExceptions e) {
                 e.printStackTrace();
@@ -164,21 +164,7 @@ public class OverviewTab {
     //////////////////Create Team///////////////////////////
     ////////////////////////////////////////////////////////
 
-    private void addTableTabs()  {
-        List<Team> teams = null;
-        try {
-            teams = teamModel.getAllTeams(); //all the teams
-            for (Team team: teams){ //for each team...
-                Tab tab = new Tab(team.getName()); //create a new tab for that team
-                tab.setClosable(false);
-                tab.setContent(createTableForTeam(team)); //adds a table with the employees from team to the tab
-                teamTabPane.getTabs().add(tab); //add that tab to TabPane
-                makeTeamTabTitleEditable(tab); // make the tab title editable
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    
 
     public void makeTeamTabTitleEditable(Tab tab) {
         final Label label = new Label(tab.getText());
@@ -194,19 +180,38 @@ public class OverviewTab {
             }
         });
 
-        // When the user presses Enter, save the new title and hide the text field
+        // When the user presses Enter, save the new title, hide the text field, and update the team name in the database
         textField.setOnAction(event -> {
-            tab.setText(textField.getText());
-            label.setText(textField.getText());
+            String newTeamName = textField.getText();
+            tab.setText(newTeamName);
+            label.setText(newTeamName);
             textField.setVisible(false);
+            Team team = (Team) tab.getUserData();
+            try {
+                teamModel.updateTeamName(team.getId(), newTeamName);
+                //update combobox show new name
+                makeTeamEditable();
+            } catch (BBExceptions e) {
+                e.printStackTrace();
+            }
+
         });
 
-        // When the text field loses focus, save the new title and hide the text field
+        // When the text field loses focus, save the new title, hide the text field, and update the team name in the database
         textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue) {
-                tab.setText(textField.getText());
-                label.setText(textField.getText());
+                String newTeamName = textField.getText();
+                tab.setText(newTeamName);
+                label.setText(newTeamName);
                 textField.setVisible(false);
+                Team team = (Team) tab.getUserData();
+                try {
+                    teamModel.updateTeamName(team.getId(), newTeamName);
+                    //update combobox show new name
+                    makeTeamEditable();
+                } catch (BBExceptions e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -217,6 +222,24 @@ public class OverviewTab {
 
         // Set the StackPane as the tab's graphic
         tab.setGraphic(stackPane);
+    }
+
+
+    private void addTableTabs()  {
+        List<Team> teams = null;
+        try {
+            teams = teamModel.getAllTeams(); //all the teams
+            for (Team team: teams){ //for each team...
+                Tab tab = new Tab(team.getName()); //create a new tab for that team
+                tab.setUserData(team);
+                tab.setClosable(false);
+                tab.setContent(createTableForTeam(team)); //adds a table with the employees from team to the tab
+                teamTabPane.getTabs().add(tab); //add that tab to TabPane
+                makeTeamTabTitleEditable(tab); // make the tab title editable
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private TableView<Employee> createTableForTeam(Team team){
@@ -734,8 +757,6 @@ public class OverviewTab {
         FXCollections.sort(allTeamNames);
 
 
-
-
         teamCol.setOnEditCommit(event -> {
             Employee employee = event.getRowValue();
             String newTeamName = event.getNewValue();
@@ -750,11 +771,11 @@ public class OverviewTab {
                 //Because we extend team we are able to set the new team name easily
                 employee.setTeamName(newTeamName);
             }
-                try {
-                    employeeModel.updateEmployee(employee);
-                } catch (BBExceptions e){
-                    e.printStackTrace();
-                }
+            try {
+                employeeModel.updateEmployee(employee);
+            } catch (BBExceptions e){
+                e.printStackTrace();
+            }
         });
     }
 
