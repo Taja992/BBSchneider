@@ -380,7 +380,7 @@ public class OverviewTab {
             }
             Employee selectedEmployee = overviewEmployeeTblView.getSelectionModel().getSelectedItem();
             if (selectedEmployee != null) {
-            // Recalculate and update the rates (recalculation to dollar or euro is not yet implemented)
+            // Recalculate and update the rates
             calculateEmployeeRates();
             } else {
                 employeeDayRateLbl.setText("No employee selected");
