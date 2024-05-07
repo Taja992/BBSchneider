@@ -205,19 +205,34 @@ private void setupCountryBox(){
             }
         });
 
-        // When the user presses Enter, save the new title and hide the text field
+        // When the user presses Enter, save the new title, hide the text field, and update the team name in the database
         textField.setOnAction(event -> {
-            tab.setText(textField.getText());
-            label.setText(textField.getText());
+            String newTeamName = textField.getText();
+            tab.setText(newTeamName);
+            label.setText(newTeamName);
             textField.setVisible(false);
+            Team team = (Team) tab.getUserData();
+            try {
+                teamModel.updateTeamName(team.getId(), newTeamName);
+            } catch (BBExceptions e) {
+                e.printStackTrace();
+            }
+
         });
 
-        // When the text field loses focus, save the new title and hide the text field
+        // When the text field loses focus, save the new title, hide the text field, and update the team name in the database
         textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue) {
-                tab.setText(textField.getText());
-                label.setText(textField.getText());
+                String newTeamName = textField.getText();
+                tab.setText(newTeamName);
+                label.setText(newTeamName);
                 textField.setVisible(false);
+                Team team = (Team) tab.getUserData();
+                try {
+                    teamModel.updateTeamName(team.getId(), newTeamName);
+                } catch (BBExceptions e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -237,6 +252,7 @@ private void setupCountryBox(){
             teams = teamModel.getAllTeams(); //all the teams
             for (Team team: teams){ //for each team...
                 Tab tab = new Tab(team.getName()); //create a new tab for that team
+                tab.setUserData(team);
                 tab.setClosable(false);
                 tab.setContent(createTableForTeam(team)); //adds a table with the employees from team to the tab
                 teamTabPane.getTabs().add(tab); //add that tab to TabPane
