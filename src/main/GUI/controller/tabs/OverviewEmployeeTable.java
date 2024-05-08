@@ -347,7 +347,7 @@ public class OverviewEmployeeTable {
                 employee.setTeamName("No Team");
             } else if (newTeamId != null) {
                 employee.setTeamIdEmployee(newTeamId);
-                //Because we extend team we are able to set the new team name easily
+                //Because we added team object to employee we are able to set the new team name easily
                 employee.setTeamName(newTeamName);
             }
             try {
