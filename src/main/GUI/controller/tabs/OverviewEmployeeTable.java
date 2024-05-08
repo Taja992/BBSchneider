@@ -301,35 +301,41 @@ public class OverviewEmployeeTable {
     }
 
     public void makeTeamEditable() throws BBExceptions {
+        clearTeamData();
+        populateTeamData();
+        setupTeamColumn();
+        handleTeamColumnEdit();
+    }
 
+    private void clearTeamData() {
         teamNameToId.clear();
         allTeamNames.clear();
+    }
 
+    private void populateTeamData() throws BBExceptions {
         for (Team team : teamModel.getAllTeams()) {
-
             teamNameToId.put(team.getName(), team.getId());
         }
-
         allTeamNames.addFirst("No Team");
         allTeamNames.addAll(teamNameToId.keySet());
+        FXCollections.sort(allTeamNames);
+    }
 
+    private void setupTeamColumn() {
         teamCol.setCellValueFactory(new PropertyValueFactory<>("teamName"));
         teamCol.setCellFactory(ComboBoxTableCell.forTableColumn(allTeamNames));
+    }
 
-        FXCollections.sort(allTeamNames);
-
+    private void handleTeamColumnEdit() {
         teamCol.setOnEditCommit(event -> {
             Employee employee = event.getRowValue();
             String newTeamName = event.getNewValue();
-
             Integer newTeamId = teamNameToId.get(newTeamName);
-
             if("No Team".equals(newTeamName)){
                 employee.setTeamIdEmployee(null);
                 employee.setTeamName("No Team");
             } else if (newTeamId != null) {
                 employee.setTeamIdEmployee(newTeamId);
-
                 employee.setTeamName(newTeamName);
             }
             try {
