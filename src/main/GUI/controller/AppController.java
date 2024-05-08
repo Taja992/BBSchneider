@@ -2,6 +2,7 @@ package GUI.controller;
 
 import BE.Employee;
 import GUI.controller.tabs.EmployeeTab;
+import GUI.controller.tabs.OverviewEmployeeTable;
 import GUI.controller.tabs.OverviewTab;
 import GUI.model.EmployeeModel;
 import GUI.model.TeamModel;
@@ -112,11 +113,16 @@ public class AppController {
     }
 
    public void initialize() {
+
+       OverviewEmployeeTable overviewEmployeeTable = new OverviewEmployeeTable(employeeModel, teamModel, nameCol, annualSalaryCol, overHeadMultiCol,
+               annualAmountCol, countryCol, teamCol, hoursCol, utilCol, overheadCol, overviewEmployeeTblView);
+
+       overviewEmployeeTable.initialize();
+
         //We pass all our FXML elements and employeeModel to the overviewTab class constructor
-       OverviewTab overviewTab = new OverviewTab(employeeModel, nameCol, annualSalaryCol, overHeadMultiCol, annualAmountCol,
-               countryCol, teamCol, hoursCol, utilCol, overheadCol, overviewEmployeeTblView,
-               employeeDayRateLbl, employeeHourlyRateLbl, searchTextField, teamTabPane, teamModel, addTeambtn, teamDayRateLbl, teamHourlyRateLbl, currencyChangeToggleBtn,
-               grossMarginComboBox, markUpTxt, overviewCountryCmbBox, conversionTxt);
+       OverviewTab overviewTab = new OverviewTab(employeeModel, employeeDayRateLbl, employeeHourlyRateLbl, searchTextField, teamTabPane,
+               teamModel, addTeambtn, teamDayRateLbl, teamHourlyRateLbl, currencyChangeToggleBtn, grossMarginComboBox, markUpTxt,
+               overviewCountryCmbBox, conversionTxt, overviewEmployeeTable);
        //Create our own initialize to easily call the methods in the class
        overviewTab.initialize();
 
@@ -126,6 +132,8 @@ public class AppController {
                employeesSearchTxt);
 
        employeeTab.initialize();
+
+
    }
 
 }
