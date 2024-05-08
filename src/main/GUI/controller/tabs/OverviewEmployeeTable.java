@@ -308,16 +308,25 @@ public class OverviewEmployeeTable {
     }
 
     private void clearTeamData() {
+        //we clear these to prevent getting duplicated lists
+        //teamNameToId = HashMap, allTeamNames = ObservableList- clear both to prevent duplicating
         teamNameToId.clear();
         allTeamNames.clear();
     }
 
     private void populateTeamData() throws BBExceptions {
+        //First we set up a hashmap so we can have a quick link between IDs and Names on the ComboBox
+        //we use the getAllTeams method to populate this
         for (Team team : teamModel.getAllTeams()) {
+            //when we use .put the first parameter is the "Key" so when we call .keySet it gives us team names
             teamNameToId.put(team.getName(), team.getId());
         }
+        //Add No team to our list to be able to set things to Null
+        //we use addFirst so it stays ontop after sort
         allTeamNames.addFirst("No Team");
+        //now using our hashmap we add everything to out observable list by calling hashmap.keySet
         allTeamNames.addAll(teamNameToId.keySet());
+        //Sorts things alphabetically
         FXCollections.sort(allTeamNames);
     }
 
@@ -330,12 +339,15 @@ public class OverviewEmployeeTable {
         teamCol.setOnEditCommit(event -> {
             Employee employee = event.getRowValue();
             String newTeamName = event.getNewValue();
+            //We then can get our new team Id by inputting the new team name into .get
             Integer newTeamId = teamNameToId.get(newTeamName);
+            //Added an if statement to deal with no team and setting ID to Null
             if("No Team".equals(newTeamName)){
                 employee.setTeamIdEmployee(null);
                 employee.setTeamName("No Team");
             } else if (newTeamId != null) {
                 employee.setTeamIdEmployee(newTeamId);
+                //Because we extend team we are able to set the new team name easily
                 employee.setTeamName(newTeamName);
             }
             try {
