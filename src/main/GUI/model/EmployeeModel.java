@@ -16,8 +16,6 @@ public class EmployeeModel {
     private final EmployeeBLL employeeBLL;
     private final ObservableList<Employee> employees;
 
-    //Added 2 Hashmaps in order to track if an employees Team Id has changed and reflect changes on the tableviews
-    private final Map<Employee, Integer> previousTeamIds = new HashMap<>();
     private final Map<Integer, ObservableList<Employee>> teamEmployees = new HashMap<>();
     private final BooleanProperty employeeAdded = new SimpleBooleanProperty(false);
 
@@ -38,9 +36,6 @@ public class EmployeeModel {
             List<Employee> allEmployees = employeeBLL.getAllEmployees();
             employees.addAll(allEmployees);
 
-            for (Employee employee : allEmployees) {
-                previousTeamIds.put(employee, employee.getTeamIdEmployee());
-            }
         }
         //return our observable list
         return employees;
@@ -133,31 +128,7 @@ public class EmployeeModel {
 
 
     public void updateEmployee(Employee employee) throws BBExceptions{
-
-
-        Integer previousTeamId = previousTeamIds.get(employee);
-        Integer currentTeamId = employee.getTeamIdEmployee();
-
-        //Make these -1 because the hashmap cannot handle null
-        //this is necessary when you add a new employee
-        if(previousTeamId == null){
-            previousTeamId = -1;
-        }
-
-        if(currentTeamId == null){
-            currentTeamId = -1;
-        }
-
         employeeBLL.updateEmployee(employee);
-
-        //if the previous Id(hashmap) does not match the current Id, we call the refresh method
-        if (previousTeamId != null && !previousTeamId.equals(currentTeamId)) {
-            //we call this method twice so both lists get updated
-            refreshEmployeesInTeam(previousTeamId);
-            refreshEmployeesInTeam(currentTeamId);
-        }
-        //then we update our hashmap to set the employee Key to the the Id
-        previousTeamIds.put(employee, currentTeamId);
     }
 
     private void refreshEmployeesInTeam(int teamId) {

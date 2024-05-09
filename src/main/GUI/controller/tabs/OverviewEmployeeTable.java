@@ -31,7 +31,6 @@ public class OverviewEmployeeTable {
     private final TableColumn<Employee, BigDecimal> overHeadMultiCol;
     private final TableColumn<Employee, BigDecimal> annualAmountCol;
     private final TableColumn<Employee, String> countryCol;
-    private final TableColumn<Employee, String> teamCol;
     private final TableColumn<Employee, Integer> hoursCol;
     private final TableColumn<Employee, BigDecimal> utilCol;
     private final TableColumn<Employee, Boolean> overheadCol;
@@ -41,7 +40,12 @@ public class OverviewEmployeeTable {
     private final Map<String, Integer> teamNameToId = new HashMap<>();
     private final ObservableList<String> allTeamNames = FXCollections.observableArrayList();
 
-    public OverviewEmployeeTable (EmployeeModel employeeModel, TeamModel teamModel, TableColumn<Employee, String> nameCol, TableColumn<Employee, BigDecimal> annualSalaryCol, TableColumn<Employee, BigDecimal> overHeadMultiCol, TableColumn<Employee, BigDecimal> annualAmountCol, TableColumn<Employee, String> countryCol, TableColumn<Employee, String> teamCol, TableColumn<Employee, Integer> hoursCol, TableColumn<Employee, BigDecimal> utilCol, TableColumn<Employee, Boolean> overheadCol, TableView<Employee> overviewEmployeeTblView) {
+    public OverviewEmployeeTable (EmployeeModel employeeModel, TeamModel teamModel,
+           TableColumn<Employee, String> nameCol, TableColumn<Employee, BigDecimal> annualSalaryCol,
+           TableColumn<Employee, BigDecimal> overHeadMultiCol, TableColumn<Employee, BigDecimal> annualAmountCol,
+           TableColumn<Employee, String> countryCol, TableColumn<Employee, Integer> hoursCol,
+           TableColumn<Employee, BigDecimal> utilCol, TableColumn<Employee, Boolean> overheadCol,
+           TableView<Employee> overviewEmployeeTblView) {
         this.employeeModel = employeeModel;
         this.teamModel = teamModel;
         this.nameCol = nameCol;
@@ -49,7 +53,6 @@ public class OverviewEmployeeTable {
         this.overHeadMultiCol = overHeadMultiCol;
         this.annualAmountCol = annualAmountCol;
         this.countryCol = countryCol;
-        this.teamCol = teamCol;
         this.hoursCol = hoursCol;
         this.utilCol = utilCol;
         this.overheadCol = overheadCol;
@@ -66,6 +69,10 @@ public class OverviewEmployeeTable {
 
     public TableView<Employee> getTableView() {
         return overviewEmployeeTblView;
+    }
+
+    public Map<String, Integer> getTeamNameToId() {
+        return teamNameToId;
     }
 
     public void initialize(){
@@ -303,8 +310,8 @@ public class OverviewEmployeeTable {
     public void makeTeamEditable() throws BBExceptions {
         clearTeamData();
         populateTeamData();
-        setupTeamColumn();
-        handleTeamColumnEdit();
+        //setupTeamColumn();
+        //handleTeamColumnEdit();
     }
 
     private void clearTeamData() {
@@ -330,11 +337,14 @@ public class OverviewEmployeeTable {
         FXCollections.sort(allTeamNames);
     }
 
+    /*
     private void setupTeamColumn() {
         teamCol.setCellValueFactory(new PropertyValueFactory<>("teamName"));
         teamCol.setCellFactory(ComboBoxTableCell.forTableColumn(allTeamNames));
     }
+     */
 
+    /*
     private void handleTeamColumnEdit() {
         teamCol.setOnEditCommit(event -> {
             Employee employee = event.getRowValue();
@@ -357,6 +367,7 @@ public class OverviewEmployeeTable {
             }
         });
     }
+     */
 
     private void makeOverheadEditable() {
         overheadCol.setCellValueFactory(cellData -> new SimpleBooleanProperty(cellData.getValue().getIsOverheadCost()));
