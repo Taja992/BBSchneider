@@ -8,6 +8,10 @@ import GUI.model.EmployeeModel;
 import GUI.model.TeamModel;
 import com.jfoenix.controls.JFXToggleButton;
 import javafx.fxml.FXML;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.StackedBarChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 
 import java.math.BigDecimal;
@@ -15,7 +19,14 @@ import java.math.BigDecimal;
 public class AppController {
 
 
-
+    @FXML
+    private BarChart<String, Number> barChart;
+    @FXML
+    private javafx.scene.chart.StackedBarChart<String, Number> stackedBarChart;
+    @FXML
+    private Tab employeeTab;
+    @FXML
+    private LineChart<String, Number> lineChart;
     // --------Employee tab ---------------
     @FXML
     private Label annualSalaryLbl;
@@ -132,8 +143,27 @@ public class AppController {
                employeesSearchTxt);
 
        employeeTab.initialize();
-
+       generateMockData();
 
    }
+
+
+    public void generateMockData() {
+        // For LineChart
+        XYChart.Series<String, Number> series1 = new XYChart.Series<>();
+        series1.setName("Team 1");
+        for (int week = 1; week <= 52; week++) {
+            series1.getData().add(new XYChart.Data<>(String.valueOf(week), Math.random() * 5000));
+        }
+        lineChart.getData().add(series1);
+
+        XYChart.Series<String, Number> series2 = new XYChart.Series<>();
+        series2.setName("Team 2");
+        for (int week = 1; week <= 52; week++) {
+            series2.getData().add(new XYChart.Data<>(String.valueOf(week), Math.random() * 5000));
+        }
+        lineChart.getData().add(series2);
+    }
+
 
 }
