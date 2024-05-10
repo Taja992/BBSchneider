@@ -35,6 +35,7 @@ public class EmployeeModel {
             //populate our list from database
             List<Employee> allEmployees = employeeBLL.getAllEmployees();
             employees.addAll(allEmployees);
+
         }
         //return our observable list
         return employees;
@@ -88,17 +89,14 @@ public class EmployeeModel {
     public Double calculateDailyRate(Employee selectedEmployee) {
         return employeeBLL.calculateDailyRate(selectedEmployee);
     }
+
     public ObservableList<Employee> getAllEmployeesFromTeam(int TeamId) {
-        //checks to see if the teamId has already been assigned to Hashmap
-        if (!teamEmployees.containsKey(TeamId)) {
-            //Set up Observable list for tables
-            ObservableList<Employee> empFromTeam = FXCollections.observableArrayList();
-            empFromTeam.addAll(employeeBLL.getAllEmployeesFromTeam(TeamId));
-            //Put the TeamId as the setKey for the list of employees
-            teamEmployees.put(TeamId, empFromTeam);
-        }
-        // Return the list from the map with .get which gives us the key (TeamId)
-        return teamEmployees.get(TeamId);
+        // Set up Observable list for tables
+        ObservableList<Employee> empFromTeam = FXCollections.observableArrayList();
+        empFromTeam.addAll(employeeBLL.getAllEmployeesFromTeam(TeamId));
+
+        // Return the list of employees
+        return empFromTeam;
     }
 
     public ObservableList<Employee> filterEmployeesByCountry(String country) {
