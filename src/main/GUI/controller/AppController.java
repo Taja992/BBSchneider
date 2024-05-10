@@ -21,7 +21,9 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.StackPane;
+import javafx.util.converter.BigDecimalStringConverter;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
@@ -273,58 +275,61 @@ public class AppController {
         TableView<Employee> teamTblView = new TableView<>();
         teamTblView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
 
-        TableColumn<Employee, String> nameCol = new TableColumn<>();
-        nameCol.setText("Name");
-        teamTblView.getColumns().add(nameCol);
+        TableColumn<Employee, String> teamNameCol = new TableColumn<>();
+        teamNameCol.setText("Name");
+        teamTblView.getColumns().add(teamNameCol);
 
-        TableColumn<Employee, BigDecimal> salaryCol = new TableColumn<>();
-        salaryCol.setText("Annual Salary");
-        teamTblView.getColumns().add(salaryCol);
+        TableColumn<Employee, BigDecimal> teamSalaryCol = new TableColumn<>();
+        teamSalaryCol.setText("Annual Salary");
+        teamTblView.getColumns().add(teamSalaryCol);
 
-        TableColumn<Employee, BigDecimal> overHeadPerCol = new TableColumn<>();
-        overHeadPerCol.setText("Overhead %");
-        teamTblView.getColumns().add(overHeadPerCol);
+        TableColumn<Employee, BigDecimal> teamOverHeadPerCol = new TableColumn<>();
+        teamOverHeadPerCol.setText("Overhead %");
+        teamTblView.getColumns().add(teamOverHeadPerCol);
 
-        TableColumn<Employee, BigDecimal> annualCol = new TableColumn<>();
-        annualCol.setText("Annual Amount");
-        teamTblView.getColumns().add(annualCol);
+        TableColumn<Employee, BigDecimal> teamAnnualCol = new TableColumn<>();
+        teamAnnualCol.setText("Annual Amount");
+        teamTblView.getColumns().add(teamAnnualCol);
 
-        TableColumn<Employee, String> countryCol = new TableColumn<>();
-        countryCol.setText("Country");
-        teamTblView.getColumns().add(countryCol);
+        TableColumn<Employee, String> teamCountryCol = new TableColumn<>();
+        teamCountryCol.setText("Country");
+        teamTblView.getColumns().add(teamCountryCol);
 
-        TableColumn<Employee, String> hoursCol = new TableColumn<>();
-        hoursCol.setText("Annual Hrs");
-        teamTblView.getColumns().add(hoursCol);
+        TableColumn<Employee, String> teamHoursCol = new TableColumn<>();
+        teamHoursCol.setText("Annual Hrs");
+        teamTblView.getColumns().add(teamHoursCol);
 
-        TableColumn<Employee, BigDecimal> utilCol = new TableColumn<>();
-        utilCol.setText("Util %");
-        teamTblView.getColumns().add(utilCol);
+        TableColumn<Employee, BigDecimal> teamUtilCol = new TableColumn<>();
+        teamUtilCol.setText("Util %");
+        teamTblView.getColumns().add(teamUtilCol);
 
-        TableColumn<Employee, String> overHeadCol = new TableColumn<>();
-        overHeadCol.setText("Overhead");
-        teamTblView.getColumns().add(overHeadCol);
+        TableColumn<Employee, String> teamOverHeadCol = new TableColumn<>();
+        teamOverHeadCol.setText("Overhead");
+        teamTblView.getColumns().add(teamOverHeadCol);
 
 //        TableColumn<Employee, String> rateCol = new TableColumn<>();
 //        rateCol.setText("Rates");
 //        teamTblView.getColumns().add(rateCol);
 
         //setting the column values to their values in the database
-        nameCol.setCellValueFactory(new PropertyValueFactory<>("Name"));
-        salaryCol.setCellValueFactory(new PropertyValueFactory<>("AnnualSalary"));
-        overHeadPerCol.setCellValueFactory(new PropertyValueFactory<>("OverheadMultiPercent"));
-        annualCol.setCellValueFactory(new PropertyValueFactory<>("AnnualAmount"));
-        countryCol.setCellValueFactory(new PropertyValueFactory<>("Country"));
-        hoursCol.setCellValueFactory(new PropertyValueFactory<>("WorkingHours"));
-        utilCol.setCellValueFactory(new PropertyValueFactory<>("Utilization"));
-        overHeadCol.setCellValueFactory(new PropertyValueFactory<>("isOverheadCost"));
+        teamNameCol.setCellValueFactory(new PropertyValueFactory<>("Name"));
+        teamSalaryCol.setCellValueFactory(new PropertyValueFactory<>("AnnualSalary"));
+        teamOverHeadPerCol.setCellValueFactory(new PropertyValueFactory<>("OverheadMultiPercent"));
+        teamAnnualCol.setCellValueFactory(new PropertyValueFactory<>("AnnualAmount"));
+        teamCountryCol.setCellValueFactory(new PropertyValueFactory<>("Country"));
+        teamHoursCol.setCellValueFactory(new PropertyValueFactory<>("WorkingHours"));
+        teamUtilCol.setCellValueFactory(new PropertyValueFactory<>("Utilization"));
+        teamOverHeadCol.setCellValueFactory(new PropertyValueFactory<>("isOverheadCost"));
+        
 
         //formatting all the columns that need it, check the "make editable" methods for more comments
 
-        formatSalaryColumnForTeams(salaryCol);
-        formatSalaryColumnForTeams(annualCol);
-        formatPercentageColumnForTeams(overHeadPerCol);
-        formatPercentageColumnForTeams(utilCol);
+        formatSalaryColumnForTeams(teamSalaryCol);
+        formatSalaryColumnForTeams(teamAnnualCol);
+        formatPercentageColumnForTeams(teamOverHeadPerCol);
+        formatPercentageColumnForTeams(teamUtilCol);
+
+
 
 
         // Get the list of employees for the team
