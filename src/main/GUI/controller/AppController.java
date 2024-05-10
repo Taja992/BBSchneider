@@ -135,6 +135,7 @@ public class AppController {
        markUpListener();
        populateComboBox();
        setupCountryBox();
+       addCountryListener();
        selectTeamOnStart();
    }
 
@@ -167,20 +168,35 @@ public class AppController {
     //////////////////Filtering/////////////////////////////
     ////////////////////////////////////////////////////////
 
-    private void setupCountryBox(){
-        List<String> allCountries = FXCollections.observableArrayList();
-        allCountries.add("All Countries");
-        for(CountryCode code : CountryCode.values()){ //adding list of all countries
-            allCountries.add(code.getName());
-        }
+    private void setupCountryBox() {
 
-        overviewCountryCmbBox.getItems().addAll(allCountries);
+        overviewCountryCmbBox.getItems().addAll(employeeModel.getAllCountriesUsed());
+        overviewCountryCmbBox.getSelectionModel().select(0);
+
         overviewCountryCmbBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-                filterEmployeeTableByCountry((String) newValue);
+                if(newValue != null){
+                    filterEmployeeTableByCountry((String) newValue);
+                }
             }
         });
+
+    }
+
+    private void addCountryListener(){
+        employeeModel.countryAddedProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue){
+                updateCountryBox();
+                employeeModel.countryAddedProperty().set(false);
+            }
+        });
+    }
+
+    private void updateCountryBox(){
+        overviewCountryCmbBox.getItems().clear();
+        overviewCountryCmbBox.getItems().addAll(employeeModel.getAllCountriesUsed());
+        overviewCountryCmbBox.getSelectionModel().select(0);
     }
 
     private void filterEmployeeTableByCountry(String country){
