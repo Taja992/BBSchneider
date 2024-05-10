@@ -93,7 +93,6 @@ public class OverviewEmployeeTable {
             //Makes columns editable
             makeNameEditable();
             makeCountryEditable();
-            makeTeamEditable();
             makeAnnualHoursEditable();
             //These methods format the tableview to have $ and commas as well as allows them to be editable
             formatAnnualSalaryCol();
@@ -307,67 +306,7 @@ public class OverviewEmployeeTable {
         });
     }
 
-    public void makeTeamEditable() throws BBExceptions {
-        clearTeamData();
-        populateTeamData();
-        //setupTeamColumn();
-        //handleTeamColumnEdit();
-    }
 
-    private void clearTeamData() {
-        //we clear these to prevent getting duplicated lists
-        //teamNameToId = HashMap, allTeamNames = ObservableList- clear both to prevent duplicating
-        teamNameToId.clear();
-        allTeamNames.clear();
-    }
-
-    private void populateTeamData() throws BBExceptions {
-        //First we set up a hashmap so we can have a quick link between IDs and Names on the ComboBox
-        //we use the getAllTeams method to populate this
-        for (Team team : teamModel.getAllTeams()) {
-            //when we use .put the first parameter is the "Key" so when we call .keySet it gives us team names
-            teamNameToId.put(team.getName(), team.getId());
-        }
-        //Add No team to our list to be able to set things to Null
-        //we use addFirst so it stays ontop after sort
-        allTeamNames.addFirst("No Team");
-        //now using our hashmap we add everything to out observable list by calling hashmap.keySet
-        allTeamNames.addAll(teamNameToId.keySet());
-        //Sorts things alphabetically
-        FXCollections.sort(allTeamNames);
-    }
-
-    /*
-    private void setupTeamColumn() {
-        teamCol.setCellValueFactory(new PropertyValueFactory<>("teamName"));
-        teamCol.setCellFactory(ComboBoxTableCell.forTableColumn(allTeamNames));
-    }
-     */
-
-    /*
-    private void handleTeamColumnEdit() {
-        teamCol.setOnEditCommit(event -> {
-            Employee employee = event.getRowValue();
-            String newTeamName = event.getNewValue();
-            //We then can get our new team Id by inputting the new team name into .get
-            Integer newTeamId = teamNameToId.get(newTeamName);
-            //Added an if statement to deal with no team and setting ID to Null
-            if("No Team".equals(newTeamName)){
-                employee.setTeamIdEmployee(null);
-                employee.setTeamName("No Team");
-            } else if (newTeamId != null) {
-                employee.setTeamIdEmployee(newTeamId);
-                //Because we added team object to employee we are able to set the new team name easily
-                employee.setTeamName(newTeamName);
-            }
-            try {
-                employeeModel.updateEmployee(employee);
-            } catch (BBExceptions e){
-                e.printStackTrace();
-            }
-        });
-    }
-     */
 
     private void makeOverheadEditable() {
         overheadCol.setCellValueFactory(cellData -> new SimpleBooleanProperty(cellData.getValue().getIsOverheadCost()));

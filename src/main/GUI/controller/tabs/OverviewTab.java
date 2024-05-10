@@ -39,11 +39,10 @@ public class OverviewTab {
     private final JFXToggleButton changeCurrencyToggleBtn;
     private final Label teamDayRateLbl;
     private final Label teamHourlyRateLbl;
-    private final Map<String, Integer> teamNameToId = new HashMap<>();
-    private final ObservableList<String> allTeamNames = FXCollections.observableArrayList();
     private final ComboBox<String> overviewCountryCmbBox;
     private final TextField conversionRate;
     private OverviewEmployeeTable overviewEmployeeTable;
+
 
     public OverviewTab(EmployeeModel employeeModel, Label employeeDayRateLbl, Label employeeHourlyRateLbl, TextField searchTextField,
                        TabPane teamTabPane, TeamModel teamModel, Button addTeambtn,
@@ -71,7 +70,7 @@ public class OverviewTab {
     }
 
 
-    public void initialize(){
+    public void initialize() {
         employeeRatesListener();
         setSearchEvent();
         addTableTabs();
@@ -155,8 +154,6 @@ public class OverviewTab {
             Team team = (Team) tab.getUserData();
             try {
                 teamModel.updateTeamName(team.getId(), newTeamName);
-                //update combobox show new name
-                overviewEmployeeTable.makeTeamEditable();
             } catch (BBExceptions e) {
                 e.printStackTrace();
             }
@@ -173,8 +170,6 @@ public class OverviewTab {
                 Team team = (Team) tab.getUserData();
                 try {
                     teamModel.updateTeamName(team.getId(), newTeamName);
-                    //update combobox show new name
-                    overviewEmployeeTable.makeTeamEditable();
                 } catch (BBExceptions e) {
                     e.printStackTrace();
                 }
@@ -192,9 +187,8 @@ public class OverviewTab {
 
 
     private void addTableTabs()  {
-        List<Team> teams = null;
-        try {
-            teams = teamModel.getAllTeams(); //all the teams
+
+            ObservableList<Team> teams = teamModel.getAllTeams(); //all the teams
             for (Team team: teams){ //for each team...
                 Tab tab = new Tab(team.getName()); //create a new tab for that team
                 tab.setUserData(team);
@@ -203,9 +197,6 @@ public class OverviewTab {
                 teamTabPane.getTabs().add(tab); //add that tab to TabPane
                 makeTeamTabTitleEditable(tab); // make the tab title editable
             }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private TableView<Employee> createTableForTeam(Team team){
@@ -270,15 +261,6 @@ public class OverviewTab {
         // Get the list of employees for the team
         ObservableList<Employee> employeesInTeam = employeeModel.getAllEmployeesFromTeam(team.getId());
 
-        // Add a listener to the list
-//        employeesInTeam.addListener(new ListChangeListener<Employee>() {
-//            @Override
-//            public void onChanged(Change<? extends Employee> change) {
-//                // When the list changes, update the items of the table
-//                teamTblView.setItems(employeesInTeam);
-//            }
-//        });
-
         teamTblView.setItems(employeesInTeam);
 
         return teamTblView;
@@ -317,10 +299,8 @@ public class OverviewTab {
             int generatedId = teamModel.getLastTeamId() + 1;
             Team newTeam = new Team(generatedId, "Team (" + generatedId + ")");
             teamModel.newTeam(newTeam);
-            //put our newly created team into the hashmap/observable list for employees teamsCol
-            teamNameToId.put(newTeam.getName(), newTeam.getId());
-            allTeamNames.add(newTeam.getName());
             Tab tab = new Tab(newTeam.getName());
+            tab.setUserData(newTeam); //So our new tab carries the team data
             tab.setClosable(false);
             tab.setContent(createTableForTeam(newTeam));
             teamTabPane.getTabs().add(tab);
@@ -356,8 +336,8 @@ public class OverviewTab {
             if (selectedTab != null && selectedTab.getContent() instanceof TableView<?>) {
                 TableView<Employee> selectedTable = (TableView<Employee>) selectedTab.getContent();
                 if (!selectedTable.getItems().isEmpty()) {
-                    //int teamId = selectedTable.getItems().getFirst().getTeamIdEmployee();
-                    int teamId = overviewEmployeeTable.getTeamNameToId().get(selectedTab.getText());
+                    Team team = (Team) selectedTab.getUserData(); //get the Team object from the selected tab
+                    int teamId = team.getId(); //get the teamId from the Team object
                     calculateTeamRates(teamId);
                 } else {
                     teamDayRateLbl.setText("$0/Day");
@@ -461,10 +441,8 @@ public class OverviewTab {
         //adding a listener to tabPane so the daily/hourly rates of the selected team will be shown
         teamTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue != null){ //if the selected tab isn't empty
-                int teamId = overviewEmployeeTable.getTeamNameToId().get(newValue.getText()); //getting the Id of the tab with this name
-                //normally the code above would be a bad idea since there could be 2 teams with the same Id,
-                //but since we're going to add a function to make sure 2 teams can't have the same name, this is fine
-                //hopefully
+                Team team = (Team) newValue.getUserData(); //get the Team object from the selected tab
+                int teamId = team.getId(); //get the teamId from the Team object
                 calculateTeamRates(teamId); //set all the rates based on the team and the conversion rate
             } else{ //if the tableview is empty, then just print 0's for the rates
                 teamHourlyRateLbl.setText("$0/Hour");
@@ -474,10 +452,9 @@ public class OverviewTab {
     }
 
     public void selectTeamOnStart() {
-        teamTabPane.getSelectionModel().selectFirst();
-        int teamId = overviewEmployeeTable.getTeamNameToId().get(teamTabPane.getSelectionModel().getSelectedItem().getText()); //getting Id from the name of the tab
-        calculateTeamRates(teamId);
 
+        int teamId = teamModel.getAllTeams().getFirst().getId(); //getting our first team
+        calculateTeamRates(teamId);
     }
 
     //////////////////////////////////////////////////////////
