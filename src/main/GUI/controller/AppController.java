@@ -99,6 +99,11 @@ public class AppController {
     private ComboBox<String> overviewCountryCmbBox;
     @FXML
     private TextField conversionRateTxt;
+    @FXML
+    private Label countryDayRateLbl;
+    @FXML
+    private Label countryHourlyRateLbl;
+
     // -------------------------------------
 
     private String currencySymbol = "$";
@@ -136,6 +141,7 @@ public class AppController {
        populateComboBox();
        setupCountryBox();
        addCountryListener();
+       countryRatesListener();
        selectTeamOnStart();
    }
 
@@ -458,6 +464,32 @@ public class AppController {
         });
     }
 
+    private void calculateCountryRates(String country){
+
+        double hourlyRate = employeeModel.calculateTotalHourlyRateForCountry(country);
+        double dailyRate = employeeModel.calculateTotalDailyRateForCountry(country);
+
+        //convert the currency if needed
+        if ("€".equals(currencySymbol)) {
+            String conversionText = conversionRateTxt.getText();
+            double conversion = 0.92; //default conversion rate if nothing is set
+            if(conversionText != null && !conversionText.isEmpty()){
+                try{
+                    conversion = Double.parseDouble(conversionText);
+                } catch(NumberFormatException e){
+                    showAlert("Invalid input", "Please enter a valid number for the conversion rate.");
+                }
+            }
+
+            hourlyRate *= conversion;
+            dailyRate *= conversion;
+
+        }
+
+        countryHourlyRateLbl.setText(currencySymbol + String.format("%.2f",hourlyRate)+ "/Hour");
+        countryDayRateLbl.setText(currencySymbol + String.format("%.2f",dailyRate)+ "/Day");
+    }
+
     private void calculateTeamRates(int teamId){
 
         double hourlyRate = teamModel.calculateTotalHourlyRate(teamId);
@@ -558,6 +590,21 @@ public class AppController {
             } else{ //if the tableview is empty, then just print 0's for the rates
                 teamHourlyRateLbl.setText("$0.00/Hour");
                 teamDayRateLbl.setText("$0.00/Day");
+            }
+        });
+    }
+
+    private void countryRatesListener(){
+        //adding a listener to the country combobox so the total country rates can be update
+        overviewCountryCmbBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                if(newValue != null){
+                    calculateCountryRates(newValue);
+                }else{
+                    teamHourlyRateLbl.setText("$0.00/Hour");
+                    teamDayRateLbl.setText("$0.00/Day");
+                }
             }
         });
     }

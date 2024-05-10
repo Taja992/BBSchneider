@@ -23,7 +23,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<ScrollPane fitToWidth="true" prefHeight="539.0" prefWidth="1013.0" stylesheets="/GUI/view/main.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.controller.AppController">
+<ScrollPane fitToWidth="true" prefHeight="539.0" prefWidth="1013.0" stylesheets="/GUI/view/main.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.controller.AppController">
    <content>
       <VBox VBox.vgrow="ALWAYS">
          <children>
@@ -101,9 +101,16 @@
                                     </Label>
                                     <Label fx:id="employeeDayRateLbl" text="No employee selected" />
                                     <Label fx:id="employeeHourlyRateLbl" text="No employee selected" />
+                                    <Label prefWidth="82.0" text="Country Rates:">
+                                       <padding>
+                                          <Insets top="25.0" />
+                                       </padding>
+                                    </Label>
+                                    <Label fx:id="countryDayRateLbl" text="\$0.00/Day" />
+                                    <Label fx:id="countryHourlyRateLbl" text="\$0.00/Hour" />
                                     <Label text="Team Rates:">
                                        <padding>
-                                          <Insets top="60.0" />
+                                          <Insets top="25.0" />
                                        </padding>
                                     </Label>
                                     <Label fx:id="teamDayRateLbl" text="\$0.00/Day" />

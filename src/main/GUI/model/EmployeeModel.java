@@ -113,6 +113,14 @@ public class EmployeeModel {
         return employeeBLL.calculateDailyRate(selectedEmployee);
     }
 
+    public Double calculateTotalHourlyRateForCountry(String country){
+        return employeeBLL.calculateTotalHourlyRateForCountry(country);
+    }
+
+    public Double calculateTotalDailyRateForCountry(String country){
+        return employeeBLL.calculateTotalDailyRateForCountry(country);
+    }
+
     public ObservableList<Employee> getAllEmployeesFromTeam(int TeamId) {
         // Set up Observable list for tables
         ObservableList<Employee> empFromTeam = FXCollections.observableArrayList();
