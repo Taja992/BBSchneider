@@ -106,7 +106,6 @@ public class AppController {
     private final EmployeeModel employeeModel;
     private final TeamModel teamModel;
 
-    private boolean isAlertShown = false;
 
     public AppController(){
         teamModel = new TeamModel();
@@ -209,11 +208,15 @@ public class AppController {
 
         textField.setVisible(false); // Initially hide the text field
 
+        // Add a boolean variable to check if the Enter key was pressed
+        final boolean[] isEnterPressed = {false};
+
         // When the user clicks the label, show the text field
         label.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
                 textField.setVisible(true);
                 textField.requestFocus();
+                isEnterPressed[0] = false; // Reset the isEnterPressed variable when the TextField gains focus
             }
         });
 
@@ -228,34 +231,27 @@ public class AppController {
                 try {
                     teamModel.updateTeamName(team.getId(), newTeamName);
                 } catch (BBExceptions e) {
-                    e.printStackTrace();
+                    // handle exception
                 }
+                isEnterPressed[0] = true; // Set the isEnterPressed variable to true when the Enter key is pressed
             } else {
-                isAlertShown = true;
                 showAlert("Invalid Team Name", "This team name already exists. Please choose a different name.");
-                isAlertShown = false;
+                textField.setText(tab.getText());
             }
         });
 
-        // When the text field loses focus, save the new title, hide the text field, and update the team name in the database
+        // When the TextField gains focus, store the current text
         textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue && !isAlertShown) {
-                String newTeamName = textField.getText();
-                if (isTeamNameUnique(newTeamName)) {
-                    tab.setText(newTeamName);
-                    label.setText(newTeamName);
-                    textField.setVisible(false);
-                    Team team = (Team) tab.getUserData();
-                    try {
-                        teamModel.updateTeamName(team.getId(), newTeamName);
-                    } catch (BBExceptions e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    isAlertShown = true;
-                    showAlert("Invalid Team Name", "This team name already exists. Please choose a different name.");
-                    isAlertShown = false;
-                    textField.requestFocus();
+            if (newValue) { // If TextField has gained focus
+                textField.setUserData(textField.getText());
+            } else { // If TextField has lost focus
+                // Check if the text has been changed and if the Enter key was not pressed
+                if (!textField.getText().equals(textField.getUserData()) && !isEnterPressed[0]) {
+                    Platform.runLater(() -> {
+                        showAlert("Unsaved Changes", "You didn't save your changes. The team name will be reverted to its original value.");
+                        textField.setText((String) textField.getUserData());
+                        textField.setVisible(false);
+                    });
                 }
             }
         });
@@ -557,13 +553,12 @@ public class AppController {
     //////////////////////////////////////////////////////////
 
     private void showAlert(String title, String message) {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle(title);
-            alert.setHeaderText(null);
-            alert.setContentText(message);
-            alert.showAndWait();
-        });
-
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
+
+
 }
