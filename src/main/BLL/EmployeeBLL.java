@@ -78,12 +78,25 @@ public class EmployeeBLL {
         for(Employee employee: allEmployees){
             if(employee.getCountry().equals(country)){
                 totalRate += calculateHourlyRate(employee);
-            } else if (country == "All Countries"){ //if it's "All Countries" then add everyone to total
+            }
+            /*
+            //deleting this for now bc for some reason it shows the total rates for all countires as "infinity"
+            else if (country == "All Countries"){ //if it's "All Countries" then add everyone to total
                 //this might make the program slow in the future so feel free to delete it
                 totalRate += calculateHourlyRate(employee);
             }
+             */
         }
-        return totalRate;
+
+        NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
+        nf.setMaximumFractionDigits(2);
+        nf.setMinimumFractionDigits(2);
+
+        try {
+            return nf.parse(nf.format(totalRate)).doubleValue();
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public Double calculateTotalDailyRateForCountry(String country){
@@ -99,11 +112,22 @@ public class EmployeeBLL {
         for(Employee employee: allEmployees){
             if(employee.getCountry().equals(country)){
                 totalRate += calculateDailyRate(employee);
-            }else if (country == "All Countries"){
+            }
+            /*
+            else if (country == "All Countries"){
                 totalRate += calculateHourlyRate(employee);
             }
+             */
         }
-        return totalRate;
+        NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
+        nf.setMaximumFractionDigits(2);
+        nf.setMinimumFractionDigits(2);
+
+        try {
+            return nf.parse(nf.format(totalRate)).doubleValue();
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public double calculateMarkUp(double markupValue){

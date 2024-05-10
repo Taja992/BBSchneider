@@ -106,8 +106,8 @@
                                           <Insets top="25.0" />
                                        </padding>
                                     </Label>
-                                    <Label fx:id="countryDayRateLbl" text="\$0.00/Day" />
-                                    <Label fx:id="countryHourlyRateLbl" text="\$0.00/Hour" />
+                                    <Label fx:id="countryDayRateLbl" text="No country selected" />
+                                    <Label fx:id="countryHourlyRateLbl" text="No country selected" />
                                     <Label text="Team Rates:">
                                        <padding>
                                           <Insets top="25.0" />

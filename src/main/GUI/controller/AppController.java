@@ -184,6 +184,9 @@ public class AppController {
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
                 if(newValue != null){
                     filterEmployeeTableByCountry((String) newValue);
+                } else {
+                    countryDayRateLbl.setText("No country selected");
+                    countryHourlyRateLbl.setText("No country selected");
                 }
             }
         });
@@ -441,6 +444,8 @@ public class AppController {
                 // EUR selected
                 currencySymbol = "€";
             }
+
+            //updating Employee rates
             Employee selectedEmployee = overviewEmployeeTable.getSelectedEmployee();
             if (selectedEmployee != null) {
                 // Recalculate and update the rates
@@ -449,6 +454,8 @@ public class AppController {
                 employeeDayRateLbl.setText("No employee selected");
                 employeeHourlyRateLbl.setText("No employee selected");
             }
+
+            //updating total team rates
             Tab selectedTab = teamTabPane.getSelectionModel().getSelectedItem();
             if (selectedTab != null && selectedTab.getContent() instanceof TableView<?>) {
                 TableView<Employee> selectedTable = (TableView<Employee>) selectedTab.getContent();
@@ -461,6 +468,13 @@ public class AppController {
                     teamHourlyRateLbl.setText("$0.00/Hour");
                 }
             }
+
+            if(overviewCountryCmbBox.getSelectionModel().getSelectedItem() != null){
+                String selectedCountry = overviewCountryCmbBox.getSelectionModel().getSelectedItem();
+                calculateCountryRates(selectedCountry);
+            }
+
+
         });
     }
 
