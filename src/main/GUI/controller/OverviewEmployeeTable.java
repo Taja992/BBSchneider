@@ -36,8 +36,6 @@ public class OverviewEmployeeTable {
     private final TableView<Employee> overviewEmployeeTblView;
     private final EmployeeModel employeeModel;
     private final TeamModel teamModel;
-    private final Map<String, Integer> teamNameToId = new HashMap<>();
-    private final ObservableList<String> allTeamNames = FXCollections.observableArrayList();
 
     public OverviewEmployeeTable (EmployeeModel employeeModel, TeamModel teamModel,
            TableColumn<Employee, String> nameCol, TableColumn<Employee, BigDecimal> annualSalaryCol,
@@ -70,9 +68,6 @@ public class OverviewEmployeeTable {
         return overviewEmployeeTblView;
     }
 
-    public Map<String, Integer> getTeamNameToId() {
-        return teamNameToId;
-    }
 
     public void initialize(){
         overviewEmployeeTblView.setEditable(true);
@@ -309,28 +304,31 @@ public class OverviewEmployeeTable {
 
     private void makeOverheadEditable() {
         overheadCol.setCellValueFactory(cellData -> new SimpleBooleanProperty(cellData.getValue().getIsOverheadCost()));
-        // Make the cell able to become a checkbox
-        overheadCol.setCellFactory(tableColumn -> new CheckBoxTableCell<>() {
-            @Override
-            public void updateItem(Boolean item, boolean empty) {
-                super.updateItem(item, empty);
-                if (!empty) {
-                    //we use .getGraphic for a visual representation of the checkbox
-                    CheckBox checkBox = (CheckBox) this.getGraphic();
-                    //add a listener onto our checkbox
-                    checkBox.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
-                        if (isSelected != wasSelected) {
-                            //.getIndex for getting the employee of selected cell
-                            Employee employee = this.getTableView().getItems().get(this.getIndex());
-                            employee.setIsOverheadCost(isSelected);
-                            try {
-                                employeeModel.updateEmployee(employee);
-                            } catch (BBExceptions e) {
-                                e.printStackTrace();
-                            }
+        overheadCol.setCellFactory(tableColumn -> {
+            CheckBoxTableCell<Employee, Boolean> cell = new CheckBoxTableCell<>();
+            CheckBox checkBox = (CheckBox) cell.getGraphic();
+            if (checkBox != null) {
+                checkBox.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
+                    if (isSelected != wasSelected) {
+                        Employee employee = cell.getTableView().getItems().get(cell.getIndex());
+                        employee.setIsOverheadCost(isSelected);
+                        try {
+                            employeeModel.updateEmployee(employee);
+                        } catch (BBExceptions e) {
+                            e.printStackTrace();
                         }
-                    });
-                }
+                    }
+                });
+            }
+            return cell;
+        });
+        overheadCol.setOnEditCommit(event -> {
+            Employee employee = event.getRowValue();
+            employee.setIsOverheadCost(event.getNewValue());
+            try {
+                employeeModel.updateEmployee(employee);
+            } catch (BBExceptions e) {
+                e.printStackTrace();
             }
         });
     }
