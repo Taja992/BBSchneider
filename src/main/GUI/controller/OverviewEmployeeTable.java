@@ -1,7 +1,6 @@
-package GUI.controller.tabs;
+package GUI.controller;
 
 import BE.Employee;
-import BE.Team;
 import Exceptions.BBExceptions;
 import GUI.model.EmployeeModel;
 import GUI.model.TeamModel;
