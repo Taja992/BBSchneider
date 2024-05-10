@@ -58,7 +58,7 @@
                                     <HBox prefHeight="450.0">
                                        <children>
                                           <TabPane fx:id="teamTabPane" prefHeight="260.0" prefWidth="728.0" styleClass="teamTabPane" HBox.hgrow="ALWAYS" />
-                                          <Button fx:id="addTeambtn" mnemonicParsing="false" text="+" HBox.hgrow="ALWAYS" />
+                                          <Button fx:id="addTeambtn" mnemonicParsing="false" onAction="#addTeam" text="+" HBox.hgrow="ALWAYS" />
                                        </children>
                                     </HBox>
                                  </children>
@@ -111,11 +111,11 @@
                                     <VBox alignment="CENTER">
                                        <children>
                                           <Label alignment="CENTER" contentDisplay="CENTER" text="Conversion Rate:" />
-                                          <TextField fx:id="conversionTxt" prefHeight="27.0" prefWidth="100.0" promptText="USD &gt; EUR (0.92 Default)" />
+                                          <TextField fx:id="conversionRateTxt" prefHeight="27.0" prefWidth="100.0" promptText="USD &gt; EUR (0.92 Default)" />
                                           <HBox alignment="CENTER" prefWidth="151.0">
                                              <children>
                                                 <Label alignment="CENTER" contentDisplay="CENTER" text="USD" />
-                                                <JFXToggleButton fx:id="currencyChangeToggleBtn" contentDisplay="CENTER" prefWidth="66.0" text=" " toggleColor="#00a652" toggleLineColor="#00a34f5a" />
+                                                <JFXToggleButton fx:id="changeCurrencyToggleBtn" contentDisplay="CENTER" prefWidth="66.0" text=" " toggleColor="#00a652" toggleLineColor="#00a34f5a" />
                                                 <Label alignment="CENTER" contentDisplay="CENTER" text="EUR" />
                                              </children>
                                              <VBox.margin>
