@@ -126,31 +126,31 @@ public class TeamDAO {
     }
 
 
-//    public List<Team> getTeamsForEmployee(int employeeId) throws BBExceptions {
-//        List<Team> teams = new ArrayList<>();
-//
-//        String sql = "SELECT Team.* FROM Team" +
-//                " INNER JOIN Connection ON Team.Team_Id = Connection.Team_Id" +
-//                " WHERE Connection.Emp_Id = ?";
-//
-//        try (Connection connection = connectionManager.getConnection();
-//             PreparedStatement ps = connection.prepareStatement(sql)) {
-//
-//            ps.setInt(1, employeeId);
-//
-//            ResultSet rs = ps.executeQuery();
-//
-//            while (rs.next()) {
-//                Team team = new Team();
-//                team.setId(rs.getInt("Team_Id"));
-//                team.setName(rs.getString("Team_Name"));
-//
-//                teams.add(team);
-//            }
-//        } catch (SQLException e) {
-//            throw new BBExceptions("Error retrieving all teams for employee with ID " + employeeId, e);
-//        }
-//
-//        return teams;
-//    }
+    public List<Team> getTeamsForEmployee(int employeeId) throws BBExceptions {
+        List<Team> teams = new ArrayList<>();
+
+        String sql = "SELECT Team.* FROM Team" +
+                " INNER JOIN Connection ON Team.Team_Id = Connection.Team_Id" +
+                " WHERE Connection.Emp_Id = ?";
+
+        try (Connection connection = connectionManager.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setInt(1, employeeId);
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Team team = new Team();
+                team.setId(rs.getInt("Team_Id"));
+                team.setName(rs.getString("Team_Name"));
+
+                teams.add(team);
+            }
+        } catch (SQLException e) {
+            throw new BBExceptions("Error retrieving all teams for employee with ID " + employeeId, e);
+        }
+
+        return teams;
+    }
    }

@@ -44,8 +44,8 @@ public class TeamModel {
         teamBLL.updateTeamName(teamId, newTeamName);
     }
 
-    public void getTeamsForEmployee(int employeeId) throws BBExceptions {
-        teamBLL.getTeamsForEmployee(employeeId);
+    public List<Team> getTeamsForEmployee(int employeeId) throws BBExceptions {
+        return teamBLL.getTeamsForEmployee(employeeId);
     }
 
 }

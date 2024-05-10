@@ -1,7 +1,10 @@
 package DAL;
 
 import BE.Employee;
+import BE.Team;
 import Exceptions.BBExceptions;
+
+import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -141,4 +144,24 @@ EmployeeDAO {
         }
     }
 
+    public BigDecimal getUtilizationForTeam(Employee employee, Team team) throws BBExceptions {
+        String sql = "SELECT Utilization FROM Connection WHERE Emp_Id = ? AND Team_Id = ?";
+
+        try (Connection connection = connectionManager.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setInt(1, employee.getId());
+            ps.setInt(2, team.getId());
+
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getBigDecimal("Utilization");
+            } else {
+                throw new BBExceptions("No utilization found for employee with ID " + employee.getId() + " in team with ID " + team.getId());
+            }
+        } catch (SQLException e) {
+            throw new BBExceptions("Error retrieving utilization for employee in team", e);
+        }
+    }
 }

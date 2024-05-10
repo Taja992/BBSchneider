@@ -7,6 +7,7 @@ import GUI.model.EmployeeModel;
 import GUI.model.TeamModel;
 import com.neovisionaries.i18n.CountryCode;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.CheckBox;
@@ -104,11 +105,29 @@ public class OverviewEmployeeTable {
             formatUtilization();
             makeOverheadEditable();
 
+            formatTeamUtilColSum();
+
             overviewEmployeeTblView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
             overviewEmployeeTblView.setItems(employees);
         } catch (BBExceptions e) {
             e.printStackTrace();
         }
+    }
+
+    private void formatTeamUtilColSum() {
+        // Set the cell value factory for the teamUtilColSum column
+        teamUtilColSum.setCellValueFactory(cellData -> {
+            Employee employee = cellData.getValue();
+            BigDecimal totalUtilization = BigDecimal.ZERO;
+            try {
+                for (Team team : teamModel.getTeamsForEmployee(employee.getId())) {
+                    totalUtilization = totalUtilization.add(employeeModel.getUtilizationForTeam(employee, team));
+                }
+            } catch (BBExceptions e) {
+                throw new RuntimeException(e);
+            }
+            return new SimpleObjectProperty<>(totalUtilization);
+        });
     }
 
     //This listener was added because of a weird bug that once you update an employee the add employee
@@ -246,10 +265,6 @@ public class OverviewEmployeeTable {
             }
         });
         makeutilizationEditable();
-    }
-
-    private void formatTeamUtilizationSum() {
-
     }
 
     private void makeutilizationEditable(){

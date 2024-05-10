@@ -1,6 +1,7 @@
 package GUI.model;
 
 import BE.Employee;
+import BE.Team;
 import BLL.EmployeeBLL;
 import Exceptions.BBExceptions;
 import javafx.beans.property.BooleanProperty;
@@ -8,6 +9,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -137,4 +139,7 @@ public class EmployeeModel {
         return employeeBLL.calculateMarkUp(markupValue);
     }
 
+    public BigDecimal getUtilizationForTeam(Employee employee, Team team) throws BBExceptions {
+        return employeeBLL.getUtilizationForTeam(employee, team);
+    }
 }
