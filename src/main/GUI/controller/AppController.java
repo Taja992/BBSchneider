@@ -9,6 +9,7 @@ import GUI.model.EmployeeModel;
 import GUI.model.TeamModel;
 import com.jfoenix.controls.JFXToggleButton;
 import com.neovisionaries.i18n.CountryCode;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -105,6 +106,8 @@ public class AppController {
     private final EmployeeModel employeeModel;
     private final TeamModel teamModel;
 
+    private boolean isAlertShown = false;
+
     public AppController(){
         teamModel = new TeamModel();
         employeeModel = new EmployeeModel();
@@ -132,6 +135,7 @@ public class AppController {
        markUpListener();
        populateComboBox();
        setupCountryBox();
+       addCountryListener();
        selectTeamOnStart();
    }
 
@@ -164,20 +168,35 @@ public class AppController {
     //////////////////Filtering/////////////////////////////
     ////////////////////////////////////////////////////////
 
-    private void setupCountryBox(){
-        List<String> allCountries = FXCollections.observableArrayList();
-        allCountries.add("All Countries");
-        for(CountryCode code : CountryCode.values()){ //adding list of all countries
-            allCountries.add(code.getName());
-        }
+    private void setupCountryBox() {
 
-        overviewCountryCmbBox.getItems().addAll(allCountries);
+        overviewCountryCmbBox.getItems().addAll(employeeModel.getAllCountriesUsed());
+        overviewCountryCmbBox.getSelectionModel().select(0);
+
         overviewCountryCmbBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-                filterEmployeeTableByCountry((String) newValue);
+                if(newValue != null){
+                    filterEmployeeTableByCountry((String) newValue);
+                }
             }
         });
+
+    }
+
+    private void addCountryListener(){
+        employeeModel.countryAddedProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue){
+                updateCountryBox();
+                employeeModel.countryAddedProperty().set(false);
+            }
+        });
+    }
+
+    private void updateCountryBox(){
+        overviewCountryCmbBox.getItems().clear();
+        overviewCountryCmbBox.getItems().addAll(employeeModel.getAllCountriesUsed());
+        overviewCountryCmbBox.getSelectionModel().select(0);
     }
 
     private void filterEmployeeTableByCountry(String country){
@@ -200,7 +219,7 @@ public class AppController {
     //////////////////Create Team///////////////////////////
     ////////////////////////////////////////////////////////
 
-    public void makeTeamTabTitleEditable(Tab tab) {
+    private void makeTeamTabTitleEditable(Tab tab) {
         final Label label = new Label(tab.getText());
         final TextField textField = new TextField(tab.getText());
 
@@ -217,22 +236,7 @@ public class AppController {
         // When the user presses Enter, save the new title, hide the text field, and update the team name in the database
         textField.setOnAction(event -> {
             String newTeamName = textField.getText();
-            tab.setText(newTeamName);
-            label.setText(newTeamName);
-            textField.setVisible(false);
-            Team team = (Team) tab.getUserData();
-            try {
-                teamModel.updateTeamName(team.getId(), newTeamName);
-            } catch (BBExceptions e) {
-                e.printStackTrace();
-            }
-
-        });
-
-        // When the text field loses focus, save the new title, hide the text field, and update the team name in the database
-        textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue) {
-                String newTeamName = textField.getText();
+            if (isTeamNameUnique(newTeamName)) {
                 tab.setText(newTeamName);
                 label.setText(newTeamName);
                 textField.setVisible(false);
@@ -241,6 +245,33 @@ public class AppController {
                     teamModel.updateTeamName(team.getId(), newTeamName);
                 } catch (BBExceptions e) {
                     e.printStackTrace();
+                }
+            } else {
+                isAlertShown = true;
+                showAlert("Invalid Team Name", "This team name already exists. Please choose a different name.");
+                isAlertShown = false;
+            }
+        });
+
+        // When the text field loses focus, save the new title, hide the text field, and update the team name in the database
+        textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue && !isAlertShown) {
+                String newTeamName = textField.getText();
+                if (isTeamNameUnique(newTeamName)) {
+                    tab.setText(newTeamName);
+                    label.setText(newTeamName);
+                    textField.setVisible(false);
+                    Team team = (Team) tab.getUserData();
+                    try {
+                        teamModel.updateTeamName(team.getId(), newTeamName);
+                    } catch (BBExceptions e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    isAlertShown = true;
+                    showAlert("Invalid Team Name", "This team name already exists. Please choose a different name.");
+                    isAlertShown = false;
+                    textField.requestFocus();
                 }
             }
         });
@@ -252,6 +283,16 @@ public class AppController {
 
         // Set the StackPane as the tab's graphic
         tab.setGraphic(stackPane);
+    }
+
+    // Check if the new team name is unique
+    private boolean isTeamNameUnique(String newTeamName) {
+        for (Tab teamTab : teamTabPane.getTabs()) {
+            if (teamTab.getText().equals(newTeamName)) {
+                return false;
+            }
+        }
+        return true;
     }
 
 
@@ -532,12 +573,13 @@ public class AppController {
     //////////////////////////////////////////////////////////
 
     private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle(title);
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            alert.showAndWait();
+        });
+
     }
-
-
 }
