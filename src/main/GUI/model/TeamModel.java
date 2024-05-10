@@ -4,6 +4,8 @@ import BE.Team;
 import BLL.TeamBLL;
 import DAL.TeamDAO;
 import Exceptions.BBExceptions;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -13,8 +15,13 @@ public class TeamModel {
     TeamBLL teamBLL = new TeamBLL();
 
 
-    public List<Team> getAllTeams() throws BBExceptions {
-        return teamBLL.getAllTeams();
+    public ObservableList<Team> getAllTeams() {
+        try {
+            List<Team> teamList = teamBLL.getAllTeams();
+            return FXCollections.observableArrayList(teamList);
+        } catch (BBExceptions e) {
+            throw new RuntimeException("Error getting all teams", e);
+        }
     }
 
     public void newTeam(Team team) throws BBExceptions {

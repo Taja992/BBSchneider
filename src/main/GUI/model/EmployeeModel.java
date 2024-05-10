@@ -35,7 +35,6 @@ public class EmployeeModel {
             //populate our list from database
             List<Employee> allEmployees = employeeBLL.getAllEmployees();
             employees.addAll(allEmployees);
-
         }
         //return our observable list
         return employees;
@@ -98,7 +97,6 @@ public class EmployeeModel {
             //Put the TeamId as the setKey for the list of employees
             teamEmployees.put(TeamId, empFromTeam);
         }
-
         // Return the list from the map with .get which gives us the key (TeamId)
         return teamEmployees.get(TeamId);
     }
