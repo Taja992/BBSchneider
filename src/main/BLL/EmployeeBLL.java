@@ -65,6 +65,47 @@ public class EmployeeBLL {
         }
     }
 
+    public Double calculateTotalHourlyRateForCountry(String country){
+
+        List<Employee> allEmployees = null;
+        try {
+            allEmployees = getAllEmployees();
+        } catch (BBExceptions e) {
+            throw new RuntimeException(e);
+        }
+
+        Double totalRate = 0.0;
+        for(Employee employee: allEmployees){
+            if(employee.getCountry().equals(country)){
+                totalRate += calculateHourlyRate(employee);
+            } else if (country == "All Countries"){ //if it's "All Countries" then add everyone to total
+                //this might make the program slow in the future so feel free to delete it
+                totalRate += calculateHourlyRate(employee);
+            }
+        }
+        return totalRate;
+    }
+
+    public Double calculateTotalDailyRateForCountry(String country){
+
+        List<Employee> allEmployees = null;
+        try {
+            allEmployees = getAllEmployees();
+        } catch (BBExceptions e) {
+            throw new RuntimeException(e);
+        }
+
+        Double totalRate = 0.0;
+        for(Employee employee: allEmployees){
+            if(employee.getCountry().equals(country)){
+                totalRate += calculateDailyRate(employee);
+            }else if (country == "All Countries"){
+                totalRate += calculateHourlyRate(employee);
+            }
+        }
+        return totalRate;
+    }
+
     public double calculateMarkUp(double markupValue){
         return 1 + (markupValue / 100);
     }

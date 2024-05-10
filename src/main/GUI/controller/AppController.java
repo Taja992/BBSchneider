@@ -4,11 +4,11 @@ import BE.Employee;
 import BE.Team;
 import Exceptions.BBExceptions;
 import GUI.controller.tabs.EmployeeTab;
-import GUI.controller.tabs.OverviewEmployeeTable;
 import GUI.model.EmployeeModel;
 import GUI.model.TeamModel;
 import com.jfoenix.controls.JFXToggleButton;
 import com.neovisionaries.i18n.CountryCode;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -16,7 +16,6 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
-import javafx.scene.chart.BarChart;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
@@ -98,12 +97,19 @@ public class AppController {
     private ComboBox<String> overviewCountryCmbBox;
     @FXML
     private TextField conversionRateTxt;
+    @FXML
+    private Label countryDayRateLbl;
+    @FXML
+    private Label countryHourlyRateLbl;
+
     // -------------------------------------
 
     private String currencySymbol = "$";
     private OverviewEmployeeTable overviewEmployeeTable;
     private final EmployeeModel employeeModel;
     private final TeamModel teamModel;
+
+    private boolean isAlertShown = false;
 
     public AppController(){
         teamModel = new TeamModel();
@@ -132,6 +138,8 @@ public class AppController {
        markUpListener();
        populateComboBox();
        setupCountryBox();
+       addCountryListener();
+       countryRatesListener();
        selectTeamOnStart();
    }
 
@@ -164,20 +172,35 @@ public class AppController {
     //////////////////Filtering/////////////////////////////
     ////////////////////////////////////////////////////////
 
-    private void setupCountryBox(){
-        List<String> allCountries = FXCollections.observableArrayList();
-        allCountries.add("All Countries");
-        for(CountryCode code : CountryCode.values()){ //adding list of all countries
-            allCountries.add(code.getName());
-        }
+    private void setupCountryBox() {
 
-        overviewCountryCmbBox.getItems().addAll(allCountries);
+        overviewCountryCmbBox.getItems().addAll(employeeModel.getAllCountriesUsed());
+        overviewCountryCmbBox.getSelectionModel().select(0);
+
         overviewCountryCmbBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-                filterEmployeeTableByCountry((String) newValue);
+                if(newValue != null){
+                    filterEmployeeTableByCountry((String) newValue);
+                }
             }
         });
+
+    }
+
+    private void addCountryListener(){
+        employeeModel.countryAddedProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue){
+                updateCountryBox();
+                employeeModel.countryAddedProperty().set(false);
+            }
+        });
+    }
+
+    private void updateCountryBox(){
+        overviewCountryCmbBox.getItems().clear();
+        overviewCountryCmbBox.getItems().addAll(employeeModel.getAllCountriesUsed());
+        overviewCountryCmbBox.getSelectionModel().select(0);
     }
 
     private void filterEmployeeTableByCountry(String country){
@@ -200,7 +223,7 @@ public class AppController {
     //////////////////Create Team///////////////////////////
     ////////////////////////////////////////////////////////
 
-    public void makeTeamTabTitleEditable(Tab tab) {
+    private void makeTeamTabTitleEditable(Tab tab) {
         final Label label = new Label(tab.getText());
         final TextField textField = new TextField(tab.getText());
 
@@ -217,22 +240,7 @@ public class AppController {
         // When the user presses Enter, save the new title, hide the text field, and update the team name in the database
         textField.setOnAction(event -> {
             String newTeamName = textField.getText();
-            tab.setText(newTeamName);
-            label.setText(newTeamName);
-            textField.setVisible(false);
-            Team team = (Team) tab.getUserData();
-            try {
-                teamModel.updateTeamName(team.getId(), newTeamName);
-            } catch (BBExceptions e) {
-                e.printStackTrace();
-            }
-
-        });
-
-        // When the text field loses focus, save the new title, hide the text field, and update the team name in the database
-        textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue) {
-                String newTeamName = textField.getText();
+            if (isTeamNameUnique(newTeamName)) {
                 tab.setText(newTeamName);
                 label.setText(newTeamName);
                 textField.setVisible(false);
@@ -241,6 +249,33 @@ public class AppController {
                     teamModel.updateTeamName(team.getId(), newTeamName);
                 } catch (BBExceptions e) {
                     e.printStackTrace();
+                }
+            } else {
+                isAlertShown = true;
+                showAlert("Invalid Team Name", "This team name already exists. Please choose a different name.");
+                isAlertShown = false;
+            }
+        });
+
+        // When the text field loses focus, save the new title, hide the text field, and update the team name in the database
+        textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue && !isAlertShown) {
+                String newTeamName = textField.getText();
+                if (isTeamNameUnique(newTeamName)) {
+                    tab.setText(newTeamName);
+                    label.setText(newTeamName);
+                    textField.setVisible(false);
+                    Team team = (Team) tab.getUserData();
+                    try {
+                        teamModel.updateTeamName(team.getId(), newTeamName);
+                    } catch (BBExceptions e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    isAlertShown = true;
+                    showAlert("Invalid Team Name", "This team name already exists. Please choose a different name.");
+                    isAlertShown = false;
+                    textField.requestFocus();
                 }
             }
         });
@@ -252,6 +287,16 @@ public class AppController {
 
         // Set the StackPane as the tab's graphic
         tab.setGraphic(stackPane);
+    }
+
+    // Check if the new team name is unique
+    private boolean isTeamNameUnique(String newTeamName) {
+        for (Tab teamTab : teamTabPane.getTabs()) {
+            if (teamTab.getText().equals(newTeamName)) {
+                return false;
+            }
+        }
+        return true;
     }
 
 
@@ -417,6 +462,32 @@ public class AppController {
         });
     }
 
+    private void calculateCountryRates(String country){
+
+        double hourlyRate = employeeModel.calculateTotalHourlyRateForCountry(country);
+        double dailyRate = employeeModel.calculateTotalDailyRateForCountry(country);
+
+        //convert the currency if needed
+        if ("€".equals(currencySymbol)) {
+            String conversionText = conversionRateTxt.getText();
+            double conversion = 0.92; //default conversion rate if nothing is set
+            if(conversionText != null && !conversionText.isEmpty()){
+                try{
+                    conversion = Double.parseDouble(conversionText);
+                } catch(NumberFormatException e){
+                    showAlert("Invalid input", "Please enter a valid number for the conversion rate.");
+                }
+            }
+
+            hourlyRate *= conversion;
+            dailyRate *= conversion;
+
+        }
+
+        countryHourlyRateLbl.setText(currencySymbol + String.format("%.2f",hourlyRate)+ "/Hour");
+        countryDayRateLbl.setText(currencySymbol + String.format("%.2f",dailyRate)+ "/Day");
+    }
+
     private void calculateTeamRates(int teamId){
 
         double hourlyRate = teamModel.calculateTotalHourlyRate(teamId);
@@ -521,6 +592,21 @@ public class AppController {
         });
     }
 
+    private void countryRatesListener(){
+        //adding a listener to the country combobox so the total country rates can be update
+        overviewCountryCmbBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                if(newValue != null){
+                    calculateCountryRates(newValue);
+                }else{
+                    teamHourlyRateLbl.setText("$0.00/Hour");
+                    teamDayRateLbl.setText("$0.00/Day");
+                }
+            }
+        });
+    }
+
     public void selectTeamOnStart() {
 
         int teamId = teamModel.getAllTeams().getFirst().getId(); //getting our first team
@@ -532,12 +618,13 @@ public class AppController {
     //////////////////////////////////////////////////////////
 
     private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle(title);
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            alert.showAndWait();
+        });
+
     }
-
-
 }
