@@ -9,28 +9,9 @@ public class Employee {
     private BigDecimal overheadMultiPercent;
     private BigDecimal annualAmount;
     private String country;
-    private Integer teamIdEmployee;
     private int workingHours;
     private BigDecimal utilization;
     private boolean isOverheadCost;
-    private Team team;
-    private String teamName;
-
-    public Team getTeam() {
-        return team;
-    }
-
-    public void setTeam(Team team) {
-        this.team = team;
-    }
-
-    public String getTeamName() {
-        return teamName;
-    }
-
-    public void setTeamName(String teamName) {
-        this.teamName = teamName;
-    }
 
 
     public int getId() {
@@ -79,14 +60,6 @@ public class Employee {
 
     public void setCountry(String country) {
         this.country = country;
-    }
-
-    public Integer getTeamIdEmployee() {
-        return teamIdEmployee;
-    }
-
-    public void setTeamIdEmployee(Integer teamIdEmployee) {
-        this.teamIdEmployee = teamIdEmployee;
     }
 
     public int getWorkingHours() {

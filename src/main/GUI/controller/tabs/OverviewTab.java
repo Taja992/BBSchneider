@@ -356,7 +356,8 @@ public class OverviewTab {
             if (selectedTab != null && selectedTab.getContent() instanceof TableView<?>) {
                 TableView<Employee> selectedTable = (TableView<Employee>) selectedTab.getContent();
                 if (!selectedTable.getItems().isEmpty()) {
-                    int teamId = selectedTable.getItems().getFirst().getTeamIdEmployee();
+                    //int teamId = selectedTable.getItems().getFirst().getTeamIdEmployee();
+                    int teamId = overviewEmployeeTable.getTeamNameToId().get(selectedTab.getText());
                     calculateTeamRates(teamId);
                 } else {
                     teamDayRateLbl.setText("$0/Day");
@@ -459,9 +460,11 @@ public class OverviewTab {
     public void teamRatesListener() {
         //adding a listener to tabPane so the daily/hourly rates of the selected team will be shown
         teamTabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            TableView<Employee> selectedTable = (TableView<Employee>) newValue.getContent();
-            if(!selectedTable.getItems().isEmpty()){ //if the tableview in the tab isn't empty...
-                int teamId = selectedTable.getItems().getFirst().getTeamIdEmployee(); //get teamId from first row
+            if(newValue != null){ //if the selected tab isn't empty
+                int teamId = overviewEmployeeTable.getTeamNameToId().get(newValue.getText()); //getting the Id of the tab with this name
+                //normally the code above would be a bad idea since there could be 2 teams with the same Id,
+                //but since we're going to add a function to make sure 2 teams can't have the same name, this is fine
+                //hopefully
                 calculateTeamRates(teamId); //set all the rates based on the team and the conversion rate
             } else{ //if the tableview is empty, then just print 0's for the rates
                 teamHourlyRateLbl.setText("$0/Hour");
@@ -471,13 +474,10 @@ public class OverviewTab {
     }
 
     public void selectTeamOnStart() {
+        teamTabPane.getSelectionModel().selectFirst();
+        int teamId = overviewEmployeeTable.getTeamNameToId().get(teamTabPane.getSelectionModel().getSelectedItem().getText()); //getting Id from the name of the tab
+        calculateTeamRates(teamId);
 
-            teamTabPane.getSelectionModel().selectFirst();
-            TableView<Employee> selectedTable = (TableView<Employee>) teamTabPane.getSelectionModel().getSelectedItem().getContent();
-            if (!selectedTable.getItems().isEmpty()) {
-                int teamId = selectedTable.getItems().getFirst().getTeamIdEmployee();
-                calculateTeamRates(teamId);
-            }
     }
 
     //////////////////////////////////////////////////////////

@@ -91,8 +91,6 @@ public class AppController {
     @FXML
     private TableColumn<Employee, String> countryCol;
     @FXML
-    private TableColumn<Employee, String> teamCol;
-    @FXML
     private TableColumn<Employee, Integer> hoursCol;
     @FXML
     private TableColumn<Employee, BigDecimal> utilCol;
@@ -126,7 +124,7 @@ public class AppController {
    public void initialize() {
 
        OverviewEmployeeTable overviewEmployeeTable = new OverviewEmployeeTable(employeeModel, teamModel, nameCol, annualSalaryCol, overHeadMultiCol,
-               annualAmountCol, countryCol, teamCol, hoursCol, utilCol, overheadCol, overviewEmployeeTblView);
+               annualAmountCol, countryCol, hoursCol, utilCol, overheadCol, overviewEmployeeTblView);
 
        overviewEmployeeTable.initialize();
 

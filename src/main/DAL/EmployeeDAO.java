@@ -23,7 +23,7 @@ EmployeeDAO {
 
     //Our New employee method returns the generated key by our database so we are able to edit the newly created employees
     public int newEmployee(Employee employee) throws BBExceptions {
-        String sql = "INSERT INTO Employee (Name, AnnualSalary, OverheadMultiPercent, AnnualAmount, Country, Team_Id, WorkingHours, Utilization, isOverheadCost) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Employee (Name, AnnualSalary, OverheadMultiPercent, AnnualAmount, Country, WorkingHours, Utilization, isOverheadCost) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection connection = connectionManager.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -33,16 +33,9 @@ EmployeeDAO {
             ps.setBigDecimal(3, employee.getOverheadMultiPercent());
             ps.setBigDecimal(4, employee.getAnnualAmount());
             ps.setString(5, employee.getCountry());
-            //Check to see if teams are null or not
-            if (employee.getTeamIdEmployee() != null) {
-                ps.setInt(6, employee.getTeamIdEmployee());
-            } else {
-                //We use java.sql.types class INTEGER so SQL knows what type of NULL(Integer) it is
-                ps.setNull(6, Types.INTEGER);
-            }
-            ps.setInt(7, employee.getWorkingHours());
-            ps.setBigDecimal(8, employee.getUtilization());
-            ps.setBoolean(9, employee.getIsOverheadCost());
+            ps.setInt(6, employee.getWorkingHours());
+            ps.setBigDecimal(7, employee.getUtilization());
+            ps.setBoolean(8, employee.getIsOverheadCost());
 
             ps.executeUpdate();
 
@@ -61,10 +54,8 @@ EmployeeDAO {
     public List<Employee> getAllEmployees() throws BBExceptions {
         List<Employee> employees = new ArrayList<>();
 
-        //I joined the Team and Employee table using a LEFT JOIN(So it would show employees even if team was null)
-        //also we use AS to change the Employee.Team_Id name to Employee_Team_Id so I am able to hold both Ids in this list
-        //I did it this way to make assigning teams on a dropdown menu on Tableview more simple
-        String sql = "SELECT Employee.*, Employee.Team_Id AS Employee_Team_Id, Team.Team_Id, Team.Team_Name FROM Employee LEFT JOIN Team ON Employee.Team_Id = Team.Team_Id";
+
+        String sql = "SELECT * FROM Employee";
 
         try (Connection connection = connectionManager.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -79,11 +70,6 @@ EmployeeDAO {
                 employee.setOverheadMultiPercent(rs.getBigDecimal("OverheadMultiPercent"));
                 employee.setAnnualAmount(rs.getBigDecimal("AnnualAmount"));
                 employee.setCountry(rs.getString("Country"));
-                employee.setTeamIdEmployee(rs.getInt("Employee_Team_Id"));
-                //Because Employee extends Team I am able to set the Team object that is associated with the Employee
-                //We dont need the ID but ill leave this here incase for some reason we do later
-                //  employee.setTeamId(rs.getInt("Team_Id"));
-                employee.setTeamName(rs.getString("Team_Name"));
                 employee.setWorkingHours(rs.getInt("WorkingHours"));
                 employee.setUtilization(rs.getBigDecimal("Utilization"));
                 employee.setIsOverheadCost(rs.getBoolean("isOverheadCost"));
@@ -101,7 +87,9 @@ EmployeeDAO {
     public List<Employee> getAllEmployeesFromTeam(int TeamId) throws BBExceptions {
         List<Employee> employees = new ArrayList<>();
 
-        String sql = "SELECT * FROM Employee WHERE Team_Id = ?";
+        String sql = "SELECT * FROM Employee" +
+                "         INNER JOIN Connection ON Employee.Employee_Id = Connection.Emp_Id" +
+                " WHERE Team_Id = ?";
 
         try(Connection con = connectionManager.getConnection()){
             PreparedStatement ps = con.prepareStatement(sql);
@@ -117,7 +105,6 @@ EmployeeDAO {
                 employee.setOverheadMultiPercent(rs.getBigDecimal("OverheadMultiPercent"));
                 employee.setAnnualAmount(rs.getBigDecimal("AnnualAmount"));
                 employee.setCountry(rs.getString("Country"));
-                employee.setTeamIdEmployee(rs.getInt("Team_Id"));
                 employee.setWorkingHours(rs.getInt("WorkingHours"));
                 employee.setUtilization(rs.getBigDecimal("Utilization"));
                 employee.setIsOverheadCost(rs.getBoolean("isOverheadCost"));
@@ -134,7 +121,7 @@ EmployeeDAO {
     }
 
     public void updateEmployee(Employee employee) throws BBExceptions {
-        String sql = "UPDATE Employee SET Name = ?, AnnualSalary = ?, OverheadMultiPercent = ?, AnnualAmount = ?, Country = ?, Team_Id = ?, WorkingHours = ?, Utilization = ?, isOverheadCost = ? WHERE Employee_Id = ?";
+        String sql = "UPDATE Employee SET Name = ?, AnnualSalary = ?, OverheadMultiPercent = ?, AnnualAmount = ?, Country = ?, WorkingHours = ?, Utilization = ?, isOverheadCost = ? WHERE Employee_Id = ?";
         try (Connection connection = connectionManager.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql)) {
 
@@ -143,17 +130,10 @@ EmployeeDAO {
             ps.setBigDecimal(3, employee.getOverheadMultiPercent());
             ps.setBigDecimal(4, employee.getAnnualAmount());
             ps.setString(5, employee.getCountry());
-            //Check to see if teams are null or not
-            if (employee.getTeamIdEmployee() != null) {
-                ps.setInt(6, employee.getTeamIdEmployee());
-            } else {
-                //We use java.sql.types class INTEGER so SQL knows what type of NULL(Integer) it is
-                ps.setNull(6, Types.INTEGER);
-            }
-            ps.setInt(7, employee.getWorkingHours());
-            ps.setBigDecimal(8, employee.getUtilization());
-            ps.setBoolean(9, employee.getIsOverheadCost());
-            ps.setInt(10, employee.getId());
+            ps.setInt(6, employee.getWorkingHours());
+            ps.setBigDecimal(7, employee.getUtilization());
+            ps.setBoolean(8, employee.getIsOverheadCost());
+            ps.setInt(9, employee.getId());
 
             ps.executeUpdate();
         } catch (SQLException e) {
