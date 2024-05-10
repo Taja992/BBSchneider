@@ -9,6 +9,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
@@ -302,33 +303,31 @@ public class OverviewEmployeeTable {
 
 
 
-    private void makeOverheadEditable() {
+
+    public void makeOverheadEditable() {
         overheadCol.setCellValueFactory(cellData -> new SimpleBooleanProperty(cellData.getValue().getIsOverheadCost()));
-        overheadCol.setCellFactory(tableColumn -> {
-            CheckBoxTableCell<Employee, Boolean> cell = new CheckBoxTableCell<>();
-            CheckBox checkBox = (CheckBox) cell.getGraphic();
-            if (checkBox != null) {
-                checkBox.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
-                    if (isSelected != wasSelected) {
-                        Employee employee = cell.getTableView().getItems().get(cell.getIndex());
-                        employee.setIsOverheadCost(isSelected);
+        overheadCol.setCellFactory(column -> new TableCell<Employee, Boolean>() {
+            private final CheckBox checkBox = new CheckBox();
+
+            @Override
+            protected void updateItem(Boolean item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(checkBox);
+                    Employee employee = getTableView().getItems().get(getIndex());
+                    checkBox.setSelected(employee.getIsOverheadCost());
+                    //we use setOnAction with the checkbox to make it listen if there is a change
+                    checkBox.setOnAction(e -> {
+                        employee.setIsOverheadCost(checkBox.isSelected());
                         try {
                             employeeModel.updateEmployee(employee);
-                        } catch (BBExceptions e) {
-                            e.printStackTrace();
+                        } catch (BBExceptions ex) {
+                            ex.printStackTrace();
                         }
-                    }
-                });
-            }
-            return cell;
-        });
-        overheadCol.setOnEditCommit(event -> {
-            Employee employee = event.getRowValue();
-            employee.setIsOverheadCost(event.getNewValue());
-            try {
-                employeeModel.updateEmployee(employee);
-            } catch (BBExceptions e) {
-                e.printStackTrace();
+                    });
+                }
             }
         });
     }
