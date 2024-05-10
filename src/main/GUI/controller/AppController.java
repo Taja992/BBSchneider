@@ -210,12 +210,22 @@ public class AppController {
 
         // Add a boolean variable to check if the Enter key was pressed
         final boolean[] isEnterPressed = {false};
+        // Add a boolean variable to check if the Unique Name alert was shown
+        final boolean[] isUniqueNameAlertShown = {false};
 
         // When the user clicks the label, show the text field
         label.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
                 textField.setVisible(true);
                 textField.requestFocus();
+                isEnterPressed[0] = false; // Reset the isEnterPressed variable when the TextField gains focus
+            }
+        });
+
+        // When the TextField gains focus, store the current text
+        textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) { // If TextField has gained focus
+                textField.setUserData(textField.getText());
                 isEnterPressed[0] = false; // Reset the isEnterPressed variable when the TextField gains focus
             }
         });
@@ -231,28 +241,35 @@ public class AppController {
                 try {
                     teamModel.updateTeamName(team.getId(), newTeamName);
                 } catch (BBExceptions e) {
-                    // handle exception
+                    e.printStackTrace();
                 }
                 isEnterPressed[0] = true; // Set the isEnterPressed variable to true when the Enter key is pressed
+                isUniqueNameAlertShown[0] = false; // Reset the isUniqueNameAlertShown variable when the name is unique
             } else {
                 showAlert("Invalid Team Name", "This team name already exists. Please choose a different name.");
-                textField.setText(tab.getText());
+                textField.setText((String) textField.getUserData());
+                textField.setVisible(false);
+                isUniqueNameAlertShown[0] = true; // Set the isUniqueNameAlertShown variable to true when the name is not unique
             }
         });
 
-        // When the TextField gains focus, store the current text
+        // When the TextField loses focus, check if the Enter key was pressed
         textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue) { // If TextField has gained focus
-                textField.setUserData(textField.getText());
-            } else { // If TextField has lost focus
-                // Check if the text has been changed and if the Enter key was not pressed
-                if (!textField.getText().equals(textField.getUserData()) && !isEnterPressed[0]) {
-                    Platform.runLater(() -> {
-                        showAlert("Unsaved Changes", "You didn't save your changes. The team name will be reverted to its original value.");
-                        textField.setText((String) textField.getUserData());
-                        textField.setVisible(false);
-                    });
+            if (!newValue) { // If TextField has lost focus
+                // Check if the Enter key was pressed
+                if (!isEnterPressed[0]) {
+                    // If the Enter key was not pressed, check if the text has been changed
+                    if (!textField.getText().equals(textField.getUserData())) {
+                        // If the text has been changed, check if the "Unique Name" alert was shown
+                        if (!isUniqueNameAlertShown[0]) {
+                            // If the "Unique Name" alert was not shown, show the "Unsaved Changes" alert
+                            showAlert("Unsaved Changes", "You didn't save your changes. The team name will be reverted to its original value.");
+                            textField.setText((String) textField.getUserData());
+                        }
+                    }
                 }
+                // Make the TextField invisible when it loses focus
+                textField.setVisible(false);
             }
         });
 
