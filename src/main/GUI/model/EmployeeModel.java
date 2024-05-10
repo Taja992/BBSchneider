@@ -16,7 +16,6 @@ public class EmployeeModel {
     private final EmployeeBLL employeeBLL;
     private final ObservableList<Employee> employees;
 
-    private final Map<Integer, ObservableList<Employee>> teamEmployees = new HashMap<>();
     private final BooleanProperty employeeAdded = new SimpleBooleanProperty(false);
 
 
@@ -127,19 +126,11 @@ public class EmployeeModel {
         employeeBLL.updateEmployee(employee);
     }
 
-    private void refreshEmployeesInTeam(int teamId) {
-        // Get the list of employees for the team
-        ObservableList<Employee> employeesInTeam = teamEmployees.get(teamId);
+    //refresh employees in team if we need this
+    public ObservableList<Employee> refreshEmployeesInTeam(int teamId) {
 
-        // If the list is null, create a new list and put it in the map
-        if (employeesInTeam == null) {
-            employeesInTeam = FXCollections.observableArrayList();
-            teamEmployees.put(teamId, employeesInTeam);
-        }
-
-        // Clear the list and repopulate it from the database
-        employeesInTeam.clear();
-        employeesInTeam.addAll(employeeBLL.getAllEmployeesFromTeam(teamId));
+        // Return the list of employees
+        return FXCollections.observableArrayList(employeeBLL.getAllEmployeesFromTeam(teamId));
     }
 
     public double calculateMarkUp(double markupValue){

@@ -340,8 +340,8 @@ public class OverviewTab {
                     int teamId = team.getId(); //get the teamId from the Team object
                     calculateTeamRates(teamId);
                 } else {
-                    teamDayRateLbl.setText("$0/Day");
-                    teamHourlyRateLbl.setText("$0/Hour");
+                    teamDayRateLbl.setText("$0.00/Day");
+                    teamHourlyRateLbl.setText("$0.00/Hour");
                 }
             }
         });
@@ -445,8 +445,8 @@ public class OverviewTab {
                 int teamId = team.getId(); //get the teamId from the Team object
                 calculateTeamRates(teamId); //set all the rates based on the team and the conversion rate
             } else{ //if the tableview is empty, then just print 0's for the rates
-                teamHourlyRateLbl.setText("$0/Hour");
-                teamDayRateLbl.setText("$0/Day");
+                teamHourlyRateLbl.setText("$0.00/Hour");
+                teamDayRateLbl.setText("$0.00/Day");
             }
         });
     }
