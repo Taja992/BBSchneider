@@ -106,8 +106,8 @@
                                           <Insets top="60.0" />
                                        </padding>
                                     </Label>
-                                    <Label fx:id="teamDayRateLbl" text="\$0/Day" />
-                                    <Label fx:id="teamHourlyRateLbl" text="\$0/Hour" />
+                                    <Label fx:id="teamDayRateLbl" text="\$0.00/Day" />
+                                    <Label fx:id="teamHourlyRateLbl" text="\$0.00/Hour" />
                                     <VBox alignment="CENTER">
                                        <children>
                                           <Label alignment="CENTER" contentDisplay="CENTER" text="Conversion Rate:" />
