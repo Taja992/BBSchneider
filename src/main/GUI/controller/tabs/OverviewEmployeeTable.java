@@ -39,12 +39,13 @@ public class OverviewEmployeeTable {
     private final TeamModel teamModel;
     private final Map<String, Integer> teamNameToId = new HashMap<>();
     private final ObservableList<String> allTeamNames = FXCollections.observableArrayList();
+    private final TableColumn<Employee, BigDecimal> teamUtilColSum;
 
     public OverviewEmployeeTable (EmployeeModel employeeModel, TeamModel teamModel,
            TableColumn<Employee, String> nameCol, TableColumn<Employee, BigDecimal> annualSalaryCol,
            TableColumn<Employee, BigDecimal> overHeadMultiCol, TableColumn<Employee, BigDecimal> annualAmountCol,
            TableColumn<Employee, String> countryCol, TableColumn<Employee, Integer> hoursCol,
-           TableColumn<Employee, BigDecimal> utilCol, TableColumn<Employee, Boolean> overheadCol,
+           TableColumn<Employee, BigDecimal> utilCol, TableColumn<Employee, BigDecimal> teamUtilColSum, TableColumn<Employee, Boolean> overheadCol,
            TableView<Employee> overviewEmployeeTblView) {
         this.employeeModel = employeeModel;
         this.teamModel = teamModel;
@@ -55,6 +56,7 @@ public class OverviewEmployeeTable {
         this.countryCol = countryCol;
         this.hoursCol = hoursCol;
         this.utilCol = utilCol;
+        this.teamUtilColSum = teamUtilColSum;
         this.overheadCol = overheadCol;
         this.overviewEmployeeTblView = overviewEmployeeTblView;
     }
@@ -244,6 +246,10 @@ public class OverviewEmployeeTable {
             }
         });
         makeutilizationEditable();
+    }
+
+    private void formatTeamUtilizationSum() {
+
     }
 
     private void makeutilizationEditable(){

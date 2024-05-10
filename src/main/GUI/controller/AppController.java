@@ -87,6 +87,8 @@ public class AppController {
     @FXML
     private TableColumn<Employee, BigDecimal> utilCol;
     @FXML
+    private TableColumn<Employee, BigDecimal> teamUtilColSum;
+    @FXML
     private TableColumn<Employee, Boolean> overheadCol;
     @FXML
     private TableView<Employee> overviewEmployeeTblView;
@@ -115,7 +117,7 @@ public class AppController {
    public void initialize() {
 
        this.overviewEmployeeTable = new OverviewEmployeeTable(employeeModel, teamModel, nameCol, annualSalaryCol, overHeadMultiCol,
-               annualAmountCol, countryCol, hoursCol, utilCol, overheadCol, overviewEmployeeTblView);
+               annualAmountCol, countryCol, hoursCol, utilCol, teamUtilColSum, overheadCol, overviewEmployeeTblView);
 
        this.overviewEmployeeTable.initialize();
 
