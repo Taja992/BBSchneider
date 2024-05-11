@@ -102,9 +102,16 @@
                                     </Label>
                                     <Label fx:id="employeeDayRateLbl" text="No employee selected" />
                                     <Label fx:id="employeeHourlyRateLbl" text="No employee selected" />
+                                    <Label prefWidth="82.0" text="Country Rates:">
+                                       <padding>
+                                          <Insets top="25.0" />
+                                       </padding>
+                                    </Label>
+                                    <Label fx:id="countryDayRateLbl" text="\$0.00/Day" />
+                                    <Label fx:id="countryHourlyRateLbl" text="\$0.00/Hour" />
                                     <Label text="Team Rates:">
                                        <padding>
-                                          <Insets top="60.0" />
+                                          <Insets top="25.0" />
                                        </padding>
                                     </Label>
                                     <Label fx:id="teamDayRateLbl" text="\$0.00/Day" />

@@ -1,13 +1,11 @@
-package GUI.controller.tabs;
+package GUI.controller;
 
 import BE.Employee;
-import BE.Team;
 import Exceptions.BBExceptions;
 import GUI.model.EmployeeModel;
 import GUI.model.TeamModel;
 import com.neovisionaries.i18n.CountryCode;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.CheckBox;
@@ -38,15 +36,12 @@ public class OverviewEmployeeTable {
     private final TableView<Employee> overviewEmployeeTblView;
     private final EmployeeModel employeeModel;
     private final TeamModel teamModel;
-    private final Map<String, Integer> teamNameToId = new HashMap<>();
-    private final ObservableList<String> allTeamNames = FXCollections.observableArrayList();
-    private final TableColumn<Employee, BigDecimal> teamUtilColSum;
 
     public OverviewEmployeeTable (EmployeeModel employeeModel, TeamModel teamModel,
            TableColumn<Employee, String> nameCol, TableColumn<Employee, BigDecimal> annualSalaryCol,
            TableColumn<Employee, BigDecimal> overHeadMultiCol, TableColumn<Employee, BigDecimal> annualAmountCol,
            TableColumn<Employee, String> countryCol, TableColumn<Employee, Integer> hoursCol,
-           TableColumn<Employee, BigDecimal> utilCol, TableColumn<Employee, BigDecimal> teamUtilColSum, TableColumn<Employee, Boolean> overheadCol,
+           TableColumn<Employee, BigDecimal> utilCol, TableColumn<Employee, Boolean> overheadCol,
            TableView<Employee> overviewEmployeeTblView) {
         this.employeeModel = employeeModel;
         this.teamModel = teamModel;
@@ -57,7 +52,6 @@ public class OverviewEmployeeTable {
         this.countryCol = countryCol;
         this.hoursCol = hoursCol;
         this.utilCol = utilCol;
-        this.teamUtilColSum = teamUtilColSum;
         this.overheadCol = overheadCol;
         this.overviewEmployeeTblView = overviewEmployeeTblView;
     }
@@ -74,9 +68,6 @@ public class OverviewEmployeeTable {
         return overviewEmployeeTblView;
     }
 
-    public Map<String, Integer> getTeamNameToId() {
-        return teamNameToId;
-    }
 
     public void initialize(){
         overviewEmployeeTblView.setEditable(true);
@@ -105,29 +96,11 @@ public class OverviewEmployeeTable {
             formatUtilization();
             makeOverheadEditable();
 
-            formatTeamUtilColSum();
-
             overviewEmployeeTblView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
             overviewEmployeeTblView.setItems(employees);
         } catch (BBExceptions e) {
             e.printStackTrace();
         }
-    }
-
-    private void formatTeamUtilColSum() {
-        // Set the cell value factory for the teamUtilColSum column
-        teamUtilColSum.setCellValueFactory(cellData -> {
-            Employee employee = cellData.getValue();
-            BigDecimal totalUtilization = BigDecimal.ZERO;
-            try {
-                for (Team team : teamModel.getTeamsForEmployee(employee.getId())) {
-                    totalUtilization = totalUtilization.add(employeeModel.getUtilizationForTeam(employee, team));
-                }
-            } catch (BBExceptions e) {
-                throw new RuntimeException(e);
-            }
-            return new SimpleObjectProperty<>(totalUtilization);
-        });
     }
 
     //This listener was added because of a weird bug that once you update an employee the add employee
@@ -331,28 +304,31 @@ public class OverviewEmployeeTable {
 
     private void makeOverheadEditable() {
         overheadCol.setCellValueFactory(cellData -> new SimpleBooleanProperty(cellData.getValue().getIsOverheadCost()));
-        // Make the cell able to become a checkbox
-        overheadCol.setCellFactory(tableColumn -> new CheckBoxTableCell<>() {
-            @Override
-            public void updateItem(Boolean item, boolean empty) {
-                super.updateItem(item, empty);
-                if (!empty) {
-                    //we use .getGraphic for a visual representation of the checkbox
-                    CheckBox checkBox = (CheckBox) this.getGraphic();
-                    //add a listener onto our checkbox
-                    checkBox.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
-                        if (isSelected != wasSelected) {
-                            //.getIndex for getting the employee of selected cell
-                            Employee employee = this.getTableView().getItems().get(this.getIndex());
-                            employee.setIsOverheadCost(isSelected);
-                            try {
-                                employeeModel.updateEmployee(employee);
-                            } catch (BBExceptions e) {
-                                e.printStackTrace();
-                            }
+        overheadCol.setCellFactory(tableColumn -> {
+            CheckBoxTableCell<Employee, Boolean> cell = new CheckBoxTableCell<>();
+            CheckBox checkBox = (CheckBox) cell.getGraphic();
+            if (checkBox != null) {
+                checkBox.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
+                    if (isSelected != wasSelected) {
+                        Employee employee = cell.getTableView().getItems().get(cell.getIndex());
+                        employee.setIsOverheadCost(isSelected);
+                        try {
+                            employeeModel.updateEmployee(employee);
+                        } catch (BBExceptions e) {
+                            e.printStackTrace();
                         }
-                    });
-                }
+                    }
+                });
+            }
+            return cell;
+        });
+        overheadCol.setOnEditCommit(event -> {
+            Employee employee = event.getRowValue();
+            employee.setIsOverheadCost(event.getNewValue());
+            try {
+                employeeModel.updateEmployee(employee);
+            } catch (BBExceptions e) {
+                e.printStackTrace();
             }
         });
     }
