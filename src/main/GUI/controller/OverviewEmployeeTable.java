@@ -20,8 +20,6 @@ import javafx.util.converter.IntegerStringConverter;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
-import java.util.HashMap;
-import java.util.Map;
 
 public class OverviewEmployeeTable {
 
@@ -36,13 +34,14 @@ public class OverviewEmployeeTable {
     private final TableView<Employee> overviewEmployeeTblView;
     private final EmployeeModel employeeModel;
     private final TeamModel teamModel;
+    private final TableColumn<Employee, BigDecimal> teamUtilColSum;
 
     public OverviewEmployeeTable (EmployeeModel employeeModel, TeamModel teamModel,
-           TableColumn<Employee, String> nameCol, TableColumn<Employee, BigDecimal> annualSalaryCol,
-           TableColumn<Employee, BigDecimal> overHeadMultiCol, TableColumn<Employee, BigDecimal> annualAmountCol,
-           TableColumn<Employee, String> countryCol, TableColumn<Employee, Integer> hoursCol,
-           TableColumn<Employee, BigDecimal> utilCol, TableColumn<Employee, Boolean> overheadCol,
-           TableView<Employee> overviewEmployeeTblView) {
+                                  TableColumn<Employee, String> nameCol, TableColumn<Employee, BigDecimal> annualSalaryCol,
+                                  TableColumn<Employee, BigDecimal> overHeadMultiCol, TableColumn<Employee, BigDecimal> annualAmountCol,
+                                  TableColumn<Employee, String> countryCol, TableColumn<Employee, Integer> hoursCol,
+                                  TableColumn<Employee, BigDecimal> utilCol, TableColumn<Employee, BigDecimal> teamUtilColSum, TableColumn<Employee, Boolean> overheadCol,
+                                  TableView<Employee> overviewEmployeeTblView) {
         this.employeeModel = employeeModel;
         this.teamModel = teamModel;
         this.nameCol = nameCol;
@@ -52,6 +51,7 @@ public class OverviewEmployeeTable {
         this.countryCol = countryCol;
         this.hoursCol = hoursCol;
         this.utilCol = utilCol;
+        this.teamUtilColSum = teamUtilColSum;
         this.overheadCol = overheadCol;
         this.overviewEmployeeTblView = overviewEmployeeTblView;
     }
