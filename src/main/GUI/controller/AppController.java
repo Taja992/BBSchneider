@@ -377,11 +377,17 @@ public class AppController {
         formatPercentageColumnForTeams(teamOverHeadPerCol);
         formatPercentageColumnForTeams(teamUtilCol);
 
-        //format the utilization column to be editable
-        teamUtilCol.setCellFactory(TextFieldTableCell.forTableColumn(new BigDecimalStringConverter()));
-        //enable editing
+        //formatting the utilization column to show the percentage
+        teamUtilCol.setCellFactory(tableColumn -> new TextFieldTableCell<Employee, BigDecimal>(new BigDecimalStringConverter()) {
+            @Override
+            public void updateItem(BigDecimal value, boolean empty) {
+                super.updateItem(value, empty);
+                setText(empty ? null : String.format("%.2f%%", value));
+            }
+        });
+        //enabling editing in table
         teamTblView.setEditable(true);
-        //set the edit commit event
+        //util column is editable
         teamUtilCol.setOnEditCommit(event -> {
             Employee employee = event.getRowValue();
             employee.setUtilization(event.getNewValue());
@@ -391,6 +397,7 @@ public class AppController {
                 e.printStackTrace();
             }
         });
+
 
 
         // Get the list of employees for the team
