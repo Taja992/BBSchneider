@@ -128,6 +128,10 @@ public class EmployeeBLL {
         }
     }
 
+    public BigDecimal calculateTotalTeamUtil(int employeeId) throws BBExceptions {
+        return employeeDAO.calculateTotalTeamUtilization(employeeId);
+    }
+
     public void updateEmployee(Employee employee) throws BBExceptions{
         employeeDAO.updateEmployee(employee);
     }

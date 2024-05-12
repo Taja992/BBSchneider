@@ -6,6 +6,7 @@ import GUI.model.EmployeeModel;
 import GUI.model.TeamModel;
 import com.neovisionaries.i18n.CountryCode;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.CheckBox;
@@ -95,6 +96,17 @@ public class OverviewEmployeeTable {
             formatOverheadMultiPercent();
             formatUtilization();
             makeOverheadEditable();
+            
+            teamUtilColSum.setCellValueFactory(cellData -> {
+                Employee employee = cellData.getValue();
+                try {
+                    BigDecimal totalUtilization = employeeModel.calculateTotalTeamUtil(employee.getId());
+                    return new SimpleObjectProperty<>(totalUtilization);
+                } catch (BBExceptions e) {
+                    e.printStackTrace();
+                    return new SimpleObjectProperty<>(BigDecimal.ZERO);
+                }
+            });
 
             overviewEmployeeTblView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
             overviewEmployeeTblView.setItems(employees);

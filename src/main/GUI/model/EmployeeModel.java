@@ -185,6 +185,10 @@ public class EmployeeModel {
 
     }
 
+    public BigDecimal calculateTotalTeamUtil(int employeeId) throws BBExceptions {
+        return employeeBLL.calculateTotalTeamUtil(employeeId);
+    }
+
 
 
     public void updateEmployee(Employee employee) throws BBExceptions{
