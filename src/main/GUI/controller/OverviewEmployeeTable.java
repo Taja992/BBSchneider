@@ -96,17 +96,8 @@ public class OverviewEmployeeTable {
             formatOverheadMultiPercent();
             formatUtilization();
             makeOverheadEditable();
-            
-            teamUtilColSum.setCellValueFactory(cellData -> {
-                Employee employee = cellData.getValue();
-                try {
-                    BigDecimal totalUtilization = employeeModel.calculateTotalTeamUtil(employee.getId());
-                    return new SimpleObjectProperty<>(totalUtilization);
-                } catch (BBExceptions e) {
-                    e.printStackTrace();
-                    return new SimpleObjectProperty<>(BigDecimal.ZERO);
-                }
-            });
+            populateTeamUtilizationSumColumn();
+
 
             overviewEmployeeTblView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
             overviewEmployeeTblView.setItems(employees);
@@ -122,6 +113,19 @@ public class OverviewEmployeeTable {
             if (newValue) {
                 populateEmployeeTableView();
                 employeeModel.employeeAddedProperty().set(false);
+            }
+        });
+    }
+
+    private void populateTeamUtilizationSumColumn() {
+        teamUtilColSum.setCellValueFactory(cellData -> {
+            Employee employee = cellData.getValue();
+            try {
+                BigDecimal totalUtilization = employeeModel.calculateTotalTeamUtil(employee.getId());
+                return new SimpleObjectProperty<>(totalUtilization);
+            } catch (BBExceptions e) {
+                e.printStackTrace();
+                return new SimpleObjectProperty<>(BigDecimal.ZERO);
             }
         });
     }
