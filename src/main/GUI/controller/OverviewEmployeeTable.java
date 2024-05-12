@@ -95,6 +95,7 @@ public class OverviewEmployeeTable {
             //These methods format the tableview to have % as well as allows them to be editable
             formatOverheadMultiPercent();
             formatUtilization();
+            formatTeamUtilSum();
             makeOverheadEditable();
             populateTeamUtilizationSumColumn();
 
@@ -254,6 +255,21 @@ public class OverviewEmployeeTable {
             }
         });
         makeutilizationEditable();
+    }
+
+    private void formatTeamUtilSum() {
+        teamUtilColSum.setCellFactory(tableColumn -> new TextFieldTableCell<>(new BigDecimalStringConverter()) {
+            @Override
+            public void updateItem(BigDecimal value, boolean empty) {
+                super.updateItem(value, empty);
+                //This checks if cell is empty, if not continues...
+                //% is a placeholder for the value that will be inserted
+                //.2 this tells our tableview we want 2 digits after the decimal
+                //f indicates it's a floating point number (a number with a decimal)
+                //% we add this to the end of the number
+                setText(empty ? null : String.format("%.2f%%", value));
+            }
+        });
     }
 
     private void makeutilizationEditable(){
