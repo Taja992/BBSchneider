@@ -9,9 +9,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -240,18 +238,50 @@ public class OverviewEmployeeTable {
         });
     }
 
-    private void formatUtilization() {
+//    private void formatUtilization() {
+//
+////        utilCol.setCellFactory(tableColumn -> new TextFieldTableCell<>(new BigDecimalStringConverter()) {
+////            @Override
+////            public void updateItem(BigDecimal value, boolean empty) {
+////                super.updateItem(value, empty);
+////                //This checks if cell is empty, if not continues...
+////                //% is a placeholder for the value that will be inserted
+////                //.2 this tells our tableview we want 2 digits after the decimal
+////                //f indicates it's a floating point number (a number with a decimal)
+////                //% we add this to the end of the number
+////                setText(empty ? null : String.format("%.2f%%", value));
+////            }
+////        });
+////        makeutilizationEditable();
 
-        utilCol.setCellFactory(tableColumn -> new TextFieldTableCell<>(new BigDecimalStringConverter()) {
+    private void formatUtilization() {
+        utilCol.setCellFactory(column -> new TextFieldTableCell<>(new BigDecimalStringConverter()) {
+            private BigDecimal totalUtilization;
+
             @Override
-            public void updateItem(BigDecimal value, boolean empty) {
-                super.updateItem(value, empty);
-                //This checks if cell is empty, if not continues...
-                //% is a placeholder for the value that will be inserted
-                //.2 this tells our tableview we want 2 digits after the decimal
-                //f indicates it's a floating point number (a number with a decimal)
-                //% we add this to the end of the number
-                setText(empty ? null : String.format("%.2f%%", value));
+            public void updateItem(BigDecimal item, boolean empty) {
+                super.updateItem(item, empty);
+
+                setText(empty ? null : String.format("%.2f%%", item));
+
+                TableRow<Employee> currentRow = getTableRow();
+
+                if (currentRow != null) {
+                    Employee employee = currentRow.getItem();
+                    if (employee != null) {
+                        try {
+                            this.totalUtilization = employeeModel.calculateTotalTeamUtil(employee.getId());
+                        } catch (BBExceptions e) {
+                            throw new RuntimeException(e);
+                        }
+                        BigDecimal sumUtilValue = totalUtilization; // Replace with the actual method to get the sumUtil value
+                        if (item != null && sumUtilValue != null && sumUtilValue.compareTo(item) > 0) {
+                            setStyle("-fx-background-color: red");
+                        } else {
+                            setStyle("");
+                        }
+                    }
+                }
             }
         });
         makeutilizationEditable();
