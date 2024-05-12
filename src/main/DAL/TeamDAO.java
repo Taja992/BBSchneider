@@ -2,6 +2,7 @@ package DAL;
 
 import BE.Team;
 import Exceptions.BBExceptions;
+import com.microsoft.sqlserver.jdbc.SQLServerException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -121,7 +122,11 @@ public class TeamDAO {
             ps.setInt(2, teamId);
             ps.executeUpdate();
         } catch (SQLException e) {
-            throw new BBExceptions("Error updating team name", e);
+            if (e instanceof SQLServerException && e.getMessage().contains("Violation of UNIQUE KEY constraint")) {
+                throw new BBExceptions("The team name '" + newTeamName + "' already exists. Please choose a different name.", e);
+            } else {
+                throw new BBExceptions("Error updating team name", e);
+            }
         }
     }
 
