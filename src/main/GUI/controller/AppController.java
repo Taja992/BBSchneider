@@ -227,7 +227,7 @@ public class AppController {
     //////////////////Create Team///////////////////////////
     ////////////////////////////////////////////////////////
 
-    private void makeTeamTabTitleEditable(Tab tab) {
+    public void makeTeamTabTitleEditable(Tab tab) {
         final Label label = new Label(tab.getText());
         final TextField textField = new TextField(tab.getText());
 
@@ -244,45 +244,36 @@ public class AppController {
         // When the user presses Enter, save the new title, hide the text field, and update the team name in the database
         textField.setOnAction(event -> {
             String newTeamName = textField.getText();
-            if (isTeamNameUnique(newTeamName)) {
-                tab.setText(newTeamName);
-                label.setText(newTeamName);
-                textField.setVisible(false);
-                Team team = (Team) tab.getUserData();
-                try {
-                    teamModel.updateTeamName(team.getId(), newTeamName);
-                } catch (BBExceptions e) {
-                    e.printStackTrace();
-                }
-            } else {
-                isAlertShown = true;
-                showAlert("Invalid Team Name", "This team name already exists. Please choose a different name.");
-                isAlertShown = false;
+            tab.setText(newTeamName);
+            label.setText(newTeamName);
+            textField.setVisible(false);
+            Team team = (Team) tab.getUserData();
+            try {
+                teamModel.updateTeamName(team.getId(), newTeamName);
+                //update combobox show new name
+              //  makeTeamEditable();
+            } catch (BBExceptions e) {
+                showAlert("Error", e.getMessage());
             }
         });
 
-        // When the text field loses focus, save the new title, hide the text field, and update the team name in the database
-        textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue && !isAlertShown) {
-                String newTeamName = textField.getText();
-                if (isTeamNameUnique(newTeamName)) {
-                    tab.setText(newTeamName);
-                    label.setText(newTeamName);
-                    textField.setVisible(false);
-                    Team team = (Team) tab.getUserData();
-                    try {
-                        teamModel.updateTeamName(team.getId(), newTeamName);
-                    } catch (BBExceptions e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    isAlertShown = true;
-                    showAlert("Invalid Team Name", "This team name already exists. Please choose a different name.");
-                    isAlertShown = false;
-                    textField.requestFocus();
-                }
-            }
-        });
+//        // When the text field loses focus, save the new title, hide the text field, and update the team name in the database
+//        textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+//            if (!newValue) {
+//                String newTeamName = textField.getText();
+//                tab.setText(newTeamName);
+//                label.setText(newTeamName);
+//                textField.setVisible(false);
+//                Team team = (Team) tab.getUserData();
+//                try {
+//                    teamModel.updateTeamName(team.getId(), newTeamName);
+//                    //update combobox show new name
+//                 //   makeTeamEditable();
+//                } catch (BBExceptions e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
 
         // Create a StackPane to hold the label and text field
         StackPane stackPane = new StackPane();
@@ -291,16 +282,6 @@ public class AppController {
 
         // Set the StackPane as the tab's graphic
         tab.setGraphic(stackPane);
-    }
-
-    // Check if the new team name is unique
-    private boolean isTeamNameUnique(String newTeamName) {
-        for (Tab teamTab : teamTabPane.getTabs()) {
-            if (teamTab.getText().equals(newTeamName)) {
-                return false;
-            }
-        }
-        return true;
     }
 
 

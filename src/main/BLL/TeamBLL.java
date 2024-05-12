@@ -69,11 +69,7 @@ public class TeamBLL {
     }
 
     public void updateTeamName(int teamId, String newTeamName) throws BBExceptions {
-        try {
-            teamDAO.updateTeamName(teamId, newTeamName);
-        } catch (SQLException e) {
-            throw new BBExceptions("Error updating team name", e);
-        }
+        teamDAO.updateTeamName(teamId, newTeamName);
     }
 
     public List<Team> getTeamsForEmployee(int employeeId) {
