@@ -6,12 +6,10 @@ import GUI.model.EmployeeModel;
 import GUI.model.TeamModel;
 import com.neovisionaries.i18n.CountryCode;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -21,8 +19,6 @@ import javafx.util.converter.IntegerStringConverter;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
-import java.util.HashMap;
-import java.util.Map;
 
 public class OverviewEmployeeTable {
 
@@ -37,13 +33,14 @@ public class OverviewEmployeeTable {
     private final TableView<Employee> overviewEmployeeTblView;
     private final EmployeeModel employeeModel;
     private final TeamModel teamModel;
+    private final TableColumn<Employee, BigDecimal> teamUtilColSum;
 
     public OverviewEmployeeTable (EmployeeModel employeeModel, TeamModel teamModel,
-           TableColumn<Employee, String> nameCol, TableColumn<Employee, BigDecimal> annualSalaryCol,
-           TableColumn<Employee, BigDecimal> overHeadMultiCol, TableColumn<Employee, BigDecimal> annualAmountCol,
-           TableColumn<Employee, String> countryCol, TableColumn<Employee, Integer> hoursCol,
-           TableColumn<Employee, BigDecimal> utilCol, TableColumn<Employee, Boolean> overheadCol,
-           TableView<Employee> overviewEmployeeTblView) {
+                                  TableColumn<Employee, String> nameCol, TableColumn<Employee, BigDecimal> annualSalaryCol,
+                                  TableColumn<Employee, BigDecimal> overHeadMultiCol, TableColumn<Employee, BigDecimal> annualAmountCol,
+                                  TableColumn<Employee, String> countryCol, TableColumn<Employee, Integer> hoursCol,
+                                  TableColumn<Employee, BigDecimal> utilCol, TableColumn<Employee, BigDecimal> teamUtilColSum, TableColumn<Employee, Boolean> overheadCol,
+                                  TableView<Employee> overviewEmployeeTblView) {
         this.employeeModel = employeeModel;
         this.teamModel = teamModel;
         this.nameCol = nameCol;
@@ -53,6 +50,7 @@ public class OverviewEmployeeTable {
         this.countryCol = countryCol;
         this.hoursCol = hoursCol;
         this.utilCol = utilCol;
+        this.teamUtilColSum = teamUtilColSum;
         this.overheadCol = overheadCol;
         this.overviewEmployeeTblView = overviewEmployeeTblView;
     }
@@ -95,7 +93,10 @@ public class OverviewEmployeeTable {
             //These methods format the tableview to have % as well as allows them to be editable
             formatOverheadMultiPercent();
             formatUtilization();
+            formatTeamUtilSum();
             makeOverheadEditable();
+            populateTeamUtilizationSumColumn();
+
 
             overviewEmployeeTblView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
             overviewEmployeeTblView.setItems(employees);
@@ -111,6 +112,19 @@ public class OverviewEmployeeTable {
             if (newValue) {
                 populateEmployeeTableView();
                 employeeModel.employeeAddedProperty().set(false);
+            }
+        });
+    }
+
+    private void populateTeamUtilizationSumColumn() {
+        teamUtilColSum.setCellValueFactory(cellData -> {
+            Employee employee = cellData.getValue();
+            try {
+                BigDecimal totalUtilization = employeeModel.calculateTotalTeamUtil(employee.getId());
+                return new SimpleObjectProperty<>(totalUtilization);
+            } catch (BBExceptions e) {
+                e.printStackTrace();
+                return new SimpleObjectProperty<>(BigDecimal.ZERO);
             }
         });
     }
@@ -224,9 +238,57 @@ public class OverviewEmployeeTable {
         });
     }
 
-    private void formatUtilization() {
+//    private void formatUtilization() {
+//
+////        utilCol.setCellFactory(tableColumn -> new TextFieldTableCell<>(new BigDecimalStringConverter()) {
+////            @Override
+////            public void updateItem(BigDecimal value, boolean empty) {
+////                super.updateItem(value, empty);
+////                //This checks if cell is empty, if not continues...
+////                //% is a placeholder for the value that will be inserted
+////                //.2 this tells our tableview we want 2 digits after the decimal
+////                //f indicates it's a floating point number (a number with a decimal)
+////                //% we add this to the end of the number
+////                setText(empty ? null : String.format("%.2f%%", value));
+////            }
+////        });
+////        makeutilizationEditable();
 
-        utilCol.setCellFactory(tableColumn -> new TextFieldTableCell<>(new BigDecimalStringConverter()) {
+    private void formatUtilization() {
+        utilCol.setCellFactory(column -> new TextFieldTableCell<>(new BigDecimalStringConverter()) {
+            private BigDecimal totalUtilization;
+
+            @Override
+            public void updateItem(BigDecimal item, boolean empty) {
+                super.updateItem(item, empty);
+
+                setText(empty ? null : String.format("%.2f%%", item));
+
+                TableRow<Employee> currentRow = getTableRow();
+
+                if (currentRow != null) {
+                    Employee employee = currentRow.getItem();
+                    if (employee != null) {
+                        try {
+                            this.totalUtilization = employeeModel.calculateTotalTeamUtil(employee.getId());
+                        } catch (BBExceptions e) {
+                            throw new RuntimeException(e);
+                        }
+                        BigDecimal sumUtilValue = totalUtilization; // Replace with the actual method to get the sumUtil value
+                        if (item != null && sumUtilValue != null && sumUtilValue.compareTo(item) > 0) {
+                            setStyle("-fx-background-color: red");
+                        } else {
+                            setStyle("");
+                        }
+                    }
+                }
+            }
+        });
+        makeutilizationEditable();
+    }
+
+    private void formatTeamUtilSum() {
+        teamUtilColSum.setCellFactory(tableColumn -> new TextFieldTableCell<>(new BigDecimalStringConverter()) {
             @Override
             public void updateItem(BigDecimal value, boolean empty) {
                 super.updateItem(value, empty);
@@ -238,7 +300,6 @@ public class OverviewEmployeeTable {
                 setText(empty ? null : String.format("%.2f%%", value));
             }
         });
-        makeutilizationEditable();
     }
 
     private void makeutilizationEditable(){
@@ -303,31 +364,33 @@ public class OverviewEmployeeTable {
 
 
 
-
-    public void makeOverheadEditable() {
+    private void makeOverheadEditable() {
         overheadCol.setCellValueFactory(cellData -> new SimpleBooleanProperty(cellData.getValue().getIsOverheadCost()));
-        overheadCol.setCellFactory(column -> new TableCell<Employee, Boolean>() {
-            private final CheckBox checkBox = new CheckBox();
-
-            @Override
-            protected void updateItem(Boolean item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) {
-                    setGraphic(null);
-                } else {
-                    setGraphic(checkBox);
-                    Employee employee = getTableView().getItems().get(getIndex());
-                    checkBox.setSelected(employee.getIsOverheadCost());
-                    //we use setOnAction with the checkbox to make it listen if there is a change
-                    checkBox.setOnAction(e -> {
-                        employee.setIsOverheadCost(checkBox.isSelected());
+        overheadCol.setCellFactory(tableColumn -> {
+            CheckBoxTableCell<Employee, Boolean> cell = new CheckBoxTableCell<>();
+            CheckBox checkBox = (CheckBox) cell.getGraphic();
+            if (checkBox != null) {
+                checkBox.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
+                    if (isSelected != wasSelected) {
+                        Employee employee = cell.getTableView().getItems().get(cell.getIndex());
+                        employee.setIsOverheadCost(isSelected);
                         try {
                             employeeModel.updateEmployee(employee);
-                        } catch (BBExceptions ex) {
-                            ex.printStackTrace();
+                        } catch (BBExceptions e) {
+                            e.printStackTrace();
                         }
-                    });
-                }
+                    }
+                });
+            }
+            return cell;
+        });
+        overheadCol.setOnEditCommit(event -> {
+            Employee employee = event.getRowValue();
+            employee.setIsOverheadCost(event.getNewValue());
+            try {
+                employeeModel.updateEmployee(employee);
+            } catch (BBExceptions e) {
+                e.printStackTrace();
             }
         });
     }

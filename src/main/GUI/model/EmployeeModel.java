@@ -1,6 +1,7 @@
 package GUI.model;
 
 import BE.Employee;
+import BE.Team;
 import BLL.EmployeeBLL;
 import Exceptions.BBExceptions;
 import javafx.beans.property.BooleanProperty;
@@ -8,6 +9,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -130,6 +132,15 @@ public class EmployeeModel {
         return empFromTeam;
     }
 
+    public ObservableList<Employee> getAllEmployeesFromTeamWithTeamUtil(int TeamId) {
+        // Set up Observable list for tables
+        ObservableList<Employee> empFromTeamWithTeamUtil = FXCollections.observableArrayList();
+        empFromTeamWithTeamUtil.addAll(employeeBLL.getAllEmployeesFromTeamWithTeamUtil(TeamId));
+
+        // Return the list of employees
+        return empFromTeamWithTeamUtil;
+    }
+
     public ObservableList<Employee> filterEmployeesByCountry(String country) {
 
         if(country.equals("All Countries")){
@@ -174,6 +185,10 @@ public class EmployeeModel {
 
     }
 
+    public BigDecimal calculateTotalTeamUtil(int employeeId) throws BBExceptions {
+        return employeeBLL.calculateTotalTeamUtil(employeeId);
+    }
+
 
 
     public void updateEmployee(Employee employee) throws BBExceptions{
@@ -191,4 +206,11 @@ public class EmployeeModel {
         return employeeBLL.calculateMarkUp(markupValue);
     }
 
+    public BigDecimal getUtilizationForTeam(Employee employee, Team team) throws BBExceptions {
+        return employeeBLL.getUtilizationForTeam(employee, team);
+    }
+
+    public void updateTeamUtilForEmployee(int teamId, int employeeId, BigDecimal newUtil) throws BBExceptions {
+        employeeBLL.updateTeamUtilForEmployee(teamId, employeeId, newUtil);
+    }
 }

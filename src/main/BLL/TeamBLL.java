@@ -76,4 +76,11 @@ public class TeamBLL {
         }
     }
 
+    public List<Team> getTeamsForEmployee(int employeeId) {
+        try {
+            return teamDAO.getTeamsForEmployee(employeeId);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

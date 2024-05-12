@@ -1,9 +1,11 @@
 package BLL;
 
 import BE.Employee;
+import BE.Team;
 import DAL.EmployeeDAO;
 import Exceptions.BBExceptions;
 
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -118,8 +120,29 @@ public class EmployeeBLL {
         }
     }
 
+    public List<Employee> getAllEmployeesFromTeamWithTeamUtil(int TeamId) {
+        try {
+            return employeeDAO.getAllEmployeesFromTeamWithTeamUtil(TeamId);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public BigDecimal calculateTotalTeamUtil(int employeeId) throws BBExceptions {
+        return employeeDAO.calculateTotalTeamUtilization(employeeId);
+    }
+
+
+
     public void updateEmployee(Employee employee) throws BBExceptions{
         employeeDAO.updateEmployee(employee);
     }
 
+    public BigDecimal getUtilizationForTeam(Employee employee, Team team) throws BBExceptions {
+        return employeeDAO.getUtilizationForTeam(employee, team);
+    }
+
+    public void updateTeamUtilForEmployee(int teamId, int employeeId, BigDecimal newUtil) throws BBExceptions {
+        employeeDAO.updateTeamUtilForEmployee(teamId, employeeId, newUtil);
+    }
 }
