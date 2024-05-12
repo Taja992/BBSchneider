@@ -347,7 +347,7 @@ public class AppController {
         teamTblView.getColumns().add(teamHoursCol);
 
         TableColumn<Employee, BigDecimal> teamUtilCol = new TableColumn<>();
-        teamUtilCol.setText("Util %");
+        teamUtilCol.setText(team.getName() + " Util %");
         teamTblView.getColumns().add(teamUtilCol);
 
         TableColumn<Employee, String> teamOverHeadCol = new TableColumn<>();

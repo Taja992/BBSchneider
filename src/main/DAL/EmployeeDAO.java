@@ -1,6 +1,7 @@
 package DAL;
 
 import BE.Employee;
+import BE.EmployeeWithTeamUtil;
 import BE.Team;
 import Exceptions.BBExceptions;
 
@@ -112,7 +113,10 @@ EmployeeDAO {
                 employee.setUtilization(rs.getBigDecimal("Utilization"));
                 employee.setIsOverheadCost(rs.getBoolean("isOverheadCost"));
 
-                employees.add(employee);
+                BigDecimal teamUtil = rs.getBigDecimal("Team_Util");
+                EmployeeWithTeamUtil employeeWithTeamUtil = new EmployeeWithTeamUtil(employee, teamUtil);
+
+                employees.add(employeeWithTeamUtil);
             }
 
         } catch (SQLException e){
@@ -121,6 +125,22 @@ EmployeeDAO {
 
 
         return employees;
+    }
+
+    public void updateTeamUtilForEmployee(int teamId, int employeeId, BigDecimal newUtil) throws BBExceptions {
+        String sql = "UPDATE Connection SET Team_Util = ? WHERE Emp_Id = ? AND Team_Id = ?";
+
+        try (Connection connection = connectionManager.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setBigDecimal(1, newUtil);
+            ps.setInt(2, employeeId);
+            ps.setInt(3, teamId);
+
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new BBExceptions("Error updating team utilization for employee with ID " + employeeId + " in team with ID " + teamId, e);
+        }
     }
 
     public void updateEmployee(Employee employee) throws BBExceptions {

@@ -127,4 +127,8 @@ public class EmployeeBLL {
     public BigDecimal getUtilizationForTeam(Employee employee, Team team) throws BBExceptions {
         return employeeDAO.getUtilizationForTeam(employee, team);
     }
+
+    public void updateTeamUtilForEmployee(int teamId, int employeeId, BigDecimal newUtil) throws BBExceptions {
+        employeeDAO.updateTeamUtilForEmployee(teamId, employeeId, newUtil);
+    }
 }

@@ -13,6 +13,21 @@ public class Employee {
     private BigDecimal utilization;
     private boolean isOverheadCost;
 
+    public Employee(int id, String name, BigDecimal annualSalary, BigDecimal overheadMultiPercent, BigDecimal annualAmount, String country, int workingHours, BigDecimal utilization, Object isOverheadCost) {
+        this.employeeId = id;
+        this.employeeName = name;
+        this.annualSalary = annualSalary;
+        this.overheadMultiPercent = overheadMultiPercent;
+        this.annualAmount = annualAmount;
+        this.country = country;
+        this.workingHours = workingHours;
+        this.utilization = utilization;
+        this.isOverheadCost = (boolean) isOverheadCost;
+    }
+
+    public Employee() {
+    }
+
 
     public int getId() {
         return employeeId;

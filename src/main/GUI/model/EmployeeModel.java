@@ -196,4 +196,8 @@ public class EmployeeModel {
     public BigDecimal getUtilizationForTeam(Employee employee, Team team) throws BBExceptions {
         return employeeBLL.getUtilizationForTeam(employee, team);
     }
+
+    public void updateTeamUtilForEmployee(int teamId, int employeeId, BigDecimal newUtil) throws BBExceptions {
+        employeeBLL.updateTeamUtilForEmployee(teamId, employeeId, newUtil);
+    }
 }
