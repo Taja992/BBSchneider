@@ -377,10 +377,11 @@ public class AppController {
         formatPercentageColumnForTeams(teamOverHeadPerCol);
         formatPercentageColumnForTeams(teamUtilCol);
 
+        //format the utilization column to be editable
         teamUtilCol.setCellFactory(TextFieldTableCell.forTableColumn(new BigDecimalStringConverter()));
-
+        //enable editing
         teamTblView.setEditable(true);
-
+        //set the edit commit event
         teamUtilCol.setOnEditCommit(event -> {
             Employee employee = event.getRowValue();
             employee.setUtilization(event.getNewValue());
