@@ -132,6 +132,15 @@ public class EmployeeModel {
         return empFromTeam;
     }
 
+    public ObservableList<Employee> getAllEmployeesFromTeamWithTeamUtil(int TeamId) {
+        // Set up Observable list for tables
+        ObservableList<Employee> empFromTeamWithTeamUtil = FXCollections.observableArrayList();
+        empFromTeamWithTeamUtil.addAll(employeeBLL.getAllEmployeesFromTeamWithTeamUtil(TeamId));
+
+        // Return the list of employees
+        return empFromTeamWithTeamUtil;
+    }
+
     public ObservableList<Employee> filterEmployeesByCountry(String country) {
 
         if(country.equals("All Countries")){

@@ -120,6 +120,14 @@ public class EmployeeBLL {
         }
     }
 
+    public List<Employee> getAllEmployeesFromTeamWithTeamUtil(int TeamId) {
+        try {
+            return employeeDAO.getAllEmployeesFromTeamWithTeamUtil(TeamId);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void updateEmployee(Employee employee) throws BBExceptions{
         employeeDAO.updateEmployee(employee);
     }

@@ -123,6 +123,41 @@ EmployeeDAO {
         return employees;
     }
 
+    public List<Employee> getAllEmployeesFromTeamWithTeamUtil(int TeamId) throws BBExceptions {
+        List<Employee> employees = new ArrayList<>();
+
+        String sql = "SELECT Employee.*, Connection.Team_Util FROM Employee" +
+                " INNER JOIN Connection ON Employee.Employee_Id = Connection.Emp_Id" +
+                " WHERE Team_Id = ?";
+
+        try(Connection con = connectionManager.getConnection()){
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setInt(1, TeamId);
+
+            ResultSet rs = ps.executeQuery();
+
+            while(rs.next()){
+                Employee employee = new Employee();
+                employee.setId(rs.getInt("Employee_Id"));
+                employee.setName(rs.getString("Name"));
+                employee.setAnnualSalary(rs.getBigDecimal("AnnualSalary"));
+                employee.setOverheadMultiPercent(rs.getBigDecimal("OverheadMultiPercent"));
+                employee.setAnnualAmount(rs.getBigDecimal("AnnualAmount"));
+                employee.setCountry(rs.getString("Country"));
+                employee.setWorkingHours(rs.getInt("WorkingHours"));
+                employee.setUtilization(rs.getBigDecimal("Team_Util")); // Set the utilization from the Connection table
+                employee.setIsOverheadCost(rs.getBoolean("isOverheadCost"));
+
+                employees.add(employee);
+            }
+
+        } catch (SQLException e){
+            throw new BBExceptions("Error retrieving all employees from team with ID " + TeamId, e);
+        }
+
+        return employees;
+    }
+
     public void updateTeamUtilForEmployee(int teamId, int employeeId, BigDecimal newUtil) throws BBExceptions {
         String sql = "UPDATE Connection SET Team_Util = ? WHERE Emp_Id = ? AND Team_Id = ?";
 

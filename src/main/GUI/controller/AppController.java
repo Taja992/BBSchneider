@@ -394,7 +394,7 @@ public class AppController {
 
 
         // Get the list of employees for the team
-        ObservableList<Employee> employeesInTeam = employeeModel.getAllEmployeesFromTeam(team.getId());
+        ObservableList<Employee> employeesInTeam = employeeModel.getAllEmployeesFromTeamWithTeamUtil(team.getId());
 
         teamTblView.setItems(employeesInTeam);
 

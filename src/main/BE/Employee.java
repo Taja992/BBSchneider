@@ -12,16 +12,6 @@ public class Employee {
     private int workingHours;
     private BigDecimal utilization;
     private boolean isOverheadCost;
-    private BigDecimal teamUtil;
-    
-
-    public void setTeamUtil(BigDecimal teamUtil) {
-        this.teamUtil = teamUtil;
-    }
-
-    public BigDecimal getTeamUtil() {
-        return teamUtil;
-    }
 
 
     public int getId() {
