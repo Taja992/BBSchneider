@@ -12,6 +12,7 @@ public class Employee {
     private int workingHours;
     private BigDecimal utilization;
     private boolean isOverheadCost;
+    private BigDecimal teamUtil;
 
     public Employee(int id, String name, BigDecimal annualSalary, BigDecimal overheadMultiPercent, BigDecimal annualAmount, String country, int workingHours, BigDecimal utilization, Object isOverheadCost) {
         this.employeeId = id;
@@ -26,6 +27,14 @@ public class Employee {
     }
 
     public Employee() {
+    }
+
+    public void setTeamUtil(BigDecimal teamUtil) {
+        this.teamUtil = teamUtil;
+    }
+
+    public BigDecimal getTeamUtil() {
+        return teamUtil;
     }
 
 

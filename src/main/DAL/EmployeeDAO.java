@@ -111,7 +111,7 @@ EmployeeDAO {
                 employee.setWorkingHours(rs.getInt("WorkingHours"));
                 employee.setUtilization(rs.getBigDecimal("Utilization"));
                 employee.setIsOverheadCost(rs.getBoolean("isOverheadCost"));
-                
+
                 employees.add(employee);
             }
 
