@@ -5,6 +5,7 @@ import Exceptions.BBExceptions;
 import GUI.model.EmployeeModel;
 import GUI.model.TeamModel;
 import com.neovisionaries.i18n.CountryCode;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -19,6 +20,10 @@ import javafx.util.converter.IntegerStringConverter;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class OverviewEmployeeTable {
 
@@ -34,6 +39,9 @@ public class OverviewEmployeeTable {
     private final EmployeeModel employeeModel;
     private final TeamModel teamModel;
     private final TableColumn<Employee, BigDecimal> teamUtilColSum;
+    private Map<Integer, BigDecimal> totalUtilizationCache = new HashMap<>();
+    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+
 
     public OverviewEmployeeTable (EmployeeModel employeeModel, TeamModel teamModel,
                                   TableColumn<Employee, String> nameCol, TableColumn<Employee, BigDecimal> annualSalaryCol,
@@ -119,13 +127,26 @@ public class OverviewEmployeeTable {
     private void populateTeamUtilizationSumColumn() {
         teamUtilColSum.setCellValueFactory(cellData -> {
             Employee employee = cellData.getValue();
-            try {
-                BigDecimal totalUtilization = employeeModel.calculateTotalTeamUtil(employee.getId());
-                return new SimpleObjectProperty<>(totalUtilization);
-            } catch (BBExceptions e) {
-                e.printStackTrace();
-                return new SimpleObjectProperty<>(BigDecimal.ZERO);
+            int employeeId = employee.getId();
+            BigDecimal totalUtilization = totalUtilizationCache.get(employeeId);
+
+            // If total utilization is not in the cache, calculate it in a background thread
+            // executorService single thread executor
+            if (totalUtilization == null) {
+                executorService.submit(() -> {
+                    try {
+                        BigDecimal calculatedTotalUtilization = employeeModel.calculateTotalTeamUtil(employeeId);
+                        Platform.runLater(() -> {
+                            //add the calculation to the hashmap
+                            totalUtilizationCache.put(employeeId, calculatedTotalUtilization);
+                        });
+                    } catch (BBExceptions e) {
+                        e.printStackTrace();
+                    }
+                });
             }
+
+            return new SimpleObjectProperty<>(totalUtilization);
         });
     }
 
@@ -255,9 +276,14 @@ public class OverviewEmployeeTable {
 ////        makeutilizationEditable();
 
     private void formatUtilization() {
-        utilCol.setCellFactory(column -> new TextFieldTableCell<>(new BigDecimalStringConverter()) {
-            private BigDecimal totalUtilization;
+        // We use a hashmap to store the results so we dont need to do the calculation everytime a cell is rendered
+        Map<Integer, BigDecimal> totalUtilizationCache = new HashMap<>();
 
+        // Create an ExecutorService that has a single thread to prevent lag
+        //while the employeeModel.calculateTotalTeamUtil(employeeId); calculation runs
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+
+        utilCol.setCellFactory(column -> new TextFieldTableCell<>(new BigDecimalStringConverter()) {
             @Override
             public void updateItem(BigDecimal item, boolean empty) {
                 super.updateItem(item, empty);
@@ -269,16 +295,28 @@ public class OverviewEmployeeTable {
                 if (currentRow != null) {
                     Employee employee = currentRow.getItem();
                     if (employee != null) {
-                        try {
-                            this.totalUtilization = employeeModel.calculateTotalTeamUtil(employee.getId());
-                        } catch (BBExceptions e) {
-                            throw new RuntimeException(e);
-                        }
-                        BigDecimal sumUtilValue = totalUtilization; // Replace with the actual method to get the sumUtil value
-                        if (item != null && sumUtilValue != null && sumUtilValue.compareTo(item) > 0) {
-                            setStyle("-fx-background-color: red");
+                        int employeeId = employee.getId();
+                        BigDecimal totalUtilization = totalUtilizationCache.get(employeeId);
+
+                        // If total utilization is not in the hashmap, calculate it in a background thread
+                        if (totalUtilization == null) {
+                            executorService.submit(() -> {
+                                try {
+                                    BigDecimal calculatedTotalUtilization = employeeModel.calculateTotalTeamUtil(employeeId);
+                                    Platform.runLater(() -> {
+                                        totalUtilizationCache.put(employeeId, calculatedTotalUtilization);
+                                        updateItem(item, empty);
+                                    });
+                                } catch (BBExceptions e) {
+                                    throw new RuntimeException(e);
+                                }
+                            });
                         } else {
-                            setStyle("");
+                            if (item != null && totalUtilization.compareTo(item) > 0) {
+                                setStyle("-fx-background-color: red");
+                            } else {
+                                setStyle("");
+                            }
                         }
                     }
                 }
@@ -363,34 +401,30 @@ public class OverviewEmployeeTable {
     }
 
 
-
-    private void makeOverheadEditable() {
+    public void makeOverheadEditable() {
         overheadCol.setCellValueFactory(cellData -> new SimpleBooleanProperty(cellData.getValue().getIsOverheadCost()));
-        overheadCol.setCellFactory(tableColumn -> {
-            CheckBoxTableCell<Employee, Boolean> cell = new CheckBoxTableCell<>();
-            CheckBox checkBox = (CheckBox) cell.getGraphic();
-            if (checkBox != null) {
-                checkBox.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
-                    if (isSelected != wasSelected) {
-                        Employee employee = cell.getTableView().getItems().get(cell.getIndex());
-                        employee.setIsOverheadCost(isSelected);
+        overheadCol.setCellFactory(column -> new TableCell<Employee, Boolean>() {
+            private final CheckBox checkBox = new CheckBox();
+
+            @Override
+            protected void updateItem(Boolean item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(checkBox);
+                    Employee employee = getTableView().getItems().get(getIndex());
+                    checkBox.setSelected(employee.getIsOverheadCost());
+                    //we use setOnAction with the checkbox to make it listen if there is a change
+                    checkBox.setOnAction(e -> {
+                        employee.setIsOverheadCost(checkBox.isSelected());
                         try {
                             employeeModel.updateEmployee(employee);
-                        } catch (BBExceptions e) {
-                            e.printStackTrace();
+                        } catch (BBExceptions ex) {
+                            ex.printStackTrace();
                         }
-                    }
-                });
-            }
-            return cell;
-        });
-        overheadCol.setOnEditCommit(event -> {
-            Employee employee = event.getRowValue();
-            employee.setIsOverheadCost(event.getNewValue());
-            try {
-                employeeModel.updateEmployee(employee);
-            } catch (BBExceptions e) {
-                e.printStackTrace();
+                    });
+                }
             }
         });
     }
