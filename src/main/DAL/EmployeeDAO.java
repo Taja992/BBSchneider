@@ -1,7 +1,6 @@
 package DAL;
 
 import BE.Employee;
-import BE.EmployeeWithTeamUtil;
 import BE.Team;
 import Exceptions.BBExceptions;
 
@@ -112,11 +111,8 @@ EmployeeDAO {
                 employee.setWorkingHours(rs.getInt("WorkingHours"));
                 employee.setUtilization(rs.getBigDecimal("Utilization"));
                 employee.setIsOverheadCost(rs.getBoolean("isOverheadCost"));
-
-                BigDecimal teamUtil = rs.getBigDecimal("Team_Util");
-                EmployeeWithTeamUtil employeeWithTeamUtil = new EmployeeWithTeamUtil(employee, teamUtil);
-
-                employees.add(employeeWithTeamUtil);
+                
+                employees.add(employee);
             }
 
         } catch (SQLException e){
