@@ -367,7 +367,8 @@ public class AppController {
         teamHoursCol.setCellValueFactory(new PropertyValueFactory<>("WorkingHours"));
         teamUtilCol.setCellValueFactory(new PropertyValueFactory<>("Utilization"));
         teamOverHeadCol.setCellValueFactory(new PropertyValueFactory<>("isOverheadCost"));
-        
+
+
 
         //formatting all the columns that need it, check the "make editable" methods for more comments
 
@@ -376,7 +377,19 @@ public class AppController {
         formatPercentageColumnForTeams(teamOverHeadPerCol);
         formatPercentageColumnForTeams(teamUtilCol);
 
+        teamUtilCol.setCellFactory(TextFieldTableCell.forTableColumn(new BigDecimalStringConverter()));
 
+        teamTblView.setEditable(true);
+
+        teamUtilCol.setOnEditCommit(event -> {
+            Employee employee = event.getRowValue();
+            employee.setUtilization(event.getNewValue());
+            try {
+                employeeModel.updateTeamUtilForEmployee(team.getId(), employee.getId(), event.getNewValue());
+            } catch (BBExceptions e) {
+                e.printStackTrace();
+            }
+        });
 
 
         // Get the list of employees for the team
