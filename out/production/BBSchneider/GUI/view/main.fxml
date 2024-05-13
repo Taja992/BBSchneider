@@ -59,7 +59,7 @@
                                     <HBox prefHeight="450.0">
                                        <children>
                                           <TabPane fx:id="teamTabPane" prefHeight="260.0" prefWidth="728.0" styleClass="teamTabPane" HBox.hgrow="ALWAYS" />
-                                          <Button fx:id="addTeambtn" mnemonicParsing="false" onAction="#addTeam" text="+" HBox.hgrow="ALWAYS" />
+                                          <Button fx:id="addTeamBtn" mnemonicParsing="false" text="+" HBox.hgrow="ALWAYS" />
                                        </children>
                                     </HBox>
                                  </children>
