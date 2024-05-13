@@ -10,6 +10,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ComboBoxTableCell;
@@ -41,6 +42,7 @@ public class OverviewEmployeeTable {
     private final TableColumn<Employee, BigDecimal> teamUtilColSum;
     private Map<Integer, BigDecimal> totalUtilizationCache = new HashMap<>();
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private Button addEmployeeBtn2;
 
 
     public OverviewEmployeeTable (EmployeeModel employeeModel, TeamModel teamModel,
@@ -48,7 +50,7 @@ public class OverviewEmployeeTable {
                                   TableColumn<Employee, BigDecimal> overHeadMultiCol, TableColumn<Employee, BigDecimal> annualAmountCol,
                                   TableColumn<Employee, String> countryCol, TableColumn<Employee, Integer> hoursCol,
                                   TableColumn<Employee, BigDecimal> utilCol, TableColumn<Employee, BigDecimal> teamUtilColSum, TableColumn<Employee, Boolean> overheadCol,
-                                  TableView<Employee> overviewEmployeeTblView) {
+                                  TableView<Employee> overviewEmployeeTblView, Button addEmployeeBtn2) {
         this.employeeModel = employeeModel;
         this.teamModel = teamModel;
         this.nameCol = nameCol;
@@ -61,6 +63,31 @@ public class OverviewEmployeeTable {
         this.teamUtilColSum = teamUtilColSum;
         this.overheadCol = overheadCol;
         this.overviewEmployeeTblView = overviewEmployeeTblView;
+        this.addEmployeeBtn2 = addEmployeeBtn2;
+
+        addEmployeeBtn2.setOnAction(this::addEmployeeBtn2);
+    }
+
+    private void addEmployeeBtn2(ActionEvent actionEvent) {
+        Employee newEmployee = new Employee();
+        newEmployee.setName("New Employee");
+        newEmployee.setOverheadMultiPercent(BigDecimal.ZERO);
+        newEmployee.setWorkingHours(0);
+        newEmployee.setAnnualAmount(BigDecimal.ZERO);
+        newEmployee.setAnnualSalary(BigDecimal.ZERO);
+        newEmployee.setUtilization(BigDecimal.ZERO);
+        newEmployee.setOverheadMultiPercent(BigDecimal.ZERO);
+        newEmployee.setIsOverheadCost(false);
+        newEmployee.setCountry(""); //revisit this
+
+        overviewEmployeeTblView.getItems().addFirst(newEmployee);
+
+        int newIndex = 0;
+
+        overviewEmployeeTblView.getSelectionModel().select(newIndex);
+        nameCol.getTableView().edit(newIndex, nameCol);
+
+        employeeModel.addNewEmployee(newEmployee);
     }
 
     public void setItems(ObservableList<Employee> employees) {

@@ -8,7 +8,6 @@ import GUI.model.TeamModel;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -101,8 +100,26 @@ public class TeamTable {
 
 
     private void addTableTabs()  {
-
         ObservableList<Team> teams = teamModel.getAllTeams(); //all the teams
+
+        //this sorting method uses O(n log n) where n=number of teams, it compares 2 teams at a time
+        teams.sort((team1, team2) -> {
+            //get team names
+            String name1 = team1.getName();
+            String name2 = team2.getName();
+
+            try {
+                // This assumes the team is formatted "Team #" and takes 5th digit "#" and uses Integer.parseInt to check its a number
+                int num1 = Integer.parseInt(name1.substring(5));
+                int num2 = Integer.parseInt(name2.substring(5));
+                //if successfully a number we compare the 2
+                return Integer.compare(num1, num2);
+            } catch (NumberFormatException e) {
+                // If parsing fails, sort the teams alphabetically
+                return name1.compareTo(name2);
+            }
+        });
+
         for (Team team: teams){ //for each team...
             Tab tab = new Tab(team.getName()); //create a new tab for that team
             tab.setUserData(team);
@@ -232,7 +249,7 @@ public class TeamTable {
         });
     }
 
-    
+
     private void addTeam(ActionEvent event) {
         try {
             int generatedId = teamModel.getLastTeamId() + 1;
