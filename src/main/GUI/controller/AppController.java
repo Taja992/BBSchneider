@@ -4,7 +4,6 @@ import BE.Employee;
 import BE.Team;
 import Exceptions.BBExceptions;
 import GUI.controller.tabs.EmployeeTab;
-import GUI.controller.tabs.OverviewEmployeeTable;
 import GUI.model.EmployeeModel;
 import GUI.model.TeamModel;
 import com.jfoenix.controls.JFXToggleButton;
@@ -17,19 +16,19 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
-import javafx.scene.chart.BarChart;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.StackPane;
+import javafx.util.converter.BigDecimalStringConverter;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.List;
 
 public class AppController {
-
 
 
     @FXML
@@ -86,6 +85,8 @@ public class AppController {
     @FXML
     private TableColumn<Employee, BigDecimal> utilCol;
     @FXML
+    private TableColumn<Employee, BigDecimal> teamUtilColSum;
+    @FXML
     private TableColumn<Employee, Boolean> overheadCol;
     @FXML
     private TableView<Employee> overviewEmployeeTblView;
@@ -99,12 +100,19 @@ public class AppController {
     private ComboBox<String> overviewCountryCmbBox;
     @FXML
     private TextField conversionRateTxt;
+    @FXML
+    private Label countryDayRateLbl;
+    @FXML
+    private Label countryHourlyRateLbl;
+    @FXML
+    private Button addTeamBtn;
     // -------------------------------------
 
     private String currencySymbol = "$";
     private OverviewEmployeeTable overviewEmployeeTable;
     private final EmployeeModel employeeModel;
     private final TeamModel teamModel;
+    private TeamTable teamTable;
 
 
     public AppController(){
@@ -115,9 +123,13 @@ public class AppController {
    public void initialize() {
 
        this.overviewEmployeeTable = new OverviewEmployeeTable(employeeModel, teamModel, nameCol, annualSalaryCol, overHeadMultiCol,
-               annualAmountCol, countryCol, hoursCol, utilCol, overheadCol, overviewEmployeeTblView);
+               annualAmountCol, countryCol, hoursCol, utilCol, teamUtilColSum, overheadCol, overviewEmployeeTblView);
 
        this.overviewEmployeeTable.initialize();
+
+       this.teamTable = new TeamTable(employeeModel, teamModel, teamTabPane, addTeamBtn);
+
+       this.teamTable.initialize();
 
        //This is where we handle our EmployeeTab
        EmployeeTab employeeTab = new EmployeeTab(employeeModel, employeeLV, countryCmbBox, nameTxt, annualSalaryTxt,
@@ -128,12 +140,13 @@ public class AppController {
        generateMockData();
        employeeRatesListener();
        setSearchEvent();
-       addTableTabs();
        teamRatesListener();
        currencyChangeToggleBtnListener();
        markUpListener();
        populateComboBox();
        setupCountryBox();
+       addCountryListener();
+       countryRatesListener();
        selectTeamOnStart();
    }
 
@@ -166,20 +179,35 @@ public class AppController {
     //////////////////Filtering/////////////////////////////
     ////////////////////////////////////////////////////////
 
-    private void setupCountryBox(){
-        List<String> allCountries = FXCollections.observableArrayList();
-        allCountries.add("All Countries");
-        for(CountryCode code : CountryCode.values()){ //adding list of all countries
-            allCountries.add(code.getName());
-        }
+    private void setupCountryBox() {
 
-        overviewCountryCmbBox.getItems().addAll(allCountries);
+        overviewCountryCmbBox.getItems().addAll(employeeModel.getAllCountriesUsed());
+        overviewCountryCmbBox.getSelectionModel().select(0);
+
         overviewCountryCmbBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-                filterEmployeeTableByCountry((String) newValue);
+                if(newValue != null){
+                    filterEmployeeTableByCountry((String) newValue);
+                }
             }
         });
+
+    }
+
+    private void addCountryListener(){
+        employeeModel.countryAddedProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue){
+                updateCountryBox();
+                employeeModel.countryAddedProperty().set(false);
+            }
+        });
+    }
+
+    private void updateCountryBox(){
+        overviewCountryCmbBox.getItems().clear();
+        overviewCountryCmbBox.getItems().addAll(employeeModel.getAllCountriesUsed());
+        overviewCountryCmbBox.getSelectionModel().select(0);
     }
 
     private void filterEmployeeTableByCountry(String country){
@@ -198,226 +226,6 @@ public class AppController {
         });
     }
 
-    ////////////////////////////////////////////////////////
-    //////////////////Create Team///////////////////////////
-    ////////////////////////////////////////////////////////
-
-    private void makeTeamTabTitleEditable(Tab tab) {
-        final Label label = new Label(tab.getText());
-        final TextField textField = new TextField(tab.getText());
-
-        textField.setVisible(false); // Initially hide the text field
-
-        // Add a boolean variable to check if the Enter key was pressed
-        final boolean[] isEnterPressed = {false};
-        // Add a boolean variable to check if the Unique Name alert was shown
-        final boolean[] isUniqueNameAlertShown = {false};
-
-        // When the user clicks the label, show the text field
-        label.setOnMouseClicked(event -> {
-            if (event.getClickCount() == 2) {
-                textField.setVisible(true);
-                textField.requestFocus();
-                isEnterPressed[0] = false; // Reset the isEnterPressed variable when the TextField gains focus
-            }
-        });
-
-        // When the TextField gains focus, store the current text
-        textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue) { // If TextField has gained focus
-                textField.setUserData(textField.getText());
-                isEnterPressed[0] = false; // Reset the isEnterPressed variable when the TextField gains focus
-            }
-        });
-
-        // When the user presses Enter, save the new title, hide the text field, and update the team name in the database
-        textField.setOnAction(event -> {
-            String newTeamName = textField.getText();
-            if (isTeamNameUnique(newTeamName)) {
-                tab.setText(newTeamName);
-                label.setText(newTeamName);
-                textField.setVisible(false);
-                Team team = (Team) tab.getUserData();
-                try {
-                    teamModel.updateTeamName(team.getId(), newTeamName);
-                } catch (BBExceptions e) {
-                    e.printStackTrace();
-                }
-                isEnterPressed[0] = true; // Set the isEnterPressed variable to true when the Enter key is pressed
-                isUniqueNameAlertShown[0] = false; // Reset the isUniqueNameAlertShown variable when the name is unique
-            } else {
-                showAlert("Invalid Team Name", "This team name already exists. Please choose a different name.");
-                textField.setText((String) textField.getUserData());
-                textField.setVisible(false);
-                isUniqueNameAlertShown[0] = true; // Set the isUniqueNameAlertShown variable to true when the name is not unique
-            }
-        });
-
-        // When the TextField loses focus, check if the Enter key was pressed
-        textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue) { // If TextField has lost focus
-                // Check if the Enter key was pressed
-                if (!isEnterPressed[0]) {
-                    // If the Enter key was not pressed, check if the text has been changed
-                    if (!textField.getText().equals(textField.getUserData())) {
-                        // If the text has been changed, check if the "Unique Name" alert was shown
-                        if (!isUniqueNameAlertShown[0]) {
-                            // If the "Unique Name" alert was not shown, show the "Unsaved Changes" alert
-                            showAlert("Unsaved Changes", "You didn't save your changes. The team name will be reverted to its original value.");
-                            textField.setText((String) textField.getUserData());
-                        }
-                    }
-                }
-                // Make the TextField invisible when it loses focus
-                textField.setVisible(false);
-            }
-        });
-
-        // Create a StackPane to hold the label and text field
-        StackPane stackPane = new StackPane();
-        stackPane.getChildren().addAll(label, textField);
-        stackPane.setAlignment(Pos.CENTER_LEFT);
-
-        // Set the StackPane as the tab's graphic
-        tab.setGraphic(stackPane);
-    }
-
-    // Check if the new team name is unique
-    private boolean isTeamNameUnique(String newTeamName) {
-        for (Tab teamTab : teamTabPane.getTabs()) {
-            if (teamTab.getText().equals(newTeamName)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-
-    private void addTableTabs()  {
-
-        ObservableList<Team> teams = teamModel.getAllTeams(); //all the teams
-        for (Team team: teams){ //for each team...
-            Tab tab = new Tab(team.getName()); //create a new tab for that team
-            tab.setUserData(team);
-            tab.setClosable(false);
-            tab.setContent(createTableForTeam(team)); //adds a table with the employees from team to the tab
-            teamTabPane.getTabs().add(tab); //add that tab to TabPane
-            makeTeamTabTitleEditable(tab); // make the tab title editable
-        }
-    }
-
-    private TableView<Employee> createTableForTeam(Team team){
-        //creating table and its columns and adding columns to table
-        TableView<Employee> teamTblView = new TableView<>();
-        teamTblView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
-
-        TableColumn<Employee, String> nameCol = new TableColumn<>();
-        nameCol.setText("Name");
-        teamTblView.getColumns().add(nameCol);
-
-        TableColumn<Employee, BigDecimal> salaryCol = new TableColumn<>();
-        salaryCol.setText("Annual Salary");
-        teamTblView.getColumns().add(salaryCol);
-
-        TableColumn<Employee, BigDecimal> overHeadPerCol = new TableColumn<>();
-        overHeadPerCol.setText("Overhead %");
-        teamTblView.getColumns().add(overHeadPerCol);
-
-        TableColumn<Employee, BigDecimal> annualCol = new TableColumn<>();
-        annualCol.setText("Annual Amount");
-        teamTblView.getColumns().add(annualCol);
-
-        TableColumn<Employee, String> countryCol = new TableColumn<>();
-        countryCol.setText("Country");
-        teamTblView.getColumns().add(countryCol);
-
-        TableColumn<Employee, String> hoursCol = new TableColumn<>();
-        hoursCol.setText("Annual Hrs");
-        teamTblView.getColumns().add(hoursCol);
-
-        TableColumn<Employee, BigDecimal> utilCol = new TableColumn<>();
-        utilCol.setText("Util %");
-        teamTblView.getColumns().add(utilCol);
-
-        TableColumn<Employee, String> overHeadCol = new TableColumn<>();
-        overHeadCol.setText("Overhead");
-        teamTblView.getColumns().add(overHeadCol);
-
-//        TableColumn<Employee, String> rateCol = new TableColumn<>();
-//        rateCol.setText("Rates");
-//        teamTblView.getColumns().add(rateCol);
-
-        //setting the column values to their values in the database
-        nameCol.setCellValueFactory(new PropertyValueFactory<>("Name"));
-        salaryCol.setCellValueFactory(new PropertyValueFactory<>("AnnualSalary"));
-        overHeadPerCol.setCellValueFactory(new PropertyValueFactory<>("OverheadMultiPercent"));
-        annualCol.setCellValueFactory(new PropertyValueFactory<>("AnnualAmount"));
-        countryCol.setCellValueFactory(new PropertyValueFactory<>("Country"));
-        hoursCol.setCellValueFactory(new PropertyValueFactory<>("WorkingHours"));
-        utilCol.setCellValueFactory(new PropertyValueFactory<>("Utilization"));
-        overHeadCol.setCellValueFactory(new PropertyValueFactory<>("isOverheadCost"));
-
-        //formatting all the columns that need it, check the "make editable" methods for more comments
-
-        formatSalaryColumnForTeams(salaryCol);
-        formatSalaryColumnForTeams(annualCol);
-        formatPercentageColumnForTeams(overHeadPerCol);
-        formatPercentageColumnForTeams(utilCol);
-
-
-        // Get the list of employees for the team
-        ObservableList<Employee> employeesInTeam = employeeModel.getAllEmployeesFromTeam(team.getId());
-
-        teamTblView.setItems(employeesInTeam);
-
-        return teamTblView;
-    }
-
-    private void formatPercentageColumnForTeams(TableColumn<Employee, BigDecimal> column){
-
-        column.setCellFactory(tableColumn -> new TableCell<>() {
-            @Override
-            public void updateItem(BigDecimal value, boolean empty) {
-                super.updateItem(value, empty);
-                setText(empty ? null : String.format("%.2f%%", value));
-            }
-        });
-    }
-
-    private void formatSalaryColumnForTeams(TableColumn<Employee, BigDecimal> column){
-        NumberFormat salaryFormat = NumberFormat.getNumberInstance();
-        salaryFormat.setMinimumFractionDigits(2);
-        salaryFormat.setMaximumFractionDigits(2);
-        column.setCellFactory(tableColumn -> new TableCell<>() {
-            @Override
-            public void updateItem(BigDecimal item, boolean empty) {
-                super.updateItem(item, empty);
-                if (item == null || empty) {
-                    setText(null);
-                } else {
-                    setText("$" + salaryFormat.format(item));
-                }
-            }
-        });
-    }
-
-    @FXML
-    private void addTeam(ActionEvent event) {
-        try {
-            int generatedId = teamModel.getLastTeamId() + 1;
-            Team newTeam = new Team(generatedId, "Team (" + generatedId + ")");
-            teamModel.newTeam(newTeam);
-            Tab tab = new Tab(newTeam.getName());
-            tab.setUserData(newTeam); //So our new tab carries the team data
-            tab.setClosable(false);
-            tab.setContent(createTableForTeam(newTeam));
-            teamTabPane.getTabs().add(tab);
-            makeTeamTabTitleEditable(tab);
-
-        } catch (BBExceptions e) {
-            e.printStackTrace();
-        }
-    }
 
     ////////////////////////////////////////////////////////
     ///////////////////////Rates////////////////////////////
@@ -453,6 +261,32 @@ public class AppController {
                 }
             }
         });
+    }
+
+    private void calculateCountryRates(String country){
+
+        double hourlyRate = employeeModel.calculateTotalHourlyRateForCountry(country);
+        double dailyRate = employeeModel.calculateTotalDailyRateForCountry(country);
+
+        //convert the currency if needed
+        if ("€".equals(currencySymbol)) {
+            String conversionText = conversionRateTxt.getText();
+            double conversion = 0.92; //default conversion rate if nothing is set
+            if(conversionText != null && !conversionText.isEmpty()){
+                try{
+                    conversion = Double.parseDouble(conversionText);
+                } catch(NumberFormatException e){
+                    showAlert("Invalid input", "Please enter a valid number for the conversion rate.");
+                }
+            }
+
+            hourlyRate *= conversion;
+            dailyRate *= conversion;
+
+        }
+
+        countryHourlyRateLbl.setText(currencySymbol + String.format("%.2f",hourlyRate)+ "/Hour");
+        countryDayRateLbl.setText(currencySymbol + String.format("%.2f",dailyRate)+ "/Day");
     }
 
     private void calculateTeamRates(int teamId){
@@ -559,6 +393,21 @@ public class AppController {
         });
     }
 
+    private void countryRatesListener(){
+        //adding a listener to the country combobox so the total country rates can be update
+        overviewCountryCmbBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                if(newValue != null){
+                    calculateCountryRates(newValue);
+                }else{
+                    teamHourlyRateLbl.setText("$0.00/Hour");
+                    teamDayRateLbl.setText("$0.00/Day");
+                }
+            }
+        });
+    }
+
     public void selectTeamOnStart() {
 
         int teamId = teamModel.getAllTeams().getFirst().getId(); //getting our first team
@@ -570,12 +419,13 @@ public class AppController {
     //////////////////////////////////////////////////////////
 
     private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle(title);
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            alert.showAndWait();
+        });
+
     }
-
-
 }

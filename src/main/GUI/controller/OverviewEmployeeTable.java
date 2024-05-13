@@ -1,17 +1,16 @@
-package GUI.controller.tabs;
+package GUI.controller;
 
 import BE.Employee;
-import BE.Team;
 import Exceptions.BBExceptions;
 import GUI.model.EmployeeModel;
 import GUI.model.TeamModel;
 import com.neovisionaries.i18n.CountryCode;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -23,6 +22,8 @@ import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class OverviewEmployeeTable {
 
@@ -37,15 +38,17 @@ public class OverviewEmployeeTable {
     private final TableView<Employee> overviewEmployeeTblView;
     private final EmployeeModel employeeModel;
     private final TeamModel teamModel;
-    private final Map<String, Integer> teamNameToId = new HashMap<>();
-    private final ObservableList<String> allTeamNames = FXCollections.observableArrayList();
+    private final TableColumn<Employee, BigDecimal> teamUtilColSum;
+    private Map<Integer, BigDecimal> totalUtilizationCache = new HashMap<>();
+    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+
 
     public OverviewEmployeeTable (EmployeeModel employeeModel, TeamModel teamModel,
-           TableColumn<Employee, String> nameCol, TableColumn<Employee, BigDecimal> annualSalaryCol,
-           TableColumn<Employee, BigDecimal> overHeadMultiCol, TableColumn<Employee, BigDecimal> annualAmountCol,
-           TableColumn<Employee, String> countryCol, TableColumn<Employee, Integer> hoursCol,
-           TableColumn<Employee, BigDecimal> utilCol, TableColumn<Employee, Boolean> overheadCol,
-           TableView<Employee> overviewEmployeeTblView) {
+                                  TableColumn<Employee, String> nameCol, TableColumn<Employee, BigDecimal> annualSalaryCol,
+                                  TableColumn<Employee, BigDecimal> overHeadMultiCol, TableColumn<Employee, BigDecimal> annualAmountCol,
+                                  TableColumn<Employee, String> countryCol, TableColumn<Employee, Integer> hoursCol,
+                                  TableColumn<Employee, BigDecimal> utilCol, TableColumn<Employee, BigDecimal> teamUtilColSum, TableColumn<Employee, Boolean> overheadCol,
+                                  TableView<Employee> overviewEmployeeTblView) {
         this.employeeModel = employeeModel;
         this.teamModel = teamModel;
         this.nameCol = nameCol;
@@ -55,6 +58,7 @@ public class OverviewEmployeeTable {
         this.countryCol = countryCol;
         this.hoursCol = hoursCol;
         this.utilCol = utilCol;
+        this.teamUtilColSum = teamUtilColSum;
         this.overheadCol = overheadCol;
         this.overviewEmployeeTblView = overviewEmployeeTblView;
     }
@@ -71,9 +75,6 @@ public class OverviewEmployeeTable {
         return overviewEmployeeTblView;
     }
 
-    public Map<String, Integer> getTeamNameToId() {
-        return teamNameToId;
-    }
 
     public void initialize(){
         overviewEmployeeTblView.setEditable(true);
@@ -100,7 +101,10 @@ public class OverviewEmployeeTable {
             //These methods format the tableview to have % as well as allows them to be editable
             formatOverheadMultiPercent();
             formatUtilization();
+            formatTeamUtilSum();
             makeOverheadEditable();
+            populateTeamUtilizationSumColumn();
+
 
             overviewEmployeeTblView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
             overviewEmployeeTblView.setItems(employees);
@@ -117,6 +121,32 @@ public class OverviewEmployeeTable {
                 populateEmployeeTableView();
                 employeeModel.employeeAddedProperty().set(false);
             }
+        });
+    }
+
+    private void populateTeamUtilizationSumColumn() {
+        teamUtilColSum.setCellValueFactory(cellData -> {
+            Employee employee = cellData.getValue();
+            int employeeId = employee.getId();
+            BigDecimal totalUtilization = totalUtilizationCache.get(employeeId);
+
+            // If total utilization is not in the cache, calculate it in a background thread
+            // executorService single thread executor
+            if (totalUtilization == null) {
+                executorService.submit(() -> {
+                    try {
+                        BigDecimal calculatedTotalUtilization = employeeModel.calculateTotalTeamUtil(employeeId);
+                        Platform.runLater(() -> {
+                            //add the calculation to the hashmap
+                            totalUtilizationCache.put(employeeId, calculatedTotalUtilization);
+                        });
+                    } catch (BBExceptions e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
+
+            return new SimpleObjectProperty<>(totalUtilization);
         });
     }
 
@@ -229,9 +259,74 @@ public class OverviewEmployeeTable {
         });
     }
 
-    private void formatUtilization() {
+//    private void formatUtilization() {
+//
+////        utilCol.setCellFactory(tableColumn -> new TextFieldTableCell<>(new BigDecimalStringConverter()) {
+////            @Override
+////            public void updateItem(BigDecimal value, boolean empty) {
+////                super.updateItem(value, empty);
+////                //This checks if cell is empty, if not continues...
+////                //% is a placeholder for the value that will be inserted
+////                //.2 this tells our tableview we want 2 digits after the decimal
+////                //f indicates it's a floating point number (a number with a decimal)
+////                //% we add this to the end of the number
+////                setText(empty ? null : String.format("%.2f%%", value));
+////            }
+////        });
+////        makeutilizationEditable();
 
-        utilCol.setCellFactory(tableColumn -> new TextFieldTableCell<>(new BigDecimalStringConverter()) {
+    private void formatUtilization() {
+        // We use a hashmap to store the results so we dont need to do the calculation everytime a cell is rendered
+        Map<Integer, BigDecimal> totalUtilizationCache = new HashMap<>();
+
+        // Create an ExecutorService that has a single thread to prevent lag
+        //while the employeeModel.calculateTotalTeamUtil(employeeId); calculation runs
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+
+        utilCol.setCellFactory(column -> new TextFieldTableCell<>(new BigDecimalStringConverter()) {
+            @Override
+            public void updateItem(BigDecimal item, boolean empty) {
+                super.updateItem(item, empty);
+
+                setText(empty ? null : String.format("%.2f%%", item));
+
+                TableRow<Employee> currentRow = getTableRow();
+
+                if (currentRow != null) {
+                    Employee employee = currentRow.getItem();
+                    if (employee != null) {
+                        int employeeId = employee.getId();
+                        BigDecimal totalUtilization = totalUtilizationCache.get(employeeId);
+
+                        // If total utilization is not in the hashmap, calculate it in a background thread
+                        if (totalUtilization == null) {
+                            executorService.submit(() -> {
+                                try {
+                                    BigDecimal calculatedTotalUtilization = employeeModel.calculateTotalTeamUtil(employeeId);
+                                    Platform.runLater(() -> {
+                                        totalUtilizationCache.put(employeeId, calculatedTotalUtilization);
+                                        updateItem(item, empty);
+                                    });
+                                } catch (BBExceptions e) {
+                                    throw new RuntimeException(e);
+                                }
+                            });
+                        } else {
+                            if (item != null && totalUtilization.compareTo(item) > 0) {
+                                setStyle("-fx-text-fill: #dc0101; -fx-background-color: #efefef;");
+                            } else {
+                                setStyle("");
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        makeutilizationEditable();
+    }
+
+    private void formatTeamUtilSum() {
+        teamUtilColSum.setCellFactory(tableColumn -> new TextFieldTableCell<>(new BigDecimalStringConverter()) {
             @Override
             public void updateItem(BigDecimal value, boolean empty) {
                 super.updateItem(value, empty);
@@ -243,7 +338,6 @@ public class OverviewEmployeeTable {
                 setText(empty ? null : String.format("%.2f%%", value));
             }
         });
-        makeutilizationEditable();
     }
 
     private void makeutilizationEditable(){
@@ -307,28 +401,27 @@ public class OverviewEmployeeTable {
     }
 
 
-
-    private void makeOverheadEditable() {
+    public void makeOverheadEditable() {
         overheadCol.setCellValueFactory(cellData -> new SimpleBooleanProperty(cellData.getValue().getIsOverheadCost()));
-        // Make the cell able to become a checkbox
-        overheadCol.setCellFactory(tableColumn -> new CheckBoxTableCell<>() {
+        overheadCol.setCellFactory(column -> new TableCell<Employee, Boolean>() {
+            private final CheckBox checkBox = new CheckBox();
+
             @Override
-            public void updateItem(Boolean item, boolean empty) {
+            protected void updateItem(Boolean item, boolean empty) {
                 super.updateItem(item, empty);
-                if (!empty) {
-                    //we use .getGraphic for a visual representation of the checkbox
-                    CheckBox checkBox = (CheckBox) this.getGraphic();
-                    //add a listener onto our checkbox
-                    checkBox.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
-                        if (isSelected != wasSelected) {
-                            //.getIndex for getting the employee of selected cell
-                            Employee employee = this.getTableView().getItems().get(this.getIndex());
-                            employee.setIsOverheadCost(isSelected);
-                            try {
-                                employeeModel.updateEmployee(employee);
-                            } catch (BBExceptions e) {
-                                e.printStackTrace();
-                            }
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(checkBox);
+                    Employee employee = getTableView().getItems().get(getIndex());
+                    checkBox.setSelected(employee.getIsOverheadCost());
+                    //we use setOnAction with the checkbox to make it listen if there is a change
+                    checkBox.setOnAction(e -> {
+                        employee.setIsOverheadCost(checkBox.isSelected());
+                        try {
+                            employeeModel.updateEmployee(employee);
+                        } catch (BBExceptions ex) {
+                            ex.printStackTrace();
                         }
                     });
                 }

@@ -4,6 +4,7 @@ import BE.Team;
 import BLL.TeamBLL;
 import DAL.TeamDAO;
 import Exceptions.BBExceptions;
+import com.microsoft.sqlserver.jdbc.SQLServerException;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -42,6 +43,10 @@ public class TeamModel {
 
     public void updateTeamName(int teamId, String newTeamName) throws BBExceptions {
         teamBLL.updateTeamName(teamId, newTeamName);
+    }
+
+    public List<Team> getTeamsForEmployee(int employeeId) throws BBExceptions {
+        return teamBLL.getTeamsForEmployee(employeeId);
     }
 
 }

@@ -52,13 +52,14 @@
                                           <TableColumn fx:id="teamCol" prefWidth="63.0" text="Team" />
                                           <TableColumn fx:id="hoursCol" prefWidth="88.0" text="Annual Hrs" />
                                           <TableColumn fx:id="utilCol" prefWidth="61.0" text="Util %" />
+                                          <TableColumn fx:id="teamUtilColSum" prefWidth="61.0" text="∑ Util %" />
                                           <TableColumn fx:id="overheadCol" prefWidth="68.0" text="Overhead" />
                                        </columns>
                                     </TableView>
                                     <HBox prefHeight="450.0">
                                        <children>
                                           <TabPane fx:id="teamTabPane" prefHeight="260.0" prefWidth="728.0" styleClass="teamTabPane" HBox.hgrow="ALWAYS" />
-                                          <Button fx:id="addTeambtn" mnemonicParsing="false" onAction="#addTeam" text="+" HBox.hgrow="ALWAYS" />
+                                          <Button fx:id="addTeamBtn" mnemonicParsing="false" text="+" HBox.hgrow="ALWAYS" />
                                        </children>
                                     </HBox>
                                  </children>
@@ -101,9 +102,16 @@
                                     </Label>
                                     <Label fx:id="employeeDayRateLbl" text="No employee selected" />
                                     <Label fx:id="employeeHourlyRateLbl" text="No employee selected" />
+                                    <Label prefWidth="82.0" text="Country Rates:">
+                                       <padding>
+                                          <Insets top="25.0" />
+                                       </padding>
+                                    </Label>
+                                    <Label fx:id="countryDayRateLbl" text="\$0.00/Day" />
+                                    <Label fx:id="countryHourlyRateLbl" text="\$0.00/Hour" />
                                     <Label text="Team Rates:">
                                        <padding>
-                                          <Insets top="60.0" />
+                                          <Insets top="25.0" />
                                        </padding>
                                     </Label>
                                     <Label fx:id="teamDayRateLbl" text="\$0.00/Day" />
@@ -287,7 +295,6 @@
                         </BorderPane>
                      </content>
                   </Tab>
-                  <Tab closable="false" text="Teams" />
                </tabs>
             </TabPane>
             <LineChart fx:id="lineChart" prefHeight="290.0" prefWidth="998.0" VBox.vgrow="ALWAYS">

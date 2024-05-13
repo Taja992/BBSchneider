@@ -19,5 +19,12 @@
         </library>
       </libraries>
     </data-source>
+    <data-source source="LOCAL" name="EASV-DB4" uuid="08b66fc2-fdad-4677-ad17-c1ce1b34a480">
+      <driver-ref>sqlserver.ms</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</jdbc-driver>
+      <jdbc-url>jdbc:sqlserver://10.176.111.34</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>

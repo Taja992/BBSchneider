@@ -1,6 +1,7 @@
 package GUI.model;
 
 import BE.Employee;
+import BE.Team;
 import BLL.EmployeeBLL;
 import Exceptions.BBExceptions;
 import javafx.beans.property.BooleanProperty;
@@ -8,6 +9,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +19,9 @@ public class EmployeeModel {
     private final ObservableList<Employee> employees;
 
     private final BooleanProperty employeeAdded = new SimpleBooleanProperty(false);
+    private final BooleanProperty countryAdded = new SimpleBooleanProperty(false);
+
+    private List<String> allCountries = FXCollections.observableArrayList();
 
 
     public EmployeeModel(){
@@ -27,6 +32,10 @@ public class EmployeeModel {
     //Boolean property added as a switch to tell the employeeTableview to update
     public BooleanProperty employeeAddedProperty() {
         return employeeAdded;
+    }
+    //doing the same thing for the country combobox
+    public BooleanProperty countryAddedProperty(){
+        return countryAdded;
     }
 
     public ObservableList<Employee> getEmployees() throws BBExceptions {
@@ -72,6 +81,23 @@ public class EmployeeModel {
         employeeAdded.set(true);
         //this needs to be done this way to get the generated employee ID from the database so we are able
         //edit new employees
+
+        if(allCountries != null){
+            boolean countryExists = false;
+            //if the employee added has a country that has not been used before, add it to "allCountries"
+            for(String country : allCountries){ //checking through allCountries to see if one of them is the same as the new employees country
+                if (country.equals(employee.getCountry())) {
+                    countryExists = true;
+                }
+            }
+
+            if(!countryExists){
+                allCountries.add(employee.getCountry());
+                countryAdded.set(true);
+            }
+        }
+
+
     }
 
 
@@ -89,6 +115,14 @@ public class EmployeeModel {
         return employeeBLL.calculateDailyRate(selectedEmployee);
     }
 
+    public Double calculateTotalHourlyRateForCountry(String country){
+        return employeeBLL.calculateTotalHourlyRateForCountry(country);
+    }
+
+    public Double calculateTotalDailyRateForCountry(String country){
+        return employeeBLL.calculateTotalDailyRateForCountry(country);
+    }
+
     public ObservableList<Employee> getAllEmployeesFromTeam(int TeamId) {
         // Set up Observable list for tables
         ObservableList<Employee> empFromTeam = FXCollections.observableArrayList();
@@ -96,6 +130,15 @@ public class EmployeeModel {
 
         // Return the list of employees
         return empFromTeam;
+    }
+
+    public ObservableList<Employee> getAllEmployeesFromTeamWithTeamUtil(int TeamId) {
+        // Set up Observable list for tables
+        ObservableList<Employee> empFromTeamWithTeamUtil = FXCollections.observableArrayList();
+        empFromTeamWithTeamUtil.addAll(employeeBLL.getAllEmployeesFromTeamWithTeamUtil(TeamId));
+
+        // Return the list of employees
+        return empFromTeamWithTeamUtil;
     }
 
     public ObservableList<Employee> filterEmployeesByCountry(String country) {
@@ -119,6 +162,32 @@ public class EmployeeModel {
         return filteredEmployees;
     }
 
+    //getting all the countries that have employees in them, for the search function
+    public List<String> getAllCountriesUsed(){
+        if(allCountries.isEmpty()){ //if the list is empty then populate it
+            allCountries.add("All Countries");
+            List<Employee> allEmployees = null;
+            try {
+                allEmployees = getEmployees(); //getting all the employees so we can get all the countries they're in
+            } catch (BBExceptions e) {
+                throw new RuntimeException(e);
+            }
+            for(Employee employee : allEmployees){ //adding list of all countries
+                if(employee.getCountry() != null && !allCountries.contains(employee.getCountry())){
+                    allCountries.add(employee.getCountry());
+                }
+            }
+
+
+        }
+
+        return allCountries;
+
+    }
+
+    public BigDecimal calculateTotalTeamUtil(int employeeId) throws BBExceptions {
+        return employeeBLL.calculateTotalTeamUtil(employeeId);
+    }
 
 
 
@@ -137,4 +206,11 @@ public class EmployeeModel {
         return employeeBLL.calculateMarkUp(markupValue);
     }
 
+    public BigDecimal getUtilizationForTeam(Employee employee, Team team) throws BBExceptions {
+        return employeeBLL.getUtilizationForTeam(employee, team);
+    }
+
+    public void updateTeamUtilForEmployee(int teamId, int employeeId, BigDecimal newUtil) throws BBExceptions {
+        employeeBLL.updateTeamUtilForEmployee(teamId, employeeId, newUtil);
+    }
 }
