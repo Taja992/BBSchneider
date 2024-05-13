@@ -19,20 +19,6 @@
 
 <VBox fx:id="mainVbox" stylesheets="/GUI/view/main.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.controller.AppController">
    <children>
-      <HBox alignment="CENTER_LEFT" prefHeight="23.0" prefWidth="998.0" styleClass="topBarHbox">
-         <children>
-            <Label prefWidth="208.0" styleClass="titleLbl" text="Schneider Electric Rates Calculator" textFill="WHITE">
-               <HBox.margin>
-                  <Insets left="5.0" />
-               </HBox.margin>
-            </Label>
-            <Button fx:id="closeBtn" mnemonicParsing="false" styleClass="closeBtn" text="Button">
-               <HBox.margin>
-                  <Insets left="780.0" right="5.0" />
-               </HBox.margin>
-            </Button>
-         </children>
-      </HBox>
       <ScrollPane fx:id="mainSp" fitToWidth="true" prefHeight="539.0" prefWidth="1013.0">
          <content>
             <VBox VBox.vgrow="ALWAYS">
