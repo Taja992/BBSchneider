@@ -8,7 +8,6 @@ import GUI.model.TeamModel;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -18,7 +17,7 @@ import javafx.util.converter.BigDecimalStringConverter;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
-import java.util.Comparator;
+
 
 
 public class TeamTable {
@@ -102,8 +101,6 @@ public class TeamTable {
 
     private void addTableTabs()  {
         ObservableList<Team> teams = teamModel.getAllTeams(); //all the teams
-            //this is 1 way to sort but its not very solid as it depends on the user naming teams "Team #" format
-      //  teams.sort(Comparator.comparing(team -> Integer.parseInt(team.getName().substring(5))));
 
         //this sorting method uses O(n log n) where n=number of teams, it compares 2 teams at a time
         teams.sort((team1, team2) -> {
@@ -252,7 +249,7 @@ public class TeamTable {
         });
     }
 
-    
+
     private void addTeam(ActionEvent event) {
         try {
             int generatedId = teamModel.getLastTeamId() + 1;

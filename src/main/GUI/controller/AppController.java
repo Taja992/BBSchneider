@@ -33,27 +33,6 @@ public class AppController {
 
     @FXML
     private LineChart<String, Number> lineChart;
-    // --------Employee tab ---------------
-    @FXML
-    private ListView<Employee> employeeLV;
-    @FXML
-    private TextField nameTxt;
-    @FXML
-    private TextField annualSalaryTxt;
-    @FXML
-    private TextField overheadMultiTxt;
-    @FXML
-    private TextField annualAmtTxt;
-    @FXML
-    private TextField yearlyHrsTxt;
-    @FXML
-    private TextField utilizationTxt;
-    @FXML
-    private CheckBox overheadChkBox;
-    @FXML
-    private ComboBox<String> countryCmbBox;
-    @FXML
-    private Button addEmployeeBtn;
     //--------------------------------------
     //----------Overview Tab----------------
     @FXML
@@ -106,6 +85,8 @@ public class AppController {
     private Label countryHourlyRateLbl;
     @FXML
     private Button addTeamBtn;
+    @FXML
+    private Button addEmployeeBtn2;
     // -------------------------------------
 
     private String currencySymbol = "$";
@@ -123,7 +104,7 @@ public class AppController {
    public void initialize() {
 
        this.overviewEmployeeTable = new OverviewEmployeeTable(employeeModel, teamModel, nameCol, annualSalaryCol, overHeadMultiCol,
-               annualAmountCol, countryCol, hoursCol, utilCol, teamUtilColSum, overheadCol, overviewEmployeeTblView);
+               annualAmountCol, countryCol, hoursCol, utilCol, teamUtilColSum, overheadCol, overviewEmployeeTblView, addEmployeeBtn2);
 
        this.overviewEmployeeTable.initialize();
 
@@ -131,12 +112,6 @@ public class AppController {
 
        this.teamTable.initialize();
 
-       //This is where we handle our EmployeeTab
-       EmployeeTab employeeTab = new EmployeeTab(employeeModel, employeeLV, countryCmbBox, nameTxt, annualSalaryTxt,
-               overheadMultiTxt, annualAmtTxt, overheadChkBox,yearlyHrsTxt, utilizationTxt, addEmployeeBtn,
-               employeesSearchTxt);
-
-       employeeTab.initialize();
        generateMockData();
        employeeRatesListener();
        setSearchEvent();
