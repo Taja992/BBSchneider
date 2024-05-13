@@ -3,10 +3,15 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TabPane;
+import javafx.scene.image.Image;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+
+import java.util.Objects;
 
 public class Main extends Application {
     private double xOffset = 0;
@@ -21,26 +26,27 @@ public class Main extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("GUI/view/main.fxml"));
         Parent root = fxmlLoader.load();
         Scene scene = new Scene(root);
-        //scene.setFill(Color.TRANSPARENT);
-        //primaryStage.initStyle(StageStyle.TRANSPARENT);
+      //  scene.setFill(Color.TRANSPARENT);
+     //   primaryStage.initStyle(StageStyle.TRANSPARENT);
         primaryStage.setTitle("Schneider Rates");
         primaryStage.setScene(scene);
+        primaryStage.getIcons().add(new Image(Objects.requireNonNull(getClass().getResource("/favicon2.png")).toExternalForm()));
         primaryStage.show();
 
-       // windowControls(primaryStage, scene);
+        //windowControls(primaryStage, scene);
     }
 
 //    public void windowControls(Stage primaryStage, Scene scene){
-//        TabPane mainBp = (TabPane) scene.lookup("#mainTabPane");
+//        VBox mainVbox = (VBox) scene.lookup("#mainVbox");
 //        Button closeButton = (Button) scene.lookup("#closeBtn");
 //
 //        // Add functionality to move the window around
-//        mainBp.setOnMousePressed(event -> {
+//        mainVbox.setOnMousePressed(event -> {
 //            xOffset = event.getSceneX();
 //            yOffset = event.getSceneY();
 //        });
 //
-//        mainBp.setOnMouseDragged(event -> {
+//        mainVbox.setOnMouseDragged(event -> {
 //            primaryStage.setX(event.getScreenX() - xOffset);
 //            primaryStage.setY(event.getScreenY() - yOffset);
 //        });

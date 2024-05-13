@@ -1,6 +1,7 @@
 package GUI.model;
 
 import BE.Employee;
+import BE.Team;
 import BLL.EmployeeBLL;
 import Exceptions.BBExceptions;
 import javafx.beans.property.BooleanProperty;
@@ -8,6 +9,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,34 +70,40 @@ public class EmployeeModel {
         return filteredEmployees;
     }
 
-    public void addNewEmployee(Employee employee) throws BBExceptions {
-        //add employee to database and get the generated ID
-        int newEmployeeId = employeeBLL.addNewEmployee(employee);
-        //set the ID of the employee
-        employee.setId(newEmployeeId);
-        //add employees to the observable list
-        employees.add(employee);
-        //Tell our boolean property that a new employee was added and to refresh Tableview
-        employeeAdded.set(true);
-        //this needs to be done this way to get the generated employee ID from the database so we are able
-        //edit new employees
+    public void addNewEmployee(Employee employee) {
+        try {
+            // Add employee to database and get the generated ID
+            int newEmployeeId = employeeBLL.addNewEmployee(employee);
 
-        if(allCountries != null){
-            boolean countryExists = false;
-            //if the employee added has a country that has not been used before, add it to "allCountries"
-            for(String country : allCountries){ //checking through allCountries to see if one of them is the same as the new employees country
-                if (country.equals(employee.getCountry())) {
-                    countryExists = true;
+            // Set the ID of the employee
+            employee.setId(newEmployeeId);
+
+            // Add employees to the observable list
+            employees.add(employee);
+
+            // Tell our boolean property that a new employee was added and to refresh Tableview
+            employeeAdded.set(true);
+
+            // This needs to be done this way to get the generated employee ID from the database so we are able
+            // to edit new employees
+
+            if(allCountries != null){
+                boolean countryExists = false;
+                // If the employee added has a country that has not been used before, add it to "allCountries"
+                for(String country : allCountries){ // Checking through allCountries to see if one of them is the same as the new employee's country
+                    if (country.equals(employee.getCountry())) {
+                        countryExists = true;
+                    }
+                }
+                // If the country does not exist in allCountries, add it
+                if (!countryExists) {
+                    allCountries.add(employee.getCountry());
                 }
             }
-
-            if(!countryExists){
-                allCountries.add(employee.getCountry());
-                countryAdded.set(true);
-            }
+        } catch (BBExceptions e) {
+            // Handle the exception
+            e.printStackTrace();
         }
-
-
     }
 
 
@@ -128,6 +136,15 @@ public class EmployeeModel {
 
         // Return the list of employees
         return empFromTeam;
+    }
+
+    public ObservableList<Employee> getAllEmployeesFromTeamWithTeamUtil(int TeamId) {
+        // Set up Observable list for tables
+        ObservableList<Employee> empFromTeamWithTeamUtil = FXCollections.observableArrayList();
+        empFromTeamWithTeamUtil.addAll(employeeBLL.getAllEmployeesFromTeamWithTeamUtil(TeamId));
+
+        // Return the list of employees
+        return empFromTeamWithTeamUtil;
     }
 
     public ObservableList<Employee> filterEmployeesByCountry(String country) {
@@ -174,6 +191,10 @@ public class EmployeeModel {
 
     }
 
+    public BigDecimal calculateTotalTeamUtil(int employeeId) throws BBExceptions {
+        return employeeBLL.calculateTotalTeamUtil(employeeId);
+    }
+
 
 
     public void updateEmployee(Employee employee) throws BBExceptions{
@@ -191,4 +212,11 @@ public class EmployeeModel {
         return employeeBLL.calculateMarkUp(markupValue);
     }
 
+    public BigDecimal getUtilizationForTeam(Employee employee, Team team) throws BBExceptions {
+        return employeeBLL.getUtilizationForTeam(employee, team);
+    }
+
+    public void updateTeamUtilForEmployee(int teamId, int employeeId, BigDecimal newUtil) throws BBExceptions {
+        employeeBLL.updateTeamUtilForEmployee(teamId, employeeId, newUtil);
+    }
 }

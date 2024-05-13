@@ -19,77 +19,42 @@
     -fx-background-color: #1A5A29;
 }
 
-.mainTabPane {
+.teamTabPane {
     -fx-tab-min-width: 125px;
-    -fx-padding: -8 0 0 0;
 }
 
-.mainTabPane .tab-header-area .tab-header-background {
+.teamTabPane .tab-header-area .tab-header-background {
+    -fx-background-color: white;
+}
+
+.teamTabPane .tab-header-area {
     -fx-background-color: transparent;
-
 }
 
-.mainTabPane .tab:selected {
-    -fx-border-color: black transparent transparent transparent;
-    -fx-focus-color: transparent;
-    -fx-faint-focus-color: transparent;
-}
-
-.mainTabPane .tab {
+.teamTabPane .tab {
     -fx-border-color: black;
     -fx-border-width: 1px;
-    -fx-padding: 0 0 0 0;
-}
-
-
-.mainTabPane .tab-header-area {
-    -fx-font-size: 16px;
-}
-
-.mainTabPane .tab-header-area .tab {
-    -fx-pref-width: 150;
+    -fx-padding: 0 0 0 5; /* Top, Right, Bottom, Left */
+    -fx-pref-width: 125;
     -fx-background-color: #e8e8e8;
     -fx-text-fill: #00A652;
 }
 
-.tab-label {
-    -fx-text-fill: #00A652;
-    -fx-font-weight: bold;
-}
-
-.mainTabPane .tab-header-area .tab:selected {
-    -fx-background-color: white;
-}
-
-
-.teamTabPane .tab-header-area .tab {
-    -fx-pref-width: 125;
-}
-
-.teamTabPane .tab {
-    -fx-padding: 0 0 0 5; /* Top, Right, Bottom, Left */
-}
-
 .teamTabPane .tab:selected {
-    -fx-border-color: black black black black;
-}
-
-.teamTabPane .tab-header-area .tab:selected {
+    -fx-border-color: black;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
     -fx-background-color: #00A652;
     -fx-text-fill: white;
-}
-
-.teamTabPane .tab-label .tab:selected {
-    -fx-text-fill: white;
-    -fx-font-weight: bold;
 }
 
 .teamTabPane .tab-header-area .tab:selected .text {
     -fx-fill: white;
 }
 
-.teamTabPane .tab-header-area {
-    -fx-font-size: 13px;
+.tab-label {
+    -fx-text-fill: #00A652;
+    -fx-font-weight: bold;
 }
 
 .text-field {
@@ -141,4 +106,26 @@
 
 .default-color1.chart-line-symbol {
     -fx-background-color: #1A5A29, white;
+}
+
+.topBarHbox {
+    -fx-background-color: #00A652;
+}
+
+.closeBtn {
+    -fx-background-color: rgba(246, 113, 113, 0.8);
+    -fx-text-fill: #EEE;
+    -fx-font-weight: bold;
+    -fx-padding: 5;
+    -fx-background-radius: 1000;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 10, 0, 0, 0);
+    -fx-min-width: 17px;
+    -fx-min-height: 17px;
+    -fx-max-width: 17px;
+    -fx-max-height: 17px;
+}
+
+.titleLbl {
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
 }
