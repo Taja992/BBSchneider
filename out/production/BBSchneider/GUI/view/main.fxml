@@ -36,7 +36,7 @@
                               </HBox>
                               <HBox spacing="1.0" VBox.vgrow="ALWAYS">
                                  <children>
-                                    <Button fx:id="addEmployeeBtn2" mnemonicParsing="false" prefWidth="26.0" text="+" />
+                                    <Button fx:id="addEmployeeBtn" mnemonicParsing="false" prefWidth="26.0" text="+" />
                                     <TableView fx:id="overviewEmployeeTblView" prefWidth="775.0" HBox.hgrow="ALWAYS">
                                        <columns>
                                           <TableColumn fx:id="nameCol" prefWidth="74.0" text="Name" />
