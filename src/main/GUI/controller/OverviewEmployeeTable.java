@@ -42,7 +42,7 @@ public class OverviewEmployeeTable {
     private final TableColumn<Employee, BigDecimal> teamUtilColSum;
     private Map<Integer, BigDecimal> totalUtilizationCache = new HashMap<>();
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
-    private Button addEmployeeBtn2;
+    private Button addEmployeeBtn;
 
 
     public OverviewEmployeeTable (EmployeeModel employeeModel, TeamModel teamModel,
@@ -50,7 +50,7 @@ public class OverviewEmployeeTable {
                                   TableColumn<Employee, BigDecimal> overHeadMultiCol, TableColumn<Employee, BigDecimal> annualAmountCol,
                                   TableColumn<Employee, String> countryCol, TableColumn<Employee, Integer> hoursCol,
                                   TableColumn<Employee, BigDecimal> utilCol, TableColumn<Employee, BigDecimal> teamUtilColSum, TableColumn<Employee, Boolean> overheadCol,
-                                  TableView<Employee> overviewEmployeeTblView, Button addEmployeeBtn2) {
+                                  TableView<Employee> overviewEmployeeTblView, Button addEmployeeBtn) {
         this.employeeModel = employeeModel;
         this.teamModel = teamModel;
         this.nameCol = nameCol;
@@ -63,9 +63,9 @@ public class OverviewEmployeeTable {
         this.teamUtilColSum = teamUtilColSum;
         this.overheadCol = overheadCol;
         this.overviewEmployeeTblView = overviewEmployeeTblView;
-        this.addEmployeeBtn2 = addEmployeeBtn2;
+        this.addEmployeeBtn = addEmployeeBtn;
 
-        addEmployeeBtn2.setOnAction(this::addEmployeeBtn2);
+        addEmployeeBtn.setOnAction(this::addEmployeeBtn2);
     }
 
     private void addEmployeeBtn2(ActionEvent actionEvent) {
@@ -306,9 +306,6 @@ public class OverviewEmployeeTable {
         // We use a hashmap to store the results so we dont need to do the calculation everytime a cell is rendered
         Map<Integer, BigDecimal> totalUtilizationCache = new HashMap<>();
 
-        // Create an ExecutorService that has a single thread to prevent lag
-        //while the employeeModel.calculateTotalTeamUtil(employeeId); calculation runs
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
 
         utilCol.setCellFactory(column -> new TextFieldTableCell<>(new BigDecimalStringConverter()) {
             @Override
@@ -327,6 +324,7 @@ public class OverviewEmployeeTable {
 
                         // If total utilization is not in the hashmap, calculate it in a background thread
                         if (totalUtilization == null) {
+                            //we use our executor service to let the calculations run in the background
                             executorService.submit(() -> {
                                 try {
                                     BigDecimal calculatedTotalUtilization = employeeModel.calculateTotalTeamUtil(employeeId);

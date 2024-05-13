@@ -75,7 +75,7 @@ public class AppController {
     @FXML
     private Button addTeamBtn;
     @FXML
-    private Button addEmployeeBtn2;
+    private Button addEmployeeBtn;
     // -------------------------------------
 
     private String currencySymbol = "$";
@@ -93,7 +93,7 @@ public class AppController {
    public void initialize() {
 
        this.overviewEmployeeTable = new OverviewEmployeeTable(employeeModel, teamModel, nameCol, annualSalaryCol, overHeadMultiCol,
-               annualAmountCol, countryCol, hoursCol, utilCol, teamUtilColSum, overheadCol, overviewEmployeeTblView, addEmployeeBtn2);
+               annualAmountCol, countryCol, hoursCol, utilCol, teamUtilColSum, overheadCol, overviewEmployeeTblView, addEmployeeBtn);
 
        this.overviewEmployeeTable.initialize();
 
