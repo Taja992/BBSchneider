@@ -3,30 +3,19 @@ package GUI.controller;
 import BE.Employee;
 import BE.Team;
 import Exceptions.BBExceptions;
-import GUI.controller.tabs.EmployeeTab;
 import GUI.model.EmployeeModel;
 import GUI.model.TeamModel;
 import com.jfoenix.controls.JFXToggleButton;
-import com.neovisionaries.i18n.CountryCode;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.geometry.Pos;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.layout.StackPane;
-import javafx.util.converter.BigDecimalStringConverter;
 
 import java.math.BigDecimal;
-import java.text.NumberFormat;
-import java.util.List;
 
 public class AppController {
 
