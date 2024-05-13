@@ -313,7 +313,7 @@ public class OverviewEmployeeTable {
                             });
                         } else {
                             if (item != null && totalUtilization.compareTo(item) > 0) {
-                                setStyle("-fx-background-color: red");
+                                setStyle("-fx-text-fill: #dc0101; -fx-background-color: #efefef;");
                             } else {
                                 setStyle("");
                             }

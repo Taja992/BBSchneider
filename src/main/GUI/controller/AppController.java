@@ -113,7 +113,6 @@ public class AppController {
     private final EmployeeModel employeeModel;
     private final TeamModel teamModel;
 
-    private boolean isAlertShown = false;
 
     public AppController(){
         teamModel = new TeamModel();
