@@ -295,7 +295,6 @@
                         </BorderPane>
                      </content>
                   </Tab>
-                  <Tab closable="false" text="Teams" />
                </tabs>
             </TabPane>
             <LineChart fx:id="lineChart" prefHeight="290.0" prefWidth="998.0" VBox.vgrow="ALWAYS">

@@ -18,7 +18,7 @@ import javafx.util.converter.BigDecimalStringConverter;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
-
+import java.util.Comparator;
 
 
 public class TeamTable {
@@ -101,8 +101,28 @@ public class TeamTable {
 
 
     private void addTableTabs()  {
-
         ObservableList<Team> teams = teamModel.getAllTeams(); //all the teams
+            //this is 1 way to sort but its not very solid as it depends on the user naming teams "Team #" format
+      //  teams.sort(Comparator.comparing(team -> Integer.parseInt(team.getName().substring(5))));
+
+        //this sorting method uses O(n log n) where n=number of teams, it compares 2 teams at a time
+        teams.sort((team1, team2) -> {
+            //get team names
+            String name1 = team1.getName();
+            String name2 = team2.getName();
+
+            try {
+                // This assumes the team is formatted "Team #" and takes 5th digit "#" and uses Integer.parseInt to check its a number
+                int num1 = Integer.parseInt(name1.substring(5));
+                int num2 = Integer.parseInt(name2.substring(5));
+                //if successfully a number we compare the 2
+                return Integer.compare(num1, num2);
+            } catch (NumberFormatException e) {
+                // If parsing fails, sort the teams alphabetically
+                return name1.compareTo(name2);
+            }
+        });
+
         for (Team team: teams){ //for each team...
             Tab tab = new Tab(team.getName()); //create a new tab for that team
             tab.setUserData(team);
