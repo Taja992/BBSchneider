@@ -38,7 +38,7 @@ public class SnapshotDAO {
             //String sql2 = "";
             String sql = "CREATE TABLE IF NOT EXISTS Employee\n" +
                     "(\n" +
-                    "    Employee_Id          INTEGER PRIMARY KEY AUTOINCREMENT,\n" +
+                    "    Employee_Id          INTEGER PRIMARY KEY,\n" +
                     "    Name                 nvarchar(50) not null,\n" +
                     "    AnnualSalary         decimal(10, 2),\n" +
                     "    OverheadMultiPercent decimal(5, 2),\n" +
@@ -52,7 +52,7 @@ public class SnapshotDAO {
 
             String sql2 = "SELECT * FROM Employee";
 
-            String sql3 = "INSERT INTO Employee (Name, AnnualSalary, OverheadMultiPercent, AnnualAmount, Country, WorkingHours, Utilization, isOverheadCost) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            String sql3 = "INSERT INTO Employee (Employee_Id, Name, AnnualSalary, OverheadMultiPercent, AnnualAmount, Country, WorkingHours, Utilization, isOverheadCost) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
             if(SQLiteCon != null){
                 //DatabaseMetaData meta = con.getMetaData();
@@ -67,15 +67,15 @@ public class SnapshotDAO {
 
                 PreparedStatement ps2 = SQLiteCon.prepareStatement(sql3);
                 while (rs.next()){
-
-                    ps2.setString(1, rs.getString(2));
-                    ps2.setBigDecimal(2, rs.getBigDecimal(3));
-                    ps2.setBigDecimal(3, rs.getBigDecimal(4));
-                    ps2.setBigDecimal(4, rs.getBigDecimal(5));
-                    ps2.setString(5, rs.getString(6));
-                    ps2.setInt(6, rs.getInt(7));
-                    ps2.setBigDecimal(7, rs.getBigDecimal(8));
-                    ps2.setBoolean(8, rs.getBoolean(9));
+                    ps2.setInt(1, rs.getInt(1));
+                    ps2.setString(2, rs.getString(2));
+                    ps2.setBigDecimal(3, rs.getBigDecimal(3));
+                    ps2.setBigDecimal(4, rs.getBigDecimal(4));
+                    ps2.setBigDecimal(5, rs.getBigDecimal(5));
+                    ps2.setString(6, rs.getString(6));
+                    ps2.setInt(7, rs.getInt(7));
+                    ps2.setBigDecimal(8, rs.getBigDecimal(8));
+                    ps2.setBoolean(9, rs.getBoolean(9));
 
                     ps2.executeUpdate();
 
