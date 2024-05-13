@@ -85,7 +85,6 @@ public class AppController {
     private final TeamModel teamModel;
     private TeamTable teamTable;
 
-
     private SnapshotDAO snapDAO = new SnapshotDAO();
 
     public AppController(){

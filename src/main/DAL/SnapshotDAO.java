@@ -1,9 +1,6 @@
 package DAL;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class SnapshotDAO {
 
@@ -21,20 +18,74 @@ public class SnapshotDAO {
         } catch (SQLException e) {
             connectionManager = new ConnectionManager(false);
         }
-        createNewSnapshotFile("TestDB.db");
+        createNewSnapshotFile("TestDB");
     }
 
     public void createNewSnapshotFile(String fileName){
-        String filepath = folderPath + fileName;
+        String filepath = folderPath + fileName + ".db";
 
         try {
-            Connection con = DriverManager.getConnection(filepath);
-            //this establishes connection and creates the database at the same time
+            Connection SQLiteCon = DriverManager.getConnection(filepath);
+            //this creates SQLite daabase and establishes connection at the same time
 
-            if(con != null){
+            Connection DBCon = connectionManager.getConnection();
+            //this gets the connection to our regular database (the one we're copying)
+
+
+
+            //String sql = "CREATE TABLE Employee AS SELECT * FROM  ";
+            //String sql = "ATTACH DATABASE " + fileName + " AS BinaryBuddiesSchneider";
+            //String sql2 = "";
+            String sql = "CREATE TABLE IF NOT EXISTS Employee\n" +
+                    "(\n" +
+                    "    Employee_Id          INTEGER PRIMARY KEY AUTOINCREMENT,\n" +
+                    "    Name                 nvarchar(50) not null,\n" +
+                    "    AnnualSalary         decimal(10, 2),\n" +
+                    "    OverheadMultiPercent decimal(5, 2),\n" +
+                    "    AnnualAmount         decimal(10, 2),\n" +
+                    "    Country              nvarchar(100),\n" +
+                    "    WorkingHours         int,\n" +
+                    "    Utilization          decimal(5, 2),\n" +
+                    "    isOverheadCost       bit          not null,\n" +
+                    "    isActive             bit\n" +
+                    ")";
+
+            String sql2 = "SELECT * FROM Employee";
+
+            String sql3 = "INSERT INTO Employee (Name, AnnualSalary, OverheadMultiPercent, AnnualAmount, Country, WorkingHours, Utilization, isOverheadCost) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+            if(SQLiteCon != null){
                 //DatabaseMetaData meta = con.getMetaData();
                 System.out.println("it worked?");
+                Statement stmnt = SQLiteCon.createStatement();
+
+                stmnt.execute(sql);
+
+                PreparedStatement ps = DBCon.prepareStatement(sql2);
+                ResultSet rs = ps.executeQuery();
+
+
+                PreparedStatement ps2 = SQLiteCon.prepareStatement(sql3);
+                while (rs.next()){
+
+                    ps2.setString(1, rs.getString(2));
+                    ps2.setBigDecimal(2, rs.getBigDecimal(3));
+                    ps2.setBigDecimal(3, rs.getBigDecimal(4));
+                    ps2.setBigDecimal(4, rs.getBigDecimal(5));
+                    ps2.setString(5, rs.getString(6));
+                    ps2.setInt(6, rs.getInt(7));
+                    ps2.setBigDecimal(7, rs.getBigDecimal(8));
+                    ps2.setBoolean(8, rs.getBoolean(9));
+
+                    ps2.executeUpdate();
+
+                }
+
+
             }
+
+            SQLiteCon.close();
+            DBCon.close();
 
 
         } catch (SQLException e) {
