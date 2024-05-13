@@ -105,11 +105,7 @@ public class EmployeeTab {
         employee.setWorkingHours(convertToInt(yearlyHrsTxt.getText()));
         employee.setUtilization(convertToBigDecimal(utilizationTxt.getText()));
 
-        try {
-            employeeModel.addNewEmployee(employee);
-        } catch (BBExceptions e){
-            e.printStackTrace();
-        }
+        employeeModel.addNewEmployee(employee);
     }
 
 
