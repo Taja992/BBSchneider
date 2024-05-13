@@ -2,6 +2,7 @@ package GUI.controller;
 
 import BE.Employee;
 import BE.Team;
+import DAL.SnapshotDAO;
 import Exceptions.BBExceptions;
 import GUI.controller.tabs.EmployeeTab;
 import GUI.model.EmployeeModel;
@@ -110,6 +111,8 @@ public class AppController {
     private final TeamModel teamModel;
 
     private boolean isAlertShown = false;
+
+    private SnapshotDAO snapDAO = new SnapshotDAO();
 
     public AppController(){
         teamModel = new TeamModel();

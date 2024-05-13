@@ -78,14 +78,10 @@ public class EmployeeBLL {
         for(Employee employee: allEmployees){
             if(employee.getCountry().equals(country)){
                 totalRate += calculateHourlyRate(employee);
-            }
-            /*
-            //deleting this for now bc for some reason it shows the total rates for all countires as "infinity"
-            else if (country == "All Countries"){ //if it's "All Countries" then add everyone to total
+            } else if (country == "All Countries"){ //if it's "All Countries" then add everyone to total
                 //this might make the program slow in the future so feel free to delete it
                 totalRate += calculateHourlyRate(employee);
             }
-             */
         }
 
         NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
@@ -112,12 +108,9 @@ public class EmployeeBLL {
         for(Employee employee: allEmployees){
             if(employee.getCountry().equals(country)){
                 totalRate += calculateDailyRate(employee);
-            }
-            /*
-            else if (country == "All Countries"){
+            }else if (country == "All Countries"){
                 totalRate += calculateHourlyRate(employee);
             }
-             */
         }
         NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
         nf.setMaximumFractionDigits(2);
