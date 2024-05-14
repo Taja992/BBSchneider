@@ -31,11 +31,7 @@ public class SnapshotDAO {
             Connection DBCon = connectionManager.getConnection();
             //this gets the connection to our regular database (the one we're copying)
 
-
-
-            //String sql = "CREATE TABLE Employee AS SELECT * FROM  ";
-            //String sql = "ATTACH DATABASE " + fileName + " AS BinaryBuddiesSchneider";
-            //String sql2 = "";
+            
             String sql = "CREATE TABLE IF NOT EXISTS Employee\n" +
                     "(\n" +
                     "    Employee_Id          INTEGER PRIMARY KEY,\n" +
