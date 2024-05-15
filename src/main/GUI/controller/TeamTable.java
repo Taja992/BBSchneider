@@ -6,7 +6,6 @@ import Exceptions.BBExceptions;
 import GUI.model.EmployeeModel;
 import GUI.model.TeamModel;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
@@ -18,7 +17,6 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.layout.StackPane;
 import javafx.util.converter.BigDecimalStringConverter;
 import java.math.BigDecimal;
-import java.sql.SQLException;
 import java.text.NumberFormat;
 
 
@@ -43,37 +41,9 @@ public class TeamTable {
 
     public void initialize(){
         addTableTabs();
-        removeEmployeeFromTeam();
+
     }
 
-
-    private void removeEmployeeFromTeam() {
-        ContextMenu contextMenu = new ContextMenu();
-
-        MenuItem deleteItem = new MenuItem("Remove");
-        deleteItem.setOnAction(event -> {
-            System.out.println("Remove clicked");
-            Team team = (Team) teamTblView.getUserData();
-            Employee selectedEmployee = teamTblView.getSelectionModel().getSelectedItem();
-            if (selectedEmployee != null) {
-                teamTabPane.getTabs().remove(selectedEmployee);
-
-                try {
-                    Employee employee = (Employee) selectedEmployee.getUserData();
-                    //Team team = (Team) teamTblView.getUserData();
-                    employeeModel.removeEmployeeFromTeamInDB(Employee.getId(), Team.getId());
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
-
-        // Add menu items to context menu
-        contextMenu.getItems().add(deleteItem);
-
-        // Set context menu on table
-        teamTabPane.setContextMenu(contextMenu);
-    }
 
     private void addTeam(ActionEvent event) {
         try {
@@ -85,7 +55,6 @@ public class TeamTable {
             tab.setClosable(false);
             tab.setContent(createTableForTeam(newTeam));
             teamTabPane.getTabs().add(tab);
-            makeTeamTabTitleEditable(tab);
 
         } catch (BBExceptions e) {
             e.printStackTrace();
@@ -187,8 +156,37 @@ public class TeamTable {
         teamTblView.setItems(employeesInTeam);
 
         dragAndDrop(teamTblView);
+        setupContextMenu(teamTblView, team);
 
         return teamTblView;
+    }
+
+    private void setupContextMenu(TableView<Employee> teamTblView, Team team) {
+        ContextMenu contextMenu = new ContextMenu();
+        MenuItem deleteItem = new MenuItem("Remove");
+        deleteItem.setOnAction(_ -> {
+            System.out.println("Remove clicked");
+            Employee selectedEmployee = teamTblView.getSelectionModel().getSelectedItem();
+            if (selectedEmployee != null) {
+                // Remove the employee from the original list
+                try {
+                    employeeModel.removeEmployee(selectedEmployee, team.getId());
+                } catch (BBExceptions e) {
+                    throw new RuntimeException(e);
+                }
+//                try {
+//                    employeeModel.removeEmployeeFromTeam(selectedEmployee.getId(), team.getId());
+//                } catch (BBExceptions e) {
+//                    e.printStackTrace();
+                //}
+            }
+        });
+
+        // Add menu items to context menu
+        contextMenu.getItems().add(deleteItem);
+
+        // Set context menu on table
+        teamTblView.setContextMenu(contextMenu);
     }
 
     private void dragAndDrop(TableView<Employee> teamTblView){

@@ -32,9 +32,28 @@ public class EmployeeModel {
         allEmployees = FXCollections.observableArrayList();
     }
 
-    public void removeEmployeeFromTeamInDB(int employeeId, int teamId) throws SQLException {
-        employeeBLL.removeEmployeeFromTeam(employeeId, teamId);
+    public void removeEmployee(Employee employee, int teamId) throws BBExceptions {
+        // Find the team to be removed
+        Team teamToRemove = null;
+        for (Team team : employee.getTeams()) {
+            if (team.getId() == teamId) {
+                teamToRemove = team;
+                break;
+            }
+        }
+
+        // Remove the team from the employee's team list
+        if (teamToRemove != null) {
+            employee.getTeams().remove(teamToRemove);
+        }
+
+        // Update the database
+        employeeBLL.removeEmployeeFromTeam(employee.employeeId, teamId);
     }
+
+//    public void removeEmployeeFromTeam(int employeeId, int teamId) throws BBExceptions {
+//        employeeBLL.removeEmployeeFromTeam(employeeId, teamId);
+//    }
 
 
     public ObservableList<Employee> getEmployees() throws BBExceptions {
