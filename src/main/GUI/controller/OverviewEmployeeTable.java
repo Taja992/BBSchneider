@@ -276,46 +276,7 @@ public class OverviewEmployeeTable {
         });
     }
 
-//    private void formatUtilization() {
-//
-////        utilCol.setCellFactory(tableColumn -> new TextFieldTableCell<>(new BigDecimalStringConverter()) {
-////            @Override
-////            public void updateItem(BigDecimal value, boolean empty) {
-////                super.updateItem(value, empty);
-////                //This checks if cell is empty, if not continues...
-////                //% is a placeholder for the value that will be inserted
-////                //.2 this tells our tableview we want 2 digits after the decimal
-////                //f indicates it's a floating point number (a number with a decimal)
-////                //% we add this to the end of the number
-////                setText(empty ? null : String.format("%.2f%%", value));
-////            }
-////        });
-////        makeutilizationEditable();
-
     private void populateTeamUtilizationSumColumn() {
-//        teamUtilColSum.setCellValueFactory(cellData -> {
-//            Employee employee = cellData.getValue();
-//            int employeeId = employee.getId();
-//            BigDecimal totalUtilization = totalUtilizationCache.get(employeeId);
-//
-//            // If total utilization is not in the cache, calculate it in a background thread
-//            // executorService single thread executor
-//            if (totalUtilization == null) {
-//                executorService.submit(() -> {
-//                    try {
-//                        BigDecimal calculatedTotalUtilization = employeeModel.calculateTotalTeamUtil(employeeId);
-//                        Platform.runLater(() -> {
-//                            //add the calculation to the hashmap
-//                            totalUtilizationCache.put(employeeId, calculatedTotalUtilization);
-//                        });
-//                    } catch (BBExceptions e) {
-//                        e.printStackTrace();
-//                    }
-//                });
-//            }
-//
-//            return new SimpleObjectProperty<>(totalUtilization);
-//        });
         teamUtilColSum.setCellValueFactory(cellData -> {
             Employee employee = cellData.getValue();
             List<Team> teams = employee.getTeams();
@@ -335,53 +296,6 @@ public class OverviewEmployeeTable {
     }
 
     private void formatUtilization() {
-//        // We use a hashmap to store the results so we dont need to do the calculation everytime a cell is rendered
-//        Map<Integer, BigDecimal> totalUtilizationCache = new HashMap<>();
-//
-//
-//        utilCol.setCellFactory(column -> new TextFieldTableCell<>(new BigDecimalStringConverter()) {
-//            @Override
-//            public void updateItem(BigDecimal item, boolean empty) {
-//                super.updateItem(item, empty);
-//
-//                setText(empty ? null : String.format("%.2f%%", item));
-//
-//                TableRow<Employee> currentRow = getTableRow();
-//
-//                if (currentRow != null) {
-//                    Employee employee = currentRow.getItem();
-//                    if (employee != null) {
-//                        int employeeId = employee.getId();
-//                        BigDecimal totalUtilization = totalUtilizationCache.get(employeeId);
-//
-//                        // If total utilization is not in the hashmap, calculate it in a background thread
-//                        if (totalUtilization == null) {
-//                            //we use our executor service to let the calculations run in the background
-//                            executorService.submit(() -> {
-//                                try {
-//                                    BigDecimal calculatedTotalUtilization = employeeModel.calculateTotalTeamUtil(employeeId);
-//                                    Platform.runLater(() -> {
-//                                        totalUtilizationCache.put(employeeId, calculatedTotalUtilization);
-//                                        updateItem(item, empty);
-//                                    });
-//                                } catch (BBExceptions e) {
-//                                    throw new RuntimeException(e);
-//                                }
-//                            });
-//                        } else {
-//                            if (item != null && totalUtilization.compareTo(item) > 0) {
-//                                setStyle("-fx-text-fill: #dc0101; -fx-background-color: #efefef;");
-//                            } else {
-//                                setStyle("");
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        });
-//        makeutilizationEditable();
-
-
             utilCol.setCellFactory(tableColumn -> new TextFieldTableCell<>(new BigDecimalStringConverter()) {
                 @Override
                 public void updateItem(BigDecimal value, boolean empty) {

@@ -180,26 +180,6 @@ EmployeeDAO {
         }
     }
 
-//    public BigDecimal calculateTotalTeamUtilization(int employeeId) throws BBExceptions {
-//        BigDecimal totalUtilization = BigDecimal.ZERO;
-//        String sql = "SELECT Team_Util FROM Connection WHERE Emp_Id = ?";
-//
-//        try (Connection connection = connectionManager.getConnection();
-//             PreparedStatement ps = connection.prepareStatement(sql)) {
-//
-//            ps.setInt(1, employeeId);
-//            ResultSet rs = ps.executeQuery();
-//
-//            while (rs.next()) {
-//                totalUtilization = totalUtilization.add(rs.getBigDecimal("Team_Util"));
-//            }
-//        } catch (SQLException e) {
-//            throw new BBExceptions("Error calculating total team utilization for employee with ID " + employeeId, e);
-//        }
-//
-//        return totalUtilization;
-//    }
-
     public void updateEmployee(Employee employee) throws BBExceptions {
         String sql = "UPDATE Employee SET Name = ?, AnnualSalary = ?, OverheadMultiPercent = ?, AnnualAmount = ?, Country = ?, WorkingHours = ?, Utilization = ?, isOverheadCost = ? WHERE Employee_Id = ?";
         try (Connection connection = connectionManager.getConnection();
