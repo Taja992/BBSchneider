@@ -202,9 +202,9 @@ public class EmployeeModel {
         return employeeBLL.calculateTotalDailyRateForCountry(country);
     }
 
-    public BigDecimal calculateTotalTeamUtil(int employeeId) throws BBExceptions {
-        return employeeBLL.calculateTotalTeamUtil(employeeId);
-    }
+//    public BigDecimal calculateTotalTeamUtil(int employeeId) throws BBExceptions {
+//        return employeeBLL.calculateTotalTeamUtil(employeeId);
+//    }
 
     public void updateTeamUtilForEmployee(int teamId, int employeeId, BigDecimal newUtil) throws BBExceptions {
         employeeBLL.updateTeamUtilForEmployee(teamId, employeeId, newUtil);
