@@ -1,5 +1,8 @@
 package BE;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
 
 
 public class Employee {
@@ -11,7 +14,11 @@ public class Employee {
     private String country;
     private int workingHours;
     private BigDecimal utilization;
+    private BigDecimal teamUtil;
     private boolean isOverheadCost;
+    //because an employee can have multiple teams
+    private List<Team> teams;
+
 
 
     public int getId() {
@@ -84,6 +91,47 @@ public class Employee {
 
     public void setIsOverheadCost(boolean overheadCost) {
         isOverheadCost = overheadCost;
+    }
+
+    public BigDecimal getTeamUtil() {
+        return teamUtil;
+    }
+
+    public void setTeamUtil(BigDecimal teamUtil) {
+        this.teamUtil = teamUtil;
+    }
+
+    public List<Team> getTeams() {
+        if (teams == null) {
+            teams = new ArrayList<>();
+        }
+        return teams;
+    }
+
+    public void setTeams(List<Team> teams) {
+        this.teams = teams;
+    }
+
+    public void addTeam(Team team) {
+        if (teams == null) {
+            teams = new ArrayList<>();
+        }
+        teams.add(team);
+    }
+
+    public String getTeamNames() {
+        //our team should never be null because of our DAO but just in case...
+        if (teams == null || teams.isEmpty()) {
+            return "No Team";
+        }
+        StringBuilder teamNames = new StringBuilder();
+        for (Team team : teams) {
+            if (!teamNames.isEmpty()) {
+                teamNames.append(", ");
+            }
+            teamNames.append(team.getName());
+        }
+        return teamNames.toString();
     }
 
 }

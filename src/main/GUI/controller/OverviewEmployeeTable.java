@@ -1,6 +1,7 @@
 package GUI.controller;
 
 import BE.Employee;
+import BE.Team;
 import Exceptions.BBExceptions;
 import GUI.model.EmployeeModel;
 import GUI.model.TeamModel;
@@ -12,13 +13,11 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.converter.BigDecimalStringConverter;
 import javafx.util.converter.IntegerStringConverter;
-
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.HashMap;
@@ -26,9 +25,11 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+
 public class OverviewEmployeeTable {
 
     private final TableColumn<Employee, String> nameCol;
+    private final TableColumn<Employee, String> teamCol;
     private final TableColumn<Employee, BigDecimal> annualSalaryCol;
     private final TableColumn<Employee, BigDecimal> overHeadMultiCol;
     private final TableColumn<Employee, BigDecimal> annualAmountCol;
@@ -42,18 +43,19 @@ public class OverviewEmployeeTable {
     private final TableColumn<Employee, BigDecimal> teamUtilColSum;
     private Map<Integer, BigDecimal> totalUtilizationCache = new HashMap<>();
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
-    private Button addEmployeeBtn2;
+    private Button addEmployeeBtn;
 
 
     public OverviewEmployeeTable (EmployeeModel employeeModel, TeamModel teamModel,
-                                  TableColumn<Employee, String> nameCol, TableColumn<Employee, BigDecimal> annualSalaryCol,
+                                  TableColumn<Employee, String> nameCol, TableColumn<Employee, String> teamCol, TableColumn<Employee, BigDecimal> annualSalaryCol,
                                   TableColumn<Employee, BigDecimal> overHeadMultiCol, TableColumn<Employee, BigDecimal> annualAmountCol,
                                   TableColumn<Employee, String> countryCol, TableColumn<Employee, Integer> hoursCol,
                                   TableColumn<Employee, BigDecimal> utilCol, TableColumn<Employee, BigDecimal> teamUtilColSum, TableColumn<Employee, Boolean> overheadCol,
-                                  TableView<Employee> overviewEmployeeTblView, Button addEmployeeBtn2) {
+                                  TableView<Employee> overviewEmployeeTblView, Button addEmployeeBtn) {
         this.employeeModel = employeeModel;
         this.teamModel = teamModel;
         this.nameCol = nameCol;
+        this.teamCol = teamCol;
         this.annualSalaryCol = annualSalaryCol;
         this.overHeadMultiCol = overHeadMultiCol;
         this.annualAmountCol = annualAmountCol;
@@ -63,9 +65,9 @@ public class OverviewEmployeeTable {
         this.teamUtilColSum = teamUtilColSum;
         this.overheadCol = overheadCol;
         this.overviewEmployeeTblView = overviewEmployeeTblView;
-        this.addEmployeeBtn2 = addEmployeeBtn2;
+        this.addEmployeeBtn = addEmployeeBtn;
 
-        addEmployeeBtn2.setOnAction(this::addEmployeeBtn2);
+        addEmployeeBtn.setOnAction(this::addEmployeeBtn2);
     }
 
     private void addEmployeeBtn2(ActionEvent actionEvent) {
@@ -106,7 +108,6 @@ public class OverviewEmployeeTable {
     public void initialize(){
         overviewEmployeeTblView.setEditable(true);
         populateEmployeeTableView();
-        addEmployeeListener();
     }
 
 
@@ -140,45 +141,10 @@ public class OverviewEmployeeTable {
         }
     }
 
-    //This listener was added because of a weird bug that once you update an employee the add employee
-    //button wasnt properly updating the tableview anymore
-    private void addEmployeeListener(){
-        employeeModel.employeeAddedProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue) {
-                populateEmployeeTableView();
-                employeeModel.employeeAddedProperty().set(false);
-            }
-        });
-    }
-
-    private void populateTeamUtilizationSumColumn() {
-        teamUtilColSum.setCellValueFactory(cellData -> {
-            Employee employee = cellData.getValue();
-            int employeeId = employee.getId();
-            BigDecimal totalUtilization = totalUtilizationCache.get(employeeId);
-
-            // If total utilization is not in the cache, calculate it in a background thread
-            // executorService single thread executor
-            if (totalUtilization == null) {
-                executorService.submit(() -> {
-                    try {
-                        BigDecimal calculatedTotalUtilization = employeeModel.calculateTotalTeamUtil(employeeId);
-                        Platform.runLater(() -> {
-                            //add the calculation to the hashmap
-                            totalUtilizationCache.put(employeeId, calculatedTotalUtilization);
-                        });
-                    } catch (BBExceptions e) {
-                        e.printStackTrace();
-                    }
-                });
-            }
-
-            return new SimpleObjectProperty<>(totalUtilization);
-        });
-    }
 
     private void setupTableView() {
         nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
+        teamCol.setCellValueFactory(new PropertyValueFactory<>("teamNames"));
         overHeadMultiCol.setCellValueFactory(new PropertyValueFactory<>("overheadMultiPercent"));
         hoursCol.setCellValueFactory(new PropertyValueFactory<>("workingHours"));
         annualSalaryCol.setCellValueFactory(new PropertyValueFactory<>("annualSalary"));
@@ -302,13 +268,36 @@ public class OverviewEmployeeTable {
 ////        });
 ////        makeutilizationEditable();
 
+    private void populateTeamUtilizationSumColumn() {
+        teamUtilColSum.setCellValueFactory(cellData -> {
+            Employee employee = cellData.getValue();
+            int employeeId = employee.getId();
+            BigDecimal totalUtilization = totalUtilizationCache.get(employeeId);
+
+            // If total utilization is not in the cache, calculate it in a background thread
+            // executorService single thread executor
+            if (totalUtilization == null) {
+                executorService.submit(() -> {
+                    try {
+                        BigDecimal calculatedTotalUtilization = employeeModel.calculateTotalTeamUtil(employeeId);
+                        Platform.runLater(() -> {
+                            //add the calculation to the hashmap
+                            totalUtilizationCache.put(employeeId, calculatedTotalUtilization);
+                        });
+                    } catch (BBExceptions e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
+
+            return new SimpleObjectProperty<>(totalUtilization);
+        });
+    }
+
     private void formatUtilization() {
         // We use a hashmap to store the results so we dont need to do the calculation everytime a cell is rendered
         Map<Integer, BigDecimal> totalUtilizationCache = new HashMap<>();
 
-        // Create an ExecutorService that has a single thread to prevent lag
-        //while the employeeModel.calculateTotalTeamUtil(employeeId); calculation runs
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
 
         utilCol.setCellFactory(column -> new TextFieldTableCell<>(new BigDecimalStringConverter()) {
             @Override
@@ -327,6 +316,7 @@ public class OverviewEmployeeTable {
 
                         // If total utilization is not in the hashmap, calculate it in a background thread
                         if (totalUtilization == null) {
+                            //we use our executor service to let the calculations run in the background
                             executorService.submit(() -> {
                                 try {
                                     BigDecimal calculatedTotalUtilization = employeeModel.calculateTotalTeamUtil(employeeId);

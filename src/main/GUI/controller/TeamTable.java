@@ -14,7 +14,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.StackPane;
 import javafx.util.converter.BigDecimalStringConverter;
-
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 
@@ -178,7 +177,7 @@ public class TeamTable {
         teamAnnualCol.setCellValueFactory(new PropertyValueFactory<>("AnnualAmount"));
         teamCountryCol.setCellValueFactory(new PropertyValueFactory<>("Country"));
         teamHoursCol.setCellValueFactory(new PropertyValueFactory<>("WorkingHours"));
-        teamUtilCol.setCellValueFactory(new PropertyValueFactory<>("Utilization"));
+        teamUtilCol.setCellValueFactory(new PropertyValueFactory<>("TeamUtil"));
         teamOverHeadCol.setCellValueFactory(new PropertyValueFactory<>("isOverheadCost"));
 
 
@@ -203,7 +202,7 @@ public class TeamTable {
         //util column is editable
         teamUtilCol.setOnEditCommit(event -> {
             Employee employee = event.getRowValue();
-            employee.setUtilization(event.getNewValue());
+            employee.setTeamUtil(event.getNewValue());
             try {
                 employeeModel.updateTeamUtilForEmployee(team.getId(), employee.getId(), event.getNewValue());
             } catch (BBExceptions e) {
@@ -214,7 +213,7 @@ public class TeamTable {
 
 
         // Get the list of employees for the team
-        ObservableList<Employee> employeesInTeam = employeeModel.getAllEmployeesFromTeamWithTeamUtil(team.getId());
+        ObservableList<Employee> employeesInTeam = employeeModel.getAllEmployeesFromTeam(team.getId());
 
         teamTblView.setItems(employeesInTeam);
 

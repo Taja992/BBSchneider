@@ -7,7 +7,9 @@ import Exceptions.BBExceptions;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class
 EmployeeDAO {
@@ -55,10 +57,13 @@ EmployeeDAO {
     }
 
     public List<Employee> getAllEmployees() throws BBExceptions {
-        List<Employee> employees = new ArrayList<>();
+        //use a hash map instead of a list to avoid duplicate employees
+        Map<Integer, Employee> hashMapemployees = new HashMap<>();
 
 
-        String sql = "SELECT * FROM Employee";
+        String sql = "SELECT employee.*, team.*, connection.Team_Util FROM Employee employee " +
+                "LEFT JOIN Connection connection ON employee.Employee_Id = connection.Emp_Id " +
+                "LEFT JOIN Team team ON connection.Team_Id = team.Team_Id";
 
         try (Connection connection = connectionManager.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -66,64 +71,47 @@ EmployeeDAO {
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                Employee employee = new Employee();
-                employee.setId(rs.getInt("Employee_Id"));
-                employee.setName(rs.getString("Name"));
-                employee.setAnnualSalary(rs.getBigDecimal("AnnualSalary"));
-                employee.setOverheadMultiPercent(rs.getBigDecimal("OverheadMultiPercent"));
-                employee.setAnnualAmount(rs.getBigDecimal("AnnualAmount"));
-                employee.setCountry(rs.getString("Country"));
-                employee.setWorkingHours(rs.getInt("WorkingHours"));
-                employee.setUtilization(rs.getBigDecimal("Utilization"));
-                employee.setIsOverheadCost(rs.getBoolean("isOverheadCost"));
-
-                employees.add(employee);
+                //first we get our employee ID from the result set
+                int employeeId = rs.getInt("Employee_Id");
+                //get an employee object from our hashmap to check the Id to see if that employee already exists
+                Employee employee = hashMapemployees.get(employeeId);
+                //if it does not exist, we do our normal result set
+                if (employee == null) {
+                    employee = new Employee();
+                    employee.setId(employeeId);
+                    employee.setName(rs.getString("Name"));
+                    employee.setAnnualSalary(rs.getBigDecimal("AnnualSalary"));
+                    employee.setOverheadMultiPercent(rs.getBigDecimal("OverheadMultiPercent"));
+                    employee.setAnnualAmount(rs.getBigDecimal("AnnualAmount"));
+                    employee.setCountry(rs.getString("Country"));
+                    employee.setWorkingHours(rs.getInt("WorkingHours"));
+                    employee.setUtilization(rs.getBigDecimal("Utilization"));
+                    employee.setTeamUtil(rs.getBigDecimal("Team_Util"));
+                    employee.setIsOverheadCost(rs.getBoolean("isOverheadCost"));
+                    //we add the new employee into our hashmap
+                    hashMapemployees.put(employeeId, employee);
+                }
+                //Because we use LEFT JOIN if an employee doesnt have a team it returns NULL
+                //So we add a check so a team isnt created if the Team_ID is null
+                int teamId = rs.getInt("Team_Id");
+                if (teamId > 0) {
+                    Team team = new Team();
+                    team.setId(teamId);
+                    team.setName(rs.getString("Team_Name"));
+                    employee.getTeams().add(team);
+                }
+                //we use our employee objects .getTeams method to create or return the team an employee is on
+                //.add(team) adds the Team object to the list of teams the employee is a part of
             }
         } catch (SQLException e) {
             throw new BBExceptions("Error retrieving all employees", e);
         }
-
-        return employees;
+        //we make a new array list and populate it with our hashmap
+        return new ArrayList<>(hashMapemployees.values());
     }
 
 
     public List<Employee> getAllEmployeesFromTeam(int TeamId) throws BBExceptions {
-        List<Employee> employees = new ArrayList<>();
-
-        String sql = "SELECT * FROM Employee" +
-                "         INNER JOIN Connection ON Employee.Employee_Id = Connection.Emp_Id" +
-                " WHERE Team_Id = ?";
-
-        try(Connection con = connectionManager.getConnection()){
-            PreparedStatement ps = con.prepareStatement(sql);
-            ps.setInt(1, TeamId);
-
-            ResultSet rs = ps.executeQuery();
-
-            while(rs.next()){
-                Employee employee = new Employee();
-                employee.setId(rs.getInt("Employee_Id"));
-                employee.setName(rs.getString("Name"));
-                employee.setAnnualSalary(rs.getBigDecimal("AnnualSalary"));
-                employee.setOverheadMultiPercent(rs.getBigDecimal("OverheadMultiPercent"));
-                employee.setAnnualAmount(rs.getBigDecimal("AnnualAmount"));
-                employee.setCountry(rs.getString("Country"));
-                employee.setWorkingHours(rs.getInt("WorkingHours"));
-                employee.setUtilization(rs.getBigDecimal("Utilization"));
-                employee.setIsOverheadCost(rs.getBoolean("isOverheadCost"));
-
-                employees.add(employee);
-            }
-
-        } catch (SQLException e){
-            throw new BBExceptions("Error retrieving all employees from team with ID " + TeamId, e);
-        }
-
-
-        return employees;
-    }
-
-    public List<Employee> getAllEmployeesFromTeamWithTeamUtil(int TeamId) throws BBExceptions {
         List<Employee> employees = new ArrayList<>();
 
         String sql = "SELECT Employee.*, Connection.Team_Util FROM Employee" +
@@ -145,9 +133,9 @@ EmployeeDAO {
                 employee.setAnnualAmount(rs.getBigDecimal("AnnualAmount"));
                 employee.setCountry(rs.getString("Country"));
                 employee.setWorkingHours(rs.getInt("WorkingHours"));
-                employee.setUtilization(rs.getBigDecimal("Team_Util")); // Set the utilization from the Connection table
+                employee.setUtilization(rs.getBigDecimal("Utilization"));
+                employee.setTeamUtil(rs.getBigDecimal("Team_Util")); // Set the utilization from the Connection table
                 employee.setIsOverheadCost(rs.getBoolean("isOverheadCost"));
-
                 employees.add(employee);
             }
 
@@ -157,6 +145,7 @@ EmployeeDAO {
 
         return employees;
     }
+
 
     public void updateTeamUtilForEmployee(int teamId, int employeeId, BigDecimal newUtil) throws BBExceptions {
         String sql = "UPDATE Connection SET Team_Util = ? WHERE Emp_Id = ? AND Team_Id = ?";
