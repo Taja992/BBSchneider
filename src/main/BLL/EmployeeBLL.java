@@ -28,6 +28,10 @@ public class EmployeeBLL {
         return employeeDAO.getAllEmployees();
     }
 
+    public void addEmployeeToTeam(int employeeId, int teamId) throws BBExceptions {
+        employeeDAO.addEmployeeToTeam(employeeId, teamId);
+    }
+
 
     private double calculateRate(Employee selectedEmployee) {
         double annualSalary = selectedEmployee.getAnnualSalary().doubleValue();
