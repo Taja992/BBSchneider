@@ -66,6 +66,21 @@ public class EmployeeModel {
         }
     }
 
+    public void addEmployeeToTeam(Employee employee, Team team) throws BBExceptions {
+        // Add the team to the employee's list of teams
+        employee.getTeams().add(team);
+
+        // Update the employee in the database
+        employeeBLL.addEmployeeToTeam(employee.getId(), team.getId());
+
+        // Update the employee in the allEmployees list
+        int index = allEmployees.indexOf(employee);
+        if (index != -1) {
+            allEmployees.set(index, employee);
+            System.out.println("addEmp called in model employee: " +employee.getName() + "Team: " + team.getName());
+        }
+    }
+
 
     public void addNewEmployee(Employee employee) {
         try {
