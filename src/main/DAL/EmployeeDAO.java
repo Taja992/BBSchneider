@@ -222,7 +222,7 @@ EmployeeDAO {
     }
 
     public BigDecimal getUtilizationForTeam(Employee employee, Team team) throws BBExceptions {
-        String sql = "SELECT Utilization FROM Connection WHERE Emp_Id = ? AND Team_Id = ?";
+        String sql = "SELECT Team_Util FROM Connection WHERE Emp_Id = ? AND Team_Id = ?";
 
         try (Connection connection = connectionManager.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -233,7 +233,7 @@ EmployeeDAO {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                return rs.getBigDecimal("Utilization");
+                return rs.getBigDecimal("Team_Util");
             } else {
                 throw new BBExceptions("No utilization found for employee with ID " + employee.getId() + " in team with ID " + team.getId());
             }

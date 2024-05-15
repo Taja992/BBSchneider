@@ -24,6 +24,7 @@ import javafx.util.converter.IntegerStringConverter;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -292,25 +293,41 @@ public class OverviewEmployeeTable {
 ////        makeutilizationEditable();
 
     private void populateTeamUtilizationSumColumn() {
+//        teamUtilColSum.setCellValueFactory(cellData -> {
+//            Employee employee = cellData.getValue();
+//            int employeeId = employee.getId();
+//            BigDecimal totalUtilization = totalUtilizationCache.get(employeeId);
+//
+//            // If total utilization is not in the cache, calculate it in a background thread
+//            // executorService single thread executor
+//            if (totalUtilization == null) {
+//                executorService.submit(() -> {
+//                    try {
+//                        BigDecimal calculatedTotalUtilization = employeeModel.calculateTotalTeamUtil(employeeId);
+//                        Platform.runLater(() -> {
+//                            //add the calculation to the hashmap
+//                            totalUtilizationCache.put(employeeId, calculatedTotalUtilization);
+//                        });
+//                    } catch (BBExceptions e) {
+//                        e.printStackTrace();
+//                    }
+//                });
+//            }
+//
+//            return new SimpleObjectProperty<>(totalUtilization);
+//        });
         teamUtilColSum.setCellValueFactory(cellData -> {
             Employee employee = cellData.getValue();
-            int employeeId = employee.getId();
-            BigDecimal totalUtilization = totalUtilizationCache.get(employeeId);
+            List<Team> teams = employee.getTeams();
+            BigDecimal totalUtilization = BigDecimal.ZERO;
 
-            // If total utilization is not in the cache, calculate it in a background thread
-            // executorService single thread executor
-            if (totalUtilization == null) {
-                executorService.submit(() -> {
-                    try {
-                        BigDecimal calculatedTotalUtilization = employeeModel.calculateTotalTeamUtil(employeeId);
-                        Platform.runLater(() -> {
-                            //add the calculation to the hashmap
-                            totalUtilizationCache.put(employeeId, calculatedTotalUtilization);
-                        });
-                    } catch (BBExceptions e) {
-                        e.printStackTrace();
-                    }
-                });
+            for (Team team : teams) {
+                try {
+                    BigDecimal teamUtilization = employeeModel.getUtilizationForTeam(employee, team);
+                    totalUtilization = totalUtilization.add(teamUtilization);
+                } catch (BBExceptions e) {
+                    throw new RuntimeException(e);
+                }
             }
 
             return new SimpleObjectProperty<>(totalUtilization);
