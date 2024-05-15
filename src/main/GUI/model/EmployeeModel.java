@@ -17,9 +17,7 @@ public class EmployeeModel {
     private final EmployeeBLL employeeBLL;
     private final ObservableList<Employee> employees;
     private final BooleanProperty countryAdded = new SimpleBooleanProperty(false);
-
     private final List<String> allCountries = FXCollections.observableArrayList();
-
     private final ObservableList<Employee> allEmployees;
 
 
@@ -43,8 +41,10 @@ public class EmployeeModel {
 
     public ObservableList<Employee> getAllEmployeesFromTeam(int TeamId) {
         // Create a filtered view of the allEmployees list
+        //the lambda below works like this: Predicate: employee -> employee.getTeams().contains(TeamId) return
         FilteredList<Employee> teamEmployees = new FilteredList<>(allEmployees, employee -> {
             for (Team team : employee.getTeams()) {
+                //returns true if the employee has the given teamID
                 if (team.getId() == TeamId) {
                     return true;
                 }
@@ -61,6 +61,20 @@ public class EmployeeModel {
         // Update the employee in the allEmployees list
         int index = allEmployees.indexOf(employee);
         //we check the index to make sure the employee actually exists
+        if (index != -1) {
+            allEmployees.set(index, employee);
+        }
+    }
+
+    public void addEmployeeToTeam(Employee employee, Team team) throws BBExceptions {
+        // Add the team to the employee's list of teams
+        employee.getTeams().add(team);
+
+        // Update the employee in the database
+        employeeBLL.addEmployeeToTeam(employee.getId(), team.getId());
+
+        // Update the employee in the allEmployees list
+        int index = allEmployees.indexOf(employee);
         if (index != -1) {
             allEmployees.set(index, employee);
         }

@@ -100,7 +100,7 @@ public class AppController {
 
        this.overviewEmployeeTable.initialize();
 
-       this.teamTable = new TeamTable(employeeModel, teamModel, teamTabPane, addTeamBtn);
+       this.teamTable = new TeamTable(employeeModel, teamModel, teamTabPane, addTeamBtn, overviewEmployeeTable);
 
        this.teamTable.initialize();
 

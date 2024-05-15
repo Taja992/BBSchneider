@@ -16,6 +16,9 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.TransferMode;
 import javafx.util.converter.BigDecimalStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 import java.math.BigDecimal;
@@ -44,6 +47,7 @@ public class OverviewEmployeeTable {
     private Map<Integer, BigDecimal> totalUtilizationCache = new HashMap<>();
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
     private Button addEmployeeBtn;
+
 
 
     public OverviewEmployeeTable (EmployeeModel employeeModel, TeamModel teamModel,
@@ -108,6 +112,25 @@ public class OverviewEmployeeTable {
     public void initialize(){
         overviewEmployeeTblView.setEditable(true);
         populateEmployeeTableView();
+        dragAndDrop();
+    }
+
+    private void dragAndDrop() {
+        overviewEmployeeTblView.setRowFactory(tv -> {
+            TableRow<Employee> row = new TableRow<>();
+            row.setOnDragDetected(event -> {
+                if (!row.isEmpty()) {
+                    Integer index = row.getIndex();
+                    Dragboard db = row.startDragAndDrop(TransferMode.MOVE);
+                    db.setDragView(row.snapshot(null, null));
+                    ClipboardContent cc = new ClipboardContent();
+                    cc.putString(index.toString());
+                    db.setContent(cc);
+                    event.consume();
+                }
+            });
+            return row;
+        });
     }
 
 
