@@ -129,6 +129,7 @@ public class EmployeeBLL {
         return 1 + (markupValue / 100);
     }
 
+
     public List<Employee> getAllEmployeesFromTeam(int TeamId) {
         try {
             return employeeDAO.getAllEmployeesFromTeam(TeamId);
@@ -137,18 +138,9 @@ public class EmployeeBLL {
         }
     }
 
-    public List<Employee> getAllEmployeesFromTeamWithTeamUtil(int TeamId) {
-        try {
-            return employeeDAO.getAllEmployeesFromTeamWithTeamUtil(TeamId);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public BigDecimal calculateTotalTeamUtil(int employeeId) throws BBExceptions {
         return employeeDAO.calculateTotalTeamUtilization(employeeId);
     }
-
 
 
     public void updateEmployee(Employee employee) throws BBExceptions{

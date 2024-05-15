@@ -8,45 +8,92 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
+import javafx.collections.transformation.FilteredList;
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
 
 public class EmployeeModel {
     private final EmployeeBLL employeeBLL;
     private final ObservableList<Employee> employees;
-
-    private final BooleanProperty employeeAdded = new SimpleBooleanProperty(false);
     private final BooleanProperty countryAdded = new SimpleBooleanProperty(false);
 
-    private List<String> allCountries = FXCollections.observableArrayList();
+    private final List<String> allCountries = FXCollections.observableArrayList();
+
+    private final ObservableList<Employee> allEmployees;
 
 
     public EmployeeModel(){
         employeeBLL = new EmployeeBLL();
         employees = FXCollections.observableArrayList();
+        allEmployees = FXCollections.observableArrayList();
     }
 
-    //Boolean property added as a switch to tell the employeeTableview to update
-    public BooleanProperty employeeAddedProperty() {
-        return employeeAdded;
-    }
-    //doing the same thing for the country combobox
-    public BooleanProperty countryAddedProperty(){
-        return countryAdded;
-    }
 
     public ObservableList<Employee> getEmployees() throws BBExceptions {
-        if(employees.isEmpty()) {
+        if(allEmployees.isEmpty()) {
             //populate our list from database
-            List<Employee> allEmployees = employeeBLL.getAllEmployees();
-            employees.addAll(allEmployees);
-
+            List<Employee> fetchedEmployees = employeeBLL.getAllEmployees();
+            allEmployees.addAll(fetchedEmployees);
         }
         //return our observable list
-        return employees;
+        return allEmployees;
+    }
+
+
+    public ObservableList<Employee> getAllEmployeesFromTeam(int TeamId) {
+        // Create a filtered view of the allEmployees list
+        FilteredList<Employee> teamEmployees = new FilteredList<>(allEmployees, employee -> {
+            for (Team team : employee.getTeams()) {
+                if (team.getId() == TeamId) {
+                    return true;
+                }
+            }
+            return false;
+        });
+        return teamEmployees;
+    }
+
+    public void updateEmployee(Employee employee) throws BBExceptions{
+        // Update the employee in the database
+        employeeBLL.updateEmployee(employee);
+
+        // Update the employee in the allEmployees list
+        int index = allEmployees.indexOf(employee);
+        //we check the index to make sure the employee actually exists
+        if (index != -1) {
+            allEmployees.set(index, employee);
+        }
+    }
+
+
+    public void addNewEmployee(Employee employee) {
+        try {
+            // Add employee to database and get the generated ID
+            int newEmployeeId = employeeBLL.addNewEmployee(employee);
+            // Set the ID of the employee
+            employee.setId(newEmployeeId);
+            // Add employees to the observable list
+            employees.add(employee);
+            // This needs to be done this way to get the generated employee ID from the database so we are able
+            // to edit new employees
+            if(allCountries != null){
+                boolean countryExists = false;
+                // If the employee added has a country that has not been used before, add it to "allCountries"
+                for(String country : allCountries){ // Checking through allCountries to see if one of them is the same as the new employee's country
+                    if (country.equals(employee.getCountry())) {
+                        countryExists = true;
+                        break;
+                    }
+                }
+                // If the country does not exist in allCountries, add it
+                if (!countryExists) {
+                    allCountries.add(employee.getCountry());
+                }
+            }
+        } catch (BBExceptions e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -70,85 +117,16 @@ public class EmployeeModel {
         return filteredEmployees;
     }
 
-    public void addNewEmployee(Employee employee) {
-        try {
-            // Add employee to database and get the generated ID
-            int newEmployeeId = employeeBLL.addNewEmployee(employee);
+    /////////////////////////////////////////////////////////////
+    ////////////////Filtering Countries//////////////////////////
+    /////////////////////////////////////////////////////////////
 
-            // Set the ID of the employee
-            employee.setId(newEmployeeId);
-
-            // Add employees to the observable list
-            employees.add(employee);
-
-            // Tell our boolean property that a new employee was added and to refresh Tableview
-            employeeAdded.set(true);
-
-            // This needs to be done this way to get the generated employee ID from the database so we are able
-            // to edit new employees
-
-            if(allCountries != null){
-                boolean countryExists = false;
-                // If the employee added has a country that has not been used before, add it to "allCountries"
-                for(String country : allCountries){ // Checking through allCountries to see if one of them is the same as the new employee's country
-                    if (country.equals(employee.getCountry())) {
-                        countryExists = true;
-                    }
-                }
-                // If the country does not exist in allCountries, add it
-                if (!countryExists) {
-                    allCountries.add(employee.getCountry());
-                }
-            }
-        } catch (BBExceptions e) {
-            // Handle the exception
-            e.printStackTrace();
-        }
-    }
-
-
-    //Added a method to repopulate the observable list from the database if needed
-    public void refreshingEmployees() throws BBExceptions {
-        List<Employee> allEmployees = employeeBLL.getAllEmployees();
-        employees.setAll(allEmployees);
-    }
-
-    public Double calculateHourlyRate(Employee selectedEmployee) {
-        return employeeBLL.calculateHourlyRate(selectedEmployee);
-    }
-
-    public Double calculateDailyRate(Employee selectedEmployee) {
-        return employeeBLL.calculateDailyRate(selectedEmployee);
-    }
-
-    public Double calculateTotalHourlyRateForCountry(String country){
-        return employeeBLL.calculateTotalHourlyRateForCountry(country);
-    }
-
-    public Double calculateTotalDailyRateForCountry(String country){
-        return employeeBLL.calculateTotalDailyRateForCountry(country);
-    }
-
-    public ObservableList<Employee> getAllEmployeesFromTeam(int TeamId) {
-        // Set up Observable list for tables
-        ObservableList<Employee> empFromTeam = FXCollections.observableArrayList();
-        empFromTeam.addAll(employeeBLL.getAllEmployeesFromTeam(TeamId));
-
-        // Return the list of employees
-        return empFromTeam;
-    }
-
-    public ObservableList<Employee> getAllEmployeesFromTeamWithTeamUtil(int TeamId) {
-        // Set up Observable list for tables
-        ObservableList<Employee> empFromTeamWithTeamUtil = FXCollections.observableArrayList();
-        empFromTeamWithTeamUtil.addAll(employeeBLL.getAllEmployeesFromTeamWithTeamUtil(TeamId));
-
-        // Return the list of employees
-        return empFromTeamWithTeamUtil;
+    //doing the same thing for the country combobox
+    public BooleanProperty countryAddedProperty(){
+        return countryAdded;
     }
 
     public ObservableList<Employee> filterEmployeesByCountry(String country) {
-
         if(country.equals("All Countries")){
             try {
                 return getEmployees();
@@ -164,7 +142,6 @@ public class EmployeeModel {
                 filteredEmployees.add(employee);
             }
         }
-
         return filteredEmployees;
     }
 
@@ -183,40 +160,43 @@ public class EmployeeModel {
                     allCountries.add(employee.getCountry());
                 }
             }
-
-
         }
-
         return allCountries;
+    }
 
+    /////////////////////////////////////////////////////////////
+    /////////////////////////Rates///////////////////////////////
+    /////////////////////////////////////////////////////////////
+
+    public double calculateMarkUp(double markupValue){
+        return employeeBLL.calculateMarkUp(markupValue);
+    }
+
+    public Double calculateHourlyRate(Employee selectedEmployee) {
+        return employeeBLL.calculateHourlyRate(selectedEmployee);
+    }
+
+    public Double calculateTotalHourlyRateForCountry(String country){
+        return employeeBLL.calculateTotalHourlyRateForCountry(country);
+    }
+
+    public Double calculateDailyRate(Employee selectedEmployee) {
+        return employeeBLL.calculateDailyRate(selectedEmployee);
+    }
+
+    public Double calculateTotalDailyRateForCountry(String country) {
+        return employeeBLL.calculateTotalDailyRateForCountry(country);
     }
 
     public BigDecimal calculateTotalTeamUtil(int employeeId) throws BBExceptions {
         return employeeBLL.calculateTotalTeamUtil(employeeId);
     }
 
-
-
-    public void updateEmployee(Employee employee) throws BBExceptions{
-        employeeBLL.updateEmployee(employee);
-    }
-
-    //refresh employees in team if we need this
-    public ObservableList<Employee> refreshEmployeesInTeam(int teamId) {
-
-        // Return the list of employees
-        return FXCollections.observableArrayList(employeeBLL.getAllEmployeesFromTeam(teamId));
-    }
-
-    public double calculateMarkUp(double markupValue){
-        return employeeBLL.calculateMarkUp(markupValue);
+    public void updateTeamUtilForEmployee(int teamId, int employeeId, BigDecimal newUtil) throws BBExceptions {
+        employeeBLL.updateTeamUtilForEmployee(teamId, employeeId, newUtil);
     }
 
     public BigDecimal getUtilizationForTeam(Employee employee, Team team) throws BBExceptions {
         return employeeBLL.getUtilizationForTeam(employee, team);
-    }
-
-    public void updateTeamUtilForEmployee(int teamId, int employeeId, BigDecimal newUtil) throws BBExceptions {
-        employeeBLL.updateTeamUtilForEmployee(teamId, employeeId, newUtil);
     }
 }

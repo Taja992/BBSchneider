@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 public class AppController {
 
 
+
     @FXML
     private LineChart<String, Number> lineChart;
     //--------------------------------------
@@ -58,6 +59,8 @@ public class AppController {
     @FXML
     private TableColumn<Employee, Boolean> overheadCol;
     @FXML
+    public TableColumn<Employee, String> teamCol;
+    @FXML
     private TableView<Employee> overviewEmployeeTblView;
     @FXML
     private TextField searchTextField;
@@ -76,7 +79,7 @@ public class AppController {
     @FXML
     private Button addTeamBtn;
     @FXML
-    private Button addEmployeeBtn2;
+    private Button addEmployeeBtn;
     // -------------------------------------
 
     private String currencySymbol = "$";
@@ -94,8 +97,8 @@ public class AppController {
 
    public void initialize() {
 
-       this.overviewEmployeeTable = new OverviewEmployeeTable(employeeModel, teamModel, nameCol, annualSalaryCol, overHeadMultiCol,
-               annualAmountCol, countryCol, hoursCol, utilCol, teamUtilColSum, overheadCol, overviewEmployeeTblView, addEmployeeBtn2);
+       this.overviewEmployeeTable = new OverviewEmployeeTable(employeeModel, teamModel, nameCol, teamCol, annualSalaryCol, overHeadMultiCol,
+               annualAmountCol, countryCol, hoursCol, utilCol, teamUtilColSum, overheadCol, overviewEmployeeTblView, addEmployeeBtn);
 
        this.overviewEmployeeTable.initialize();
 
