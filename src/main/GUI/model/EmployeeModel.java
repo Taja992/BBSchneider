@@ -17,9 +17,7 @@ public class EmployeeModel {
     private final EmployeeBLL employeeBLL;
     private final ObservableList<Employee> employees;
     private final BooleanProperty countryAdded = new SimpleBooleanProperty(false);
-
     private final List<String> allCountries = FXCollections.observableArrayList();
-
     private final ObservableList<Employee> allEmployees;
 
 
@@ -79,7 +77,6 @@ public class EmployeeModel {
         int index = allEmployees.indexOf(employee);
         if (index != -1) {
             allEmployees.set(index, employee);
-            System.out.println("addEmp called in model employee: " +employee.getName() + "Team: " + team.getName());
         }
     }
 
