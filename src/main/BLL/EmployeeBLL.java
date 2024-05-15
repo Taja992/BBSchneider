@@ -141,4 +141,8 @@ public class EmployeeBLL {
     public void updateTeamUtilForEmployee(int teamId, int employeeId, BigDecimal newUtil) throws BBExceptions {
         employeeDAO.updateTeamUtilForEmployee(teamId, employeeId, newUtil);
     }
+
+    public void removeEmployeeFromTeam(int employeeId, int teamId) throws SQLException {
+        employeeDAO.removeEmployeeFromTeam(employeeId, teamId);
+    }
 }

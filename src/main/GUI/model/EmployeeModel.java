@@ -9,12 +9,17 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.scene.control.Tab;
+
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.util.List;
 
 
 public class EmployeeModel {
     private final EmployeeBLL employeeBLL;
+
+    private final TeamModel teamModel = new TeamModel();
     private final ObservableList<Employee> employees;
     private final BooleanProperty countryAdded = new SimpleBooleanProperty(false);
     private final List<String> allCountries = FXCollections.observableArrayList();
@@ -25,6 +30,10 @@ public class EmployeeModel {
         employeeBLL = new EmployeeBLL();
         employees = FXCollections.observableArrayList();
         allEmployees = FXCollections.observableArrayList();
+    }
+
+    public void removeEmployeeFromTeamInDB(int employeeId, int teamId) throws SQLException {
+        employeeBLL.removeEmployeeFromTeam(employeeId, teamId);
     }
 
 
@@ -213,4 +222,6 @@ public class EmployeeModel {
     public BigDecimal getUtilizationForTeam(Employee employee, Team team) throws BBExceptions {
         return employeeBLL.getUtilizationForTeam(employee, team);
     }
+
+
 }

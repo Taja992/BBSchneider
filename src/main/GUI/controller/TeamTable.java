@@ -18,6 +18,7 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.layout.StackPane;
 import javafx.util.converter.BigDecimalStringConverter;
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.text.NumberFormat;
 
 
@@ -42,6 +43,36 @@ public class TeamTable {
 
     public void initialize(){
         addTableTabs();
+        removeEmployeeFromTeam();
+    }
+
+
+    private void removeEmployeeFromTeam() {
+        ContextMenu contextMenu = new ContextMenu();
+
+        MenuItem deleteItem = new MenuItem("Remove");
+        deleteItem.setOnAction(event -> {
+            System.out.println("Remove clicked");
+            Team team = (Team) teamTblView.getUserData();
+            Employee selectedEmployee = teamTblView.getSelectionModel().getSelectedItem();
+            if (selectedEmployee != null) {
+                teamTabPane.getTabs().remove(selectedEmployee);
+
+                try {
+                    Employee employee = (Employee) selectedEmployee.getUserData();
+                    //Team team = (Team) teamTblView.getUserData();
+                    employeeModel.removeEmployeeFromTeamInDB(Employee.getId(), Team.getId());
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+
+        // Add menu items to context menu
+        contextMenu.getItems().add(deleteItem);
+
+        // Set context menu on table
+        teamTabPane.setContextMenu(contextMenu);
     }
 
     private void addTeam(ActionEvent event) {

@@ -6,7 +6,7 @@ import java.util.List;
 
 
 public class Employee {
-    private int employeeId;
+    public static int employeeId;
     private String employeeName;
     private BigDecimal annualSalary;
     private BigDecimal overheadMultiPercent;
@@ -21,7 +21,7 @@ public class Employee {
 
 
 
-    public int getId() {
+    public static int getId() {
         return employeeId;
     }
 

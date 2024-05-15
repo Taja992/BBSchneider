@@ -2,14 +2,18 @@ package BLL;
 
 import BE.Employee;
 import BE.Team;
+import DAL.EmployeeDAO;
 import DAL.TeamDAO;
 import Exceptions.BBExceptions;
+import javafx.scene.control.Tab;
 
 import java.sql.SQLException;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Locale;
+
+import static BE.Employee.employeeId;
 
 public class TeamBLL {
 
@@ -78,5 +82,10 @@ public class TeamBLL {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void removeEmployeeFromTeam(int employeeId, int teamId) throws SQLException {
+        EmployeeDAO.removeEmployeeFromTeam(employeeId, teamId);
+
     }
 }

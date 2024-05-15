@@ -2,11 +2,10 @@ package GUI.model;
 
 import BE.Team;
 import BLL.TeamBLL;
-import DAL.TeamDAO;
 import Exceptions.BBExceptions;
-import com.microsoft.sqlserver.jdbc.SQLServerException;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.Tab;
 
 import java.sql.SQLException;
 import java.util.List;

@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class
 EmployeeDAO {
-    private ConnectionManager connectionManager;
+    private static ConnectionManager connectionManager;
 
     public EmployeeDAO(){
         ConnectionManager databaseConnectionManager;
@@ -160,6 +160,18 @@ EmployeeDAO {
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new BBExceptions("Error adding employee to team", e);
+        }
+    }
+
+    public static void removeEmployeeFromTeam(int employeeId, int teamId) throws BBExceptions {
+        String sql = "DELETE FROM Connection WHERE Emp_Id = ? AND Team_Id = ?";
+        try (Connection con = connectionManager.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, employeeId);
+            ps.setInt(2, teamId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new BBExceptions("Error removing employee from team", e);
         }
     }
 

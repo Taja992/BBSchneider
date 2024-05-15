@@ -50,6 +50,8 @@ public class OverviewEmployeeTable {
 
 
 
+
+
     public OverviewEmployeeTable (EmployeeModel employeeModel, TeamModel teamModel,
                                   TableColumn<Employee, String> nameCol, TableColumn<Employee, String> teamCol, TableColumn<Employee, BigDecimal> annualSalaryCol,
                                   TableColumn<Employee, BigDecimal> overHeadMultiCol, TableColumn<Employee, BigDecimal> annualAmountCol,
@@ -113,7 +115,12 @@ public class OverviewEmployeeTable {
         overviewEmployeeTblView.setEditable(true);
         populateEmployeeTableView();
         dragAndDrop();
+
     }
+
+
+
+
 
     private void dragAndDrop() {
         overviewEmployeeTblView.setRowFactory(tv -> {
