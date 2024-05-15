@@ -43,8 +43,10 @@ public class EmployeeModel {
 
     public ObservableList<Employee> getAllEmployeesFromTeam(int TeamId) {
         // Create a filtered view of the allEmployees list
+        //the lambda below works like this: Predicate: employee -> employee.getTeams().contains(TeamId) return
         FilteredList<Employee> teamEmployees = new FilteredList<>(allEmployees, employee -> {
             for (Team team : employee.getTeams()) {
+                //returns true if the employee has the given teamID
                 if (team.getId() == TeamId) {
                     return true;
                 }
