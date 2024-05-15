@@ -383,16 +383,15 @@ public class OverviewEmployeeTable {
     }
 
     private void formatTeamUtilSum() {
-        teamUtilColSum.setCellFactory(tableColumn -> new TextFieldTableCell<>(new BigDecimalStringConverter()) {
+        teamUtilColSum.setCellFactory(column -> new TableCell<Employee, BigDecimal>() {
             @Override
-            public void updateItem(BigDecimal value, boolean empty) {
-                super.updateItem(value, empty);
-                //This checks if cell is empty, if not continues...
-                //% is a placeholder for the value that will be inserted
-                //.2 this tells our tableview we want 2 digits after the decimal
-                //f indicates it's a floating point number (a number with a decimal)
-                //% we add this to the end of the number
-                setText(empty ? null : String.format("%.2f%%", value));
+            protected void updateItem(BigDecimal item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item == null || empty) {
+                    setText(null);
+                } else {
+                    setText(String.format("%.2f%%", item));
+                }
             }
         });
     }
