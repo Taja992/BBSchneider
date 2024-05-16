@@ -15,7 +15,6 @@ import java.util.List;
 
 public class EmployeeModel {
     private final EmployeeBLL employeeBLL;
-    private final ObservableList<Employee> employees;
     private final BooleanProperty countryAdded = new SimpleBooleanProperty(false);
     private final List<String> allCountries = FXCollections.observableArrayList();
     private final ObservableList<Employee> allEmployees;
@@ -23,7 +22,6 @@ public class EmployeeModel {
 
     public EmployeeModel(){
         employeeBLL = new EmployeeBLL();
-        employees = FXCollections.observableArrayList();
         allEmployees = FXCollections.observableArrayList();
     }
 
@@ -88,7 +86,7 @@ public class EmployeeModel {
             // Set the ID of the employee
             employee.setId(newEmployeeId);
             // Add employees to the observable list
-            employees.add(employee);
+            allEmployees.add(employee);
             // This needs to be done this way to get the generated employee ID from the database so we are able
             // to edit new employees
             if(allCountries != null){
@@ -151,7 +149,7 @@ public class EmployeeModel {
 
         ObservableList<Employee> filteredEmployees = FXCollections.observableArrayList();
 
-        for(Employee employee: employees){
+        for(Employee employee: allEmployees){
             if(employee.getCountry().equals(country)){
                 filteredEmployees.add(employee);
             }
