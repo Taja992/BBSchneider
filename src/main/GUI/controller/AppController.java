@@ -5,18 +5,22 @@ import BE.Team;
 import DAL.SnapshotDAO;
 import Exceptions.BBExceptions;
 import GUI.model.EmployeeModel;
+import GUI.model.SnapshotModel;
 import GUI.model.TeamModel;
 import com.jfoenix.controls.JFXToggleButton;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class AppController {
 
@@ -87,12 +91,13 @@ public class AppController {
     private final EmployeeModel employeeModel;
     private final TeamModel teamModel;
     private TeamTable teamTable;
+    private SnapshotModel snapshotModel;
 
-    private SnapshotDAO snapDAO = new SnapshotDAO();
 
     public AppController(){
         teamModel = new TeamModel();
         employeeModel = new EmployeeModel();
+        snapshotModel = new SnapshotModel();
     }
 
    public void initialize() {
@@ -142,6 +147,19 @@ public class AppController {
             grossMarginComboBox.getItems().add(i + "%");
         }
     }
+
+    public void CreateSnapshotFile(ActionEvent event) {
+
+        LocalDateTime currentDate = LocalDateTime.now();
+
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy HH.mm");
+
+        //System.out.println(currentDate.format(format));
+        snapshotModel.createSnapshotFile("Snapshot on " + currentDate.format(format));
+
+    }
+
+
 
 
     ////////////////////////////////////////////////////////
@@ -411,4 +429,6 @@ public class AppController {
         });
 
     }
+
+
 }
