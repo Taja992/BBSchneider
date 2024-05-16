@@ -7,7 +7,6 @@ import GUI.model.EmployeeModel;
 import GUI.model.TeamModel;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
@@ -49,7 +48,7 @@ public class TeamTable {
         try {
             int generatedId = teamModel.getLastTeamId() + 1;
             Team newTeam = new Team(generatedId, "Team " + generatedId);
-            teamModel.newTeam(newTeam);
+            teamModel.createNewTeam(newTeam);
             Tab tab = new Tab(newTeam.getName());
             tab.setUserData(newTeam); //So our new tab carries the team data
             tab.setClosable(false);

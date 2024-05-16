@@ -184,19 +184,19 @@ public class EmployeeModel {
         return employeeBLL.calculateMarkUp(markupValue);
     }
 
-    public Double calculateHourlyRate(Employee selectedEmployee) {
+    public Double calculateHourlyRate(Employee selectedEmployee) throws BBExceptions {
         return employeeBLL.calculateHourlyRate(selectedEmployee);
     }
 
-    public Double calculateTotalHourlyRateForCountry(String country){
+    public Double calculateTotalHourlyRateForCountry(String country) throws BBExceptions{
         return employeeBLL.calculateTotalHourlyRateForCountry(country);
     }
 
-    public Double calculateDailyRate(Employee selectedEmployee) {
+    public Double calculateDailyRate(Employee selectedEmployee) throws BBExceptions{
         return employeeBLL.calculateDailyRate(selectedEmployee);
     }
 
-    public Double calculateTotalDailyRateForCountry(String country) {
+    public Double calculateTotalDailyRateForCountry(String country) throws BBExceptions{
         return employeeBLL.calculateTotalDailyRateForCountry(country);
     }
 
