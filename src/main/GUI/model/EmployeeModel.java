@@ -15,17 +15,13 @@ import java.util.List;
 
 public class EmployeeModel {
     private final EmployeeBLL employeeBLL;
-    private final ObservableList<Employee> employees;
     private final BooleanProperty countryAdded = new SimpleBooleanProperty(false);
-
     private final List<String> allCountries = FXCollections.observableArrayList();
-
     private final ObservableList<Employee> allEmployees;
 
 
     public EmployeeModel(){
         employeeBLL = new EmployeeBLL();
-        employees = FXCollections.observableArrayList();
         allEmployees = FXCollections.observableArrayList();
     }
 
@@ -43,8 +39,10 @@ public class EmployeeModel {
 
     public ObservableList<Employee> getAllEmployeesFromTeam(int TeamId) {
         // Create a filtered view of the allEmployees list
+        //the lambda below works like this: Predicate: employee -> employee.getTeams().contains(TeamId) return
         FilteredList<Employee> teamEmployees = new FilteredList<>(allEmployees, employee -> {
             for (Team team : employee.getTeams()) {
+                //returns true if the employee has the given teamID
                 if (team.getId() == TeamId) {
                     return true;
                 }
@@ -66,6 +64,20 @@ public class EmployeeModel {
         }
     }
 
+    public void addEmployeeToTeam(Employee employee, Team team) throws BBExceptions {
+        // Add the team to the employee's list of teams
+        employee.getTeams().add(team);
+
+        // Update the employee in the database
+        employeeBLL.addEmployeeToTeam(employee.getId(), team.getId());
+
+        // Update the employee in the allEmployees list
+        int index = allEmployees.indexOf(employee);
+        if (index != -1) {
+            allEmployees.set(index, employee);
+        }
+    }
+
 
     public void addNewEmployee(Employee employee) {
         try {
@@ -74,7 +86,7 @@ public class EmployeeModel {
             // Set the ID of the employee
             employee.setId(newEmployeeId);
             // Add employees to the observable list
-            employees.add(employee);
+            allEmployees.add(employee);
             // This needs to be done this way to get the generated employee ID from the database so we are able
             // to edit new employees
             if(allCountries != null){
@@ -137,7 +149,7 @@ public class EmployeeModel {
 
         ObservableList<Employee> filteredEmployees = FXCollections.observableArrayList();
 
-        for(Employee employee: employees){
+        for(Employee employee: allEmployees){
             if(employee.getCountry().equals(country)){
                 filteredEmployees.add(employee);
             }
@@ -172,19 +184,19 @@ public class EmployeeModel {
         return employeeBLL.calculateMarkUp(markupValue);
     }
 
-    public Double calculateHourlyRate(Employee selectedEmployee) {
+    public Double calculateHourlyRate(Employee selectedEmployee) throws BBExceptions {
         return employeeBLL.calculateHourlyRate(selectedEmployee);
     }
 
-    public Double calculateTotalHourlyRateForCountry(String country){
+    public Double calculateTotalHourlyRateForCountry(String country) throws BBExceptions{
         return employeeBLL.calculateTotalHourlyRateForCountry(country);
     }
 
-    public Double calculateDailyRate(Employee selectedEmployee) {
+    public Double calculateDailyRate(Employee selectedEmployee) throws BBExceptions{
         return employeeBLL.calculateDailyRate(selectedEmployee);
     }
 
-    public Double calculateTotalDailyRateForCountry(String country) {
+    public Double calculateTotalDailyRateForCountry(String country) throws BBExceptions{
         return employeeBLL.calculateTotalDailyRateForCountry(country);
     }
 
@@ -198,5 +210,9 @@ public class EmployeeModel {
 
     public BigDecimal getUtilizationForTeam(Employee employee, Team team) throws BBExceptions {
         return employeeBLL.getUtilizationForTeam(employee, team);
+    }
+
+    public void updateTeamIsOverheadForEmployee(int teamId, int employeeId, boolean isOverhead) throws BBExceptions {
+        employeeBLL.updateTeamIsOverheadForEmployee(teamId, employeeId, isOverhead);
     }
 }

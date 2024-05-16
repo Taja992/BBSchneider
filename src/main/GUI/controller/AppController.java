@@ -107,7 +107,7 @@ public class AppController {
 
        this.overviewEmployeeTable.initialize();
 
-       this.teamTable = new TeamTable(employeeModel, teamModel, teamTabPane, addTeamBtn);
+       this.teamTable = new TeamTable(employeeModel, teamModel, teamTabPane, addTeamBtn, overviewEmployeeTable);
 
        this.teamTable.initialize();
 
@@ -248,7 +248,7 @@ public class AppController {
                 if (!selectedTable.getItems().isEmpty()) {
                     Team team = (Team) selectedTab.getUserData(); //get the Team object from the selected tab
                     int teamId = team.getId(); //get the teamId from the Team object
-                    calculateTeamRates(teamId);
+                        calculateTeamRates(teamId);
                 } else {
                     teamDayRateLbl.setText("$0.00/Day");
                     teamHourlyRateLbl.setText("$0.00/Hour");
@@ -265,7 +265,7 @@ public class AppController {
     }
 
     private void calculateCountryRates(String country){
-
+    try{
         double hourlyRate = employeeModel.calculateTotalHourlyRateForCountry(country);
         double dailyRate = employeeModel.calculateTotalDailyRateForCountry(country);
 
@@ -288,10 +288,13 @@ public class AppController {
 
         countryHourlyRateLbl.setText(currencySymbol + String.format("%.2f",hourlyRate)+ "/Hour");
         countryDayRateLbl.setText(currencySymbol + String.format("%.2f",dailyRate)+ "/Day");
+      } catch (BBExceptions e) {
+            showAlert("Error", e.getMessage());
+      }
     }
 
-    private void calculateTeamRates(int teamId){
-
+    private void calculateTeamRates(int teamId) {
+    try {
         double hourlyRate = teamModel.calculateTotalHourlyRate(teamId);
         double dailyRate = teamModel.calculateTotalDailyRate(teamId);
         if ("€".equals(currencySymbol)) {
@@ -309,9 +312,13 @@ public class AppController {
         }
         teamHourlyRateLbl.setText(currencySymbol +  String.format("%.2f", hourlyRate)+ "/Hour");
         teamDayRateLbl.setText(currencySymbol + String.format("%.2f", dailyRate) + "/Day");
+          } catch (BBExceptions e) {
+            showAlert("Error calculating team rates", e.getMessage());
+         }
     }
 
     public void calculateEmployeeRates() {
+        try {
         Employee selectedEmployee = overviewEmployeeTable.getSelectedEmployee();
         if(selectedEmployee != null){
             double hourlyRate = employeeModel.calculateHourlyRate(selectedEmployee);
@@ -332,6 +339,9 @@ public class AppController {
             employeeHourlyRateLbl.setText(currencySymbol + String.format("%.2f", hourlyRate) + "/Hour");
             employeeDayRateLbl.setText(currencySymbol +  String.format("%.2f", dailyRate)+ "/Day");
         }
+    } catch (BBExceptions e) {
+        showAlert("Error", e.getMessage());
+    }
     }
 
     public void markUpListener() {
@@ -351,17 +361,21 @@ public class AppController {
                     markUpTxt.setText(String.format("%.2f", markupValue));
                 }
 
-                // Get the current hourly and daily rates
-                double hourlyRate = employeeModel.calculateHourlyRate(overviewEmployeeTable.getSelectedEmployee());
-                double dailyRate = employeeModel.calculateDailyRate(overviewEmployeeTable.getSelectedEmployee());
+                try {
+                    // Get the current hourly and daily rates
+                    double hourlyRate = employeeModel.calculateHourlyRate(overviewEmployeeTable.getSelectedEmployee());
+                    double dailyRate = employeeModel.calculateDailyRate(overviewEmployeeTable.getSelectedEmployee());
 
-                // Apply the multiplier using method in employeebll
-                hourlyRate *= employeeModel.calculateMarkUp(markupValue);
-                dailyRate *= employeeModel.calculateMarkUp(markupValue);
+                    // Apply the multiplier using method in employeebll
+                    hourlyRate *= employeeModel.calculateMarkUp(markupValue);
+                    dailyRate *= employeeModel.calculateMarkUp(markupValue);
 
-                // Update the labels
-                employeeHourlyRateLbl.setText(currencySymbol + String.format("%.2f", hourlyRate) + "/Hour");
-                employeeDayRateLbl.setText(currencySymbol +  String.format("%.2f", dailyRate)+ "/Day");
+                    // Update the labels
+                    employeeHourlyRateLbl.setText(currencySymbol + String.format("%.2f", hourlyRate) + "/Hour");
+                    employeeDayRateLbl.setText(currencySymbol +  String.format("%.2f", dailyRate)+ "/Day");
+                } catch (BBExceptions e) {
+                    showAlert("Error", e.getMessage());
+                }
 
             } catch (NumberFormatException e) {
                 // If the new value is not a number, revert to 0
@@ -386,7 +400,7 @@ public class AppController {
             if(newValue != null){ //if the selected tab isn't empty
                 Team team = (Team) newValue.getUserData(); //get the Team object from the selected tab
                 int teamId = team.getId(); //get the teamId from the Team object
-                calculateTeamRates(teamId); //set all the rates based on the team and the conversion rate
+                    calculateTeamRates(teamId); //set all the rates based on the team and the conversion rate
             } else{ //if the tableview is empty, then just print 0's for the rates
                 teamHourlyRateLbl.setText("$0.00/Hour");
                 teamDayRateLbl.setText("$0.00/Day");
@@ -410,7 +424,6 @@ public class AppController {
     }
 
     public void selectTeamOnStart() {
-
         int teamId = teamModel.getAllTeams().getFirst().getId(); //getting our first team
         calculateTeamRates(teamId);
     }

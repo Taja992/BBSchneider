@@ -4,8 +4,6 @@ import BE.Employee;
 import BE.Team;
 import DAL.TeamDAO;
 import Exceptions.BBExceptions;
-
-import java.sql.SQLException;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.List;
@@ -20,19 +18,27 @@ public class TeamBLL {
         return teamDAO.getAllTeams();
     }
 
-    public void newTeam(Team team) {
-        try {
-            teamDAO.newTeam(team);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+    public void createNewTeam(Team team) throws BBExceptions {
+            teamDAO.createNewTeam(team);
     }
 
     public int getLastTeamId() throws BBExceptions {
         return teamDAO.getLastTeamId();
     }
 
-    public Double calculateTotalHourlyRate(int teamId){
+    public void updateTeamName(int teamId, String newTeamName) throws BBExceptions {
+        teamDAO.updateTeamName(teamId, newTeamName);
+    }
+
+    public List<Team> getTeamsForEmployee(int employeeId) throws BBExceptions {
+            return teamDAO.getTeamsForEmployee(employeeId);
+    }
+
+    ////////////////////////////////////////////////////////
+    /////////////////Calculation Logic//////////////////////
+    ////////////////////////////////////////////////////////
+
+    public Double calculateTotalHourlyRate(int teamId) throws BBExceptions{
         List<Employee> employees = employeeBLL.getAllEmployeesFromTeam(teamId);
         double totalHourlyRate = 0;
         for(Employee employee : employees){
@@ -46,11 +52,11 @@ public class TeamBLL {
         try {
             return nf.parse(nf.format(totalHourlyRate)).doubleValue();
         } catch (ParseException e) {
-            throw new RuntimeException(e);
+            throw new BBExceptions("Error parsing total hourly rate", e);
         }
     }
 
-    public Double calculateTotalDailyRate(int teamId){
+    public Double calculateTotalDailyRate(int teamId) throws BBExceptions{
         List<Employee> employees = employeeBLL.getAllEmployeesFromTeam(teamId);
         double totalDailyRate = 0;
         for(Employee employee : employees){
@@ -64,19 +70,7 @@ public class TeamBLL {
         try {
             return nf.parse(nf.format(totalDailyRate)).doubleValue();
         } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void updateTeamName(int teamId, String newTeamName) throws BBExceptions {
-        teamDAO.updateTeamName(teamId, newTeamName);
-    }
-
-    public List<Team> getTeamsForEmployee(int employeeId) {
-        try {
-            return teamDAO.getTeamsForEmployee(employeeId);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new BBExceptions("Error parsing total daily rate", e);
         }
     }
 }
