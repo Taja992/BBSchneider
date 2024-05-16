@@ -211,4 +211,8 @@ public class EmployeeModel {
     public BigDecimal getUtilizationForTeam(Employee employee, Team team) throws BBExceptions {
         return employeeBLL.getUtilizationForTeam(employee, team);
     }
+
+    public void updateTeamIsOverheadForEmployee(int teamId, int employeeId, boolean isOverhead) throws BBExceptions {
+        employeeBLL.updateTeamIsOverheadForEmployee(teamId, employeeId, isOverhead);
+    }
 }
