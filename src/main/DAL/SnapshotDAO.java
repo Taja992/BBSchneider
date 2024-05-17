@@ -1,9 +1,14 @@
 package DAL;
 
+import BE.Team;
 import org.sqlite.core.DB;
 
 import java.io.File;
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SnapshotDAO {
 
@@ -21,6 +26,8 @@ public class SnapshotDAO {
         } catch (SQLException e) {
             connectionManager = new ConnectionManager(false);
         }
+
+        getAllTeamsInSnapshot("Snapshot on 18-05-2024 04.35");
     }
 
     public void createNewSnapshotFile(String fileName){
@@ -177,6 +184,38 @@ public class SnapshotDAO {
 
         }
     }//end of method
+
+    public List<Team> getAllTeamsInSnapshot(String fileName){
+        String filepath = folderPath + fileName + ".db";
+        List<Team> allTeams = new ArrayList<>();
+
+        try {
+            Connection con = DriverManager.getConnection(filepath);
+
+            String sql = "SELECT * FROM Team";
+
+            PreparedStatement ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()){
+
+                int teamId = rs.getInt(1);
+                String teamName = rs.getString(2);
+
+                Team team = new Team(teamId, teamName);
+
+                allTeams.add(team);
+
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+
+        return allTeams;
+
+    }
 
 
     public boolean doesFileExist(String fileName){
