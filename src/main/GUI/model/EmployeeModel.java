@@ -111,8 +111,7 @@ public class EmployeeModel {
     }
 
 
-    public void addNewEmployee(Employee employee) {
-        try {
+    public void addNewEmployee(Employee employee) throws BBExceptions{
             // Add employee to database and get the generated ID
             int newEmployeeId = employeeBLL.addNewEmployee(employee);
             // Set the ID of the employee
@@ -135,9 +134,6 @@ public class EmployeeModel {
                     allCountries.add(employee.getCountry());
                 }
             }
-        } catch (BBExceptions e) {
-            e.printStackTrace();
-        }
     }
 
 

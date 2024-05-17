@@ -57,7 +57,7 @@ public class TeamTable {
             makeTeamTabTitleEditable(tab);
 
         } catch (BBExceptions e) {
-            e.printStackTrace();
+            showAlert("Error", e.getMessage());
         }
     }
 

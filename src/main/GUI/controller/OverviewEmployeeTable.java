@@ -92,8 +92,11 @@ public class OverviewEmployeeTable {
 
         overviewEmployeeTblView.getSelectionModel().select(newIndex);
         nameCol.getTableView().edit(newIndex, nameCol);
-
+    try {
         employeeModel.addNewEmployee(newEmployee);
+    }catch (BBExceptions e) {
+            showAlert("Error",e.getMessage());
+        }
     }
 
     public void setItems(ObservableList<Employee> employees) {
@@ -472,5 +475,15 @@ public class OverviewEmployeeTable {
                 }
             }
         });
+    }
+    private void showAlert(String title, String message) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle(title);
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            alert.showAndWait();
+        });
+
     }
 }
