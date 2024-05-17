@@ -23,7 +23,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class AppController {
-
+// in this class we handle filtering, snapshots and rates calculations
 
 
     @FXML
@@ -427,7 +427,7 @@ public class AppController {
     }
 
     //////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////
+    //////////////////////Error handling//////////////////////
     //////////////////////////////////////////////////////////
 
     private void showAlert(String title, String message) {
