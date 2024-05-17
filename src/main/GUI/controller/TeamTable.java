@@ -170,19 +170,28 @@ public class TeamTable {
         return teamTblView;
     }
 
-    private void dragAndDrop(TableView<Employee> teamTblView){
+    private void dragAndDrop(TableView<Employee> teamTblView) {
         teamTblView.setOnDragOver(event -> {
+            //check to see if the dragged item has a string
             if (event.getDragboard().hasString()) {
+                //accept transfer
                 event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
             }
+            //end event
             event.consume();
         });
+        dragAndDropDropped(teamTblView);
+    }
 
+
+    private void dragAndDropDropped (TableView<Employee> teamTblView) {
+        //When our dragged item is dropped, do this
         teamTblView.setOnDragDropped(event -> {
             Dragboard db = event.getDragboard();
-            boolean success = false;
             if (db.hasString()) {
+                //if it has our converted string, we switch it back to the index variable
                 int draggedIdx = Integer.parseInt(db.getString());
+                //this gets the employee from our overviewEmployeeTable using the list # index via .get(draggedIdx
                 Employee draggedEmployee = overviewEmployeeTable.getTableView().getItems().get(draggedIdx);
 
                 // Get the team associated with the TableView
@@ -195,14 +204,11 @@ public class TeamTable {
                     } catch (BBExceptions e) {
                         throw new RuntimeException(e);
                     }
-                    success = true;
                 }
 
                 // Set the items of the TableView to the employees of the team
-                assert team != null;
                 teamTblView.setItems(employeeModel.getAllEmployeesFromTeam(team.getId()));
             }
-            event.setDropCompleted(success);
             event.consume();
         });
     }
