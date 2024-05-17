@@ -24,6 +24,7 @@ import javafx.util.converter.IntegerStringConverter;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -283,42 +284,19 @@ public class OverviewEmployeeTable {
         });
     }
 
-//    private void formatUtilization() {
-//
-////        utilCol.setCellFactory(tableColumn -> new TextFieldTableCell<>(new BigDecimalStringConverter()) {
-////            @Override
-////            public void updateItem(BigDecimal value, boolean empty) {
-////                super.updateItem(value, empty);
-////                //This checks if cell is empty, if not continues...
-////                //% is a placeholder for the value that will be inserted
-////                //.2 this tells our tableview we want 2 digits after the decimal
-////                //f indicates it's a floating point number (a number with a decimal)
-////                //% we add this to the end of the number
-////                setText(empty ? null : String.format("%.2f%%", value));
-////            }
-////        });
-////        makeutilizationEditable();
-
     private void populateTeamUtilizationSumColumn() {
         teamUtilColSum.setCellValueFactory(cellData -> {
             Employee employee = cellData.getValue();
-            int employeeId = employee.getId();
-            BigDecimal totalUtilization = totalUtilizationCache.get(employeeId);
+            List<Team> teams = employee.getTeams();
+            BigDecimal totalUtilization = BigDecimal.ZERO;
 
-            // If total utilization is not in the cache, calculate it in a background thread
-            // executorService single thread executor
-            if (totalUtilization == null) {
-                executorService.submit(() -> {
-                    try {
-                        BigDecimal calculatedTotalUtilization = employeeModel.calculateTotalTeamUtil(employeeId);
-                        Platform.runLater(() -> {
-                            //add the calculation to the hashmap
-                            totalUtilizationCache.put(employeeId, calculatedTotalUtilization);
-                        });
-                    } catch (BBExceptions e) {
-                        e.printStackTrace();
-                    }
-                });
+            for (Team team : teams) {
+                try {
+                    BigDecimal teamUtilization = employeeModel.getUtilizationForTeam(employee, team);
+                    totalUtilization = totalUtilization.add(teamUtilization);
+                } catch (BBExceptions e) {
+                    throw new RuntimeException(e);
+                }
             }
 
             return new SimpleObjectProperty<>(totalUtilization);
@@ -326,64 +304,32 @@ public class OverviewEmployeeTable {
     }
 
     private void formatUtilization() {
-        // We use a hashmap to store the results so we dont need to do the calculation everytime a cell is rendered
-        Map<Integer, BigDecimal> totalUtilizationCache = new HashMap<>();
+            utilCol.setCellFactory(tableColumn -> new TextFieldTableCell<>(new BigDecimalStringConverter()) {
+                @Override
+                public void updateItem(BigDecimal value, boolean empty) {
+                    super.updateItem(value, empty);
+                    //This checks if cell is empty, if not continues...
+                    //% is a placeholder for the value that will be inserted
+                    //.2 this tells our tableview we want 2 digits after the decimal
+                    //f indicates it's a floating point number (a number with a decimal)
+                    //% we add this to the end of the number
+                    setText(empty ? null : String.format("%.2f%%", value));
 
-
-        utilCol.setCellFactory(column -> new TextFieldTableCell<>(new BigDecimalStringConverter()) {
-            @Override
-            public void updateItem(BigDecimal item, boolean empty) {
-                super.updateItem(item, empty);
-
-                setText(empty ? null : String.format("%.2f%%", item));
-
-                TableRow<Employee> currentRow = getTableRow();
-
-                if (currentRow != null) {
-                    Employee employee = currentRow.getItem();
-                    if (employee != null) {
-                        int employeeId = employee.getId();
-                        BigDecimal totalUtilization = totalUtilizationCache.get(employeeId);
-
-                        // If total utilization is not in the hashmap, calculate it in a background thread
-                        if (totalUtilization == null) {
-                            //we use our executor service to let the calculations run in the background
-                            executorService.submit(() -> {
-                                try {
-                                    BigDecimal calculatedTotalUtilization = employeeModel.calculateTotalTeamUtil(employeeId);
-                                    Platform.runLater(() -> {
-                                        totalUtilizationCache.put(employeeId, calculatedTotalUtilization);
-                                        updateItem(item, empty);
-                                    });
-                                } catch (BBExceptions e) {
-                                    throw new RuntimeException(e);
-                                }
-                            });
-                        } else {
-                            if (item != null && totalUtilization.compareTo(item) > 0) {
-                                setStyle("-fx-text-fill: #dc0101;");
-                            } else {
-                                setStyle("");
-                            }
-                        }
-                    }
-                }
-            }
-        });
-        makeutilizationEditable();
+                makeutilizationEditable();
+                 }
+             });
     }
 
     private void formatTeamUtilSum() {
-        teamUtilColSum.setCellFactory(tableColumn -> new TextFieldTableCell<>(new BigDecimalStringConverter()) {
+        teamUtilColSum.setCellFactory(column -> new TableCell<Employee, BigDecimal>() {
             @Override
-            public void updateItem(BigDecimal value, boolean empty) {
-                super.updateItem(value, empty);
-                //This checks if cell is empty, if not continues...
-                //% is a placeholder for the value that will be inserted
-                //.2 this tells our tableview we want 2 digits after the decimal
-                //f indicates it's a floating point number (a number with a decimal)
-                //% we add this to the end of the number
-                setText(empty ? null : String.format("%.2f%%", value));
+            protected void updateItem(BigDecimal item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item == null || empty) {
+                    setText(null);
+                } else {
+                    setText(String.format("%.2f%%", item));
+                }
             }
         });
     }
