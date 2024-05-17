@@ -267,23 +267,21 @@ public class TeamTable {
             }
         });
 
-//        // When the text field loses focus, save the new title, hide the text field, and update the team name in the database
-//        textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
-//            if (!newValue) {
-//                String newTeamName = textField.getText();
-//                tab.setText(newTeamName);
-//                label.setText(newTeamName);
-//                textField.setVisible(false);
-//                Team team = (Team) tab.getUserData();
-//                try {
-//                    teamModel.updateTeamName(team.getId(), newTeamName);
-//                    //update combobox show new name
-//                 //   makeTeamEditable();
-//                } catch (BBExceptions e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        });
+        // When the text field loses focus, save the new title, hide the text field, and update the team name in the database
+        textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {
+                String newTeamName = textField.getText();
+                tab.setText(newTeamName);
+                label.setText(newTeamName);
+                textField.setVisible(false);
+                Team team = (Team) tab.getUserData();
+                try {
+                    teamModel.updateTeamName(team.getId(), newTeamName);
+                } catch (BBExceptions e) {
+                    showAlert("Error", e.getMessage());
+                }
+            }
+        });
 
         // Create a StackPane to hold the label and text field
         StackPane stackPane = new StackPane();
