@@ -117,13 +117,20 @@ public class AppController {
        teamRatesListener();
        currencyChangeToggleBtnListener();
        markUpListener();
+       grossMarginListener();
        populateComboBox();
        setupCountryBox();
        addCountryListener();
        countryRatesListener();
        selectTeamOnStart();
+       selectFirstEmployee();
    }
 
+   public void selectFirstEmployee() {
+       if (!overviewEmployeeTblView.getItems().isEmpty()) {
+           overviewEmployeeTblView.getSelectionModel().selectFirst();
+       }
+    }
 
     public void generateMockData() {
         // For LineChart
@@ -207,12 +214,15 @@ public class AppController {
     private void setSearchEvent() {
         searchTextField.setOnKeyReleased(event -> {
             String keyword = searchTextField.getText();
+
+            ObservableList<Employee> filteredEmployees = null;
             try {
-                ObservableList<Employee> filteredEmployees = employeeModel.searchEmployees(keyword, overviewCountryCmbBox.getSelectionModel().getSelectedItem());
-                overviewEmployeeTable.setItems(filteredEmployees);
+                filteredEmployees = employeeModel.searchEmployees(keyword, overviewCountryCmbBox.getSelectionModel().getSelectedItem());
             } catch (BBExceptions e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
+            overviewEmployeeTable.setItems(filteredEmployees);
+
         });
     }
 
@@ -363,16 +373,25 @@ public class AppController {
 
                 try {
                     // Get the current hourly and daily rates
-                    double hourlyRate = employeeModel.calculateHourlyRate(overviewEmployeeTable.getSelectedEmployee());
-                    double dailyRate = employeeModel.calculateDailyRate(overviewEmployeeTable.getSelectedEmployee());
+                    double individualHourlyRate = employeeModel.calculateHourlyRate(overviewEmployeeTable.getSelectedEmployee());
+                    double individualDailyRate = employeeModel.calculateDailyRate(overviewEmployeeTable.getSelectedEmployee());
+
+                    double teamHourlyRate = teamModel.calculateTotalHourlyRate(((Team) teamTabPane.getSelectionModel().getSelectedItem().getUserData()).getId());
+                    double teamDailyRate = teamModel.calculateTotalDailyRate(((Team) teamTabPane.getSelectionModel().getSelectedItem().getUserData()).getId());
 
                     // Apply the multiplier using method in employeebll
-                    hourlyRate *= employeeModel.calculateMarkUp(markupValue);
-                    dailyRate *= employeeModel.calculateMarkUp(markupValue);
+                    individualHourlyRate *= employeeModel.calculateMarkUp(markupValue);
+                    individualDailyRate *= employeeModel.calculateMarkUp(markupValue);
+
+                    teamHourlyRate *= employeeModel.calculateMarkUp(markupValue);
+                    teamDailyRate *= employeeModel.calculateMarkUp(markupValue);
 
                     // Update the labels
-                    employeeHourlyRateLbl.setText(currencySymbol + String.format("%.2f", hourlyRate) + "/Hour");
-                    employeeDayRateLbl.setText(currencySymbol +  String.format("%.2f", dailyRate)+ "/Day");
+                    employeeHourlyRateLbl.setText(currencySymbol + String.format("%.2f", individualHourlyRate) + "/Hour");
+                    employeeDayRateLbl.setText(currencySymbol +  String.format("%.2f", individualDailyRate)+ "/Day");
+
+                    teamHourlyRateLbl.setText(currencySymbol + String.format("%.2f", teamHourlyRate) + "/Hour");
+                    teamDayRateLbl.setText(currencySymbol +  String.format("%.2f", teamDailyRate)+ "/Day");
                 } catch (BBExceptions e) {
                     showAlert("Error", e.getMessage());
                 }
@@ -380,6 +399,40 @@ public class AppController {
             } catch (NumberFormatException e) {
                 // If the new value is not a number, revert to 0
                 markUpTxt.setText("0.00");
+            }
+        });
+    }
+
+    public void grossMarginListener(){
+        grossMarginComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                // Parse the selected value to a double
+                double grossMarginValue = Double.parseDouble(grossMarginComboBox.getSelectionModel().getSelectedItem().toString().replace("%", ""));
+
+                // Get the current hourly and daily rates
+                try {
+                    double individualHourlyRate = employeeModel.calculateHourlyRate(overviewEmployeeTable.getSelectedEmployee());
+                    double individualDailyRate = employeeModel.calculateDailyRate(overviewEmployeeTable.getSelectedEmployee());
+
+                    double teamHourlyRate = teamModel.calculateTotalHourlyRate(((Team) teamTabPane.getSelectionModel().getSelectedItem().getUserData()).getId());
+                    double teamDailyRate = teamModel.calculateTotalDailyRate(((Team) teamTabPane.getSelectionModel().getSelectedItem().getUserData()).getId());
+
+                    // Apply the multiplier using method in employeebll
+                    individualHourlyRate *= employeeModel.calculateGrossMargin(grossMarginValue);
+                    individualDailyRate *= employeeModel.calculateGrossMargin(grossMarginValue);
+
+                    teamHourlyRate *= employeeModel.calculateGrossMargin(grossMarginValue);
+                    teamDailyRate *= employeeModel.calculateGrossMargin(grossMarginValue);
+
+                    // Update the labels
+                    employeeHourlyRateLbl.setText(currencySymbol + String.format("%.2f", individualHourlyRate) + "/Hour");
+                    employeeDayRateLbl.setText(currencySymbol +  String.format("%.2f", individualDailyRate)+ "/Day");
+
+                    teamHourlyRateLbl.setText(currencySymbol + String.format("%.2f", teamHourlyRate) + "/Hour");
+                    teamDayRateLbl.setText(currencySymbol +  String.format("%.2f", teamDailyRate)+ "/Day");
+                } catch (BBExceptions e) {
+                    showAlert("Error", e.getMessage());
+                }
             }
         });
     }

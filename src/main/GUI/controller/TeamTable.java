@@ -57,7 +57,7 @@ public class TeamTable {
             makeTeamTabTitleEditable(tab);
 
         } catch (BBExceptions e) {
-            e.printStackTrace();
+            showAlert("Error", e.getMessage());
         }
     }
 
@@ -159,6 +159,7 @@ public class TeamTable {
         editUtilization(teamUtilCol, team);
         makeOverheadEditable(teamOverHeadCol, team);
 
+
         // Get the list of employees for the team
         ObservableList<Employee> employeesInTeam = employeeModel.getAllEmployeesFromTeam(team.getId());
         //enabling editing in table
@@ -166,23 +167,56 @@ public class TeamTable {
         teamTblView.setItems(employeesInTeam);
 
         dragAndDrop(teamTblView);
+        contextMenu(teamTblView, team);
 
         return teamTblView;
     }
 
-    private void dragAndDrop(TableView<Employee> teamTblView){
+    private void contextMenu(TableView<Employee> teamTblView, Team team) {
+        //creating context menu
+        ContextMenu contextMenu = new ContextMenu();
+        MenuItem deleteItem = new MenuItem("Remove");
+        deleteItem.setOnAction(event -> {
+            Employee selectedEmployee = teamTblView.getSelectionModel().getSelectedItem();
+            if (selectedEmployee != null) {
+                try {
+                    employeeModel.removeEmployeeFromTeam(selectedEmployee.getId(), team.getId());
+                } catch (BBExceptions e) {
+                    showAlert("Error", e.getMessage());
+                }
+            }
+        });
+        contextMenu.getItems().add(deleteItem);
+        teamTblView.setContextMenu(contextMenu);
+    }
+
+
+
+
+
+
+    private void dragAndDrop(TableView<Employee> teamTblView) {
         teamTblView.setOnDragOver(event -> {
+            //check to see if the dragged item has a string
             if (event.getDragboard().hasString()) {
+                //accept transfer
                 event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
             }
+            //end event
             event.consume();
         });
+        dragAndDropDropped(teamTblView);
+    }
 
+
+    private void dragAndDropDropped (TableView<Employee> teamTblView) {
+        //When our dragged item is dropped, do this
         teamTblView.setOnDragDropped(event -> {
             Dragboard db = event.getDragboard();
-            boolean success = false;
             if (db.hasString()) {
+                //if it has our converted string, we switch it back to the index variable
                 int draggedIdx = Integer.parseInt(db.getString());
+                //this gets the employee from our overviewEmployeeTable using the list # index via .get(draggedIdx
                 Employee draggedEmployee = overviewEmployeeTable.getTableView().getItems().get(draggedIdx);
 
                 // Get the team associated with the TableView
@@ -195,14 +229,11 @@ public class TeamTable {
                     } catch (BBExceptions e) {
                         throw new RuntimeException(e);
                     }
-                    success = true;
                 }
 
                 // Set the items of the TableView to the employees of the team
-                assert team != null;
                 teamTblView.setItems(employeeModel.getAllEmployeesFromTeam(team.getId()));
             }
-            event.setDropCompleted(success);
             event.consume();
         });
     }
@@ -236,23 +267,21 @@ public class TeamTable {
             }
         });
 
-//        // When the text field loses focus, save the new title, hide the text field, and update the team name in the database
-//        textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
-//            if (!newValue) {
-//                String newTeamName = textField.getText();
-//                tab.setText(newTeamName);
-//                label.setText(newTeamName);
-//                textField.setVisible(false);
-//                Team team = (Team) tab.getUserData();
-//                try {
-//                    teamModel.updateTeamName(team.getId(), newTeamName);
-//                    //update combobox show new name
-//                 //   makeTeamEditable();
-//                } catch (BBExceptions e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        });
+        // When the text field loses focus, save the new title, hide the text field, and update the team name in the database
+        textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {
+                String newTeamName = textField.getText();
+                tab.setText(newTeamName);
+                label.setText(newTeamName);
+                textField.setVisible(false);
+                Team team = (Team) tab.getUserData();
+                try {
+                    teamModel.updateTeamName(team.getId(), newTeamName);
+                } catch (BBExceptions e) {
+                    showAlert("Error", e.getMessage());
+                }
+            }
+        });
 
         // Create a StackPane to hold the label and text field
         StackPane stackPane = new StackPane();
@@ -285,7 +314,7 @@ public class TeamTable {
                         try {
                             employeeModel.updateTeamIsOverheadForEmployee(team.getId(), employee.getId(), checkBox.isSelected());
                         } catch (BBExceptions ex) {
-                            ex.printStackTrace();
+                            showAlert("Error", ex.getMessage());
                         }
                     });
                 }
@@ -301,7 +330,7 @@ public class TeamTable {
             try {
                 employeeModel.updateTeamUtilForEmployee(team.getId(), employee.getId(), event.getNewValue());
             } catch (BBExceptions e) {
-                e.printStackTrace();
+                showAlert("Error", e.getMessage());
             }
         });
     }

@@ -78,9 +78,40 @@ public class EmployeeModel {
         }
     }
 
+    public void removeEmployeeFromTeam(int employeeId, int teamId) throws BBExceptions {
+        Employee employee = null;
+        for(Employee e : allEmployees){
+            if(e.getId() == employeeId){
+                employee = e;
+                break;
+            }
+        }
+        if (employee == null) {
+            throw new BBExceptions("Employee not found");
+        }
+        Team teamToRemove = null;
+        for(Team t : employee.getTeams()){
+            if(t.getId() == teamId){
+                teamToRemove = t;
+                break;
+            }
+        }
+        if (teamToRemove != null) {
+            employee.getTeams().remove(teamToRemove);
+        } else {
+            throw new BBExceptions("Team not found");
+        }
+        employeeBLL.removeEmployeeFromTeam(employeeId, teamId);
+        //index is the place where the employee is in the obsvlist
+        int index = allEmployees.indexOf(employee);
+        if (index != -1) {
+            allEmployees.set(index, employee);
+        }
 
-    public void addNewEmployee(Employee employee) {
-        try {
+    }
+
+
+    public void addNewEmployee(Employee employee) throws BBExceptions{
             // Add employee to database and get the generated ID
             int newEmployeeId = employeeBLL.addNewEmployee(employee);
             // Set the ID of the employee
@@ -103,9 +134,6 @@ public class EmployeeModel {
                     allCountries.add(employee.getCountry());
                 }
             }
-        } catch (BBExceptions e) {
-            e.printStackTrace();
-        }
     }
 
 
@@ -184,6 +212,8 @@ public class EmployeeModel {
         return employeeBLL.calculateMarkUp(markupValue);
     }
 
+    public double calculateGrossMargin(double grossMarginValue) {return employeeBLL.calculateGrossMargin(grossMarginValue);}
+
     public Double calculateHourlyRate(Employee selectedEmployee) throws BBExceptions {
         return employeeBLL.calculateHourlyRate(selectedEmployee);
     }
@@ -198,10 +228,6 @@ public class EmployeeModel {
 
     public Double calculateTotalDailyRateForCountry(String country) throws BBExceptions{
         return employeeBLL.calculateTotalDailyRateForCountry(country);
-    }
-
-    public BigDecimal calculateTotalTeamUtil(int employeeId) throws BBExceptions {
-        return employeeBLL.calculateTotalTeamUtil(employeeId);
     }
 
     public void updateTeamUtilForEmployee(int teamId, int employeeId, BigDecimal newUtil) throws BBExceptions {
