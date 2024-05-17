@@ -125,14 +125,19 @@ public class OverviewEmployeeTable {
     private void dragAndDrop() {
         overviewEmployeeTblView.setRowFactory(tv -> {
             TableRow<Employee> row = new TableRow<>();
+            //set the Drag method event to the new row
             row.setOnDragDetected(event -> {
                 if (!row.isEmpty()) {
+                    //first we take the index(list number) from the tableview
                     Integer index = row.getIndex();
-                    Dragboard db = row.startDragAndDrop(TransferMode.MOVE);
-                    db.setDragView(row.snapshot(null, null));
-                    ClipboardContent cc = new ClipboardContent();
-                    cc.putString(index.toString());
-                    db.setContent(cc);
+                    //set the transfermode to move only on the row
+                    Dragboard dragBoard = row.startDragAndDrop(TransferMode.MOVE);
+                    ClipboardContent clipboardContent = new ClipboardContent();
+                    //change the int index to a string to attach to clipboard
+                    clipboardContent.putString(index.toString());
+                    //attach our clipboard to the dragboard
+                    dragBoard.setContent(clipboardContent);
+                    //close the event
                     event.consume();
                 }
             });

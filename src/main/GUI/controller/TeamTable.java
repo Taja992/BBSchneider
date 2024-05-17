@@ -170,14 +170,18 @@ public class TeamTable {
         return teamTblView;
     }
 
-    private void dragAndDrop(TableView<Employee> teamTblView){
+    private void dragAndDrop(TableView<Employee> teamTblView) {
         teamTblView.setOnDragOver(event -> {
             if (event.getDragboard().hasString()) {
                 event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
             }
             event.consume();
         });
+        dragAndDropDropped(teamTblView);
+    }
 
+
+    private void dragAndDropDropped (TableView<Employee> teamTblView) {
         teamTblView.setOnDragDropped(event -> {
             Dragboard db = event.getDragboard();
             boolean success = false;
@@ -199,7 +203,6 @@ public class TeamTable {
                 }
 
                 // Set the items of the TableView to the employees of the team
-                assert team != null;
                 teamTblView.setItems(employeeModel.getAllEmployeesFromTeam(team.getId()));
             }
             event.setDropCompleted(success);
