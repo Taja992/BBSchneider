@@ -6,6 +6,7 @@ import Exceptions.BBExceptions;
 import GUI.model.EmployeeModel;
 import GUI.model.TeamModel;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
@@ -41,20 +42,19 @@ public class TeamTable {
 
     public void initialize(){
         addTableTabs();
-
     }
-
 
     private void addTeam(ActionEvent event) {
         try {
             int generatedId = teamModel.getLastTeamId() + 1;
             Team newTeam = new Team(generatedId, "Team " + generatedId);
-            teamModel.newTeam(newTeam);
+            teamModel.createNewTeam(newTeam);
             Tab tab = new Tab(newTeam.getName());
             tab.setUserData(newTeam); //So our new tab carries the team data
             tab.setClosable(false);
             tab.setContent(createTableForTeam(newTeam));
             teamTabPane.getTabs().add(tab);
+            makeTeamTabTitleEditable(tab);
 
         } catch (BBExceptions e) {
             e.printStackTrace();
@@ -64,24 +64,6 @@ public class TeamTable {
     private void addTableTabs()  {
         ObservableList<Team> teams = teamModel.getAllTeams(); //all the teams
 
-        //this sorting method uses O(n log n) where n=number of teams, it compares 2 teams at a time
-        teams.sort((team1, team2) -> {
-            //get team names
-            String name1 = team1.getName();
-            String name2 = team2.getName();
-
-            try {
-                // This assumes the team is formatted "Team #" and takes 5th digit "#" and uses Integer.parseInt to check its a number
-                int num1 = Integer.parseInt(name1.substring(5));
-                int num2 = Integer.parseInt(name2.substring(5));
-                //if successfully a number we compare the 2
-                return Integer.compare(num1, num2);
-            } catch (NumberFormatException e) {
-                // If parsing fails, sort the teams alphabetically
-                return name1.compareTo(name2);
-            }
-        });
-
         for (Team team: teams){ //for each team...
             Tab tab = new Tab(team.getName()); //create a new tab for that team
             tab.setUserData(team);
@@ -90,6 +72,33 @@ public class TeamTable {
             teamTabPane.getTabs().add(tab); //add that tab to TabPane
             makeTeamTabTitleEditable(tab); // make the tab title editable
         }
+
+        // Sort the tabs
+        sortTeamTabs();
+    }
+
+    private void sortTeamTabs() {
+        // Get all the tabs
+        ObservableList<Tab> tabs = teamTabPane.getTabs();
+        // This sorting method uses a comparison-based sorting algorithm, which typically has a time complexity of O(n log n),
+        // where n is the number of teams.
+        tabs.sort((tab1, tab2) -> {
+            // Get team names
+            String name1 = ((Team) tab1.getUserData()).getName();
+            String name2 = ((Team) tab2.getUserData()).getName();
+
+            try {
+                // This assumes the team is formatted "Team #" and takes 5th digit "#" and uses Integer.parseInt to check its a number
+                // This assumes the team name is formatted as "Team " followed by a number. It extracts the number part and converts it to an integer.
+                int num1 = Integer.parseInt(name1.substring(5));
+                int num2 = Integer.parseInt(name2.substring(5));
+                // If successfully a number we compare the 2
+                return Integer.compare(num1, num2);
+            } catch (NumberFormatException e) {
+                // If parsing fails, sort the teams alphabetically
+                return name1.compareTo(name2);
+            }
+        });
     }
 
     private TableView<Employee> createTableForTeam(Team team){
@@ -126,7 +135,7 @@ public class TeamTable {
         teamUtilCol.setText(team.getName() + " Util %");
         teamTblView.getColumns().add(teamUtilCol);
 
-        TableColumn<Employee, String> teamOverHeadCol = new TableColumn<>();
+        TableColumn<Employee, Boolean> teamOverHeadCol = new TableColumn<>();
         teamOverHeadCol.setText("Overhead");
         teamTblView.getColumns().add(teamOverHeadCol);
 
@@ -139,7 +148,7 @@ public class TeamTable {
         teamCountryCol.setCellValueFactory(new PropertyValueFactory<>("Country"));
         teamHoursCol.setCellValueFactory(new PropertyValueFactory<>("WorkingHours"));
         teamUtilCol.setCellValueFactory(new PropertyValueFactory<>("TeamUtil"));
-        teamOverHeadCol.setCellValueFactory(new PropertyValueFactory<>("isOverheadCost"));
+        teamOverHeadCol.setCellValueFactory(new PropertyValueFactory<>("teamIsOverhead"));
 
         //formatting all the columns that need it, these methods have comments explaining them in OverviewEmployeeTable class
         formatSalaryColumnForTeams(teamSalaryCol);
@@ -148,6 +157,7 @@ public class TeamTable {
         formatPercentageColumnForTeams(teamUtilCol);
         formatUtilization(teamUtilCol);
         editUtilization(teamUtilCol, team);
+        makeOverheadEditable(teamOverHeadCol, team);
 
         // Get the list of employees for the team
         ObservableList<Employee> employeesInTeam = employeeModel.getAllEmployeesFromTeam(team.getId());
@@ -156,37 +166,8 @@ public class TeamTable {
         teamTblView.setItems(employeesInTeam);
 
         dragAndDrop(teamTblView);
-        setupContextMenu(teamTblView, team);
 
         return teamTblView;
-    }
-
-    private void setupContextMenu(TableView<Employee> teamTblView, Team team) {
-        ContextMenu contextMenu = new ContextMenu();
-        MenuItem deleteItem = new MenuItem("Remove");
-        deleteItem.setOnAction(_ -> {
-            System.out.println("Remove clicked");
-            Employee selectedEmployee = teamTblView.getSelectionModel().getSelectedItem();
-            if (selectedEmployee != null) {
-                // Remove the employee from the original list
-                try {
-                    employeeModel.removeEmployee(selectedEmployee, team.getId());
-                } catch (BBExceptions e) {
-                    throw new RuntimeException(e);
-                }
-//                try {
-//                    employeeModel.removeEmployeeFromTeam(selectedEmployee.getId(), team.getId());
-//                } catch (BBExceptions e) {
-//                    e.printStackTrace();
-                //}
-            }
-        });
-
-        // Add menu items to context menu
-        contextMenu.getItems().add(deleteItem);
-
-        // Set context menu on table
-        teamTblView.setContextMenu(contextMenu);
     }
 
     private void dragAndDrop(TableView<Employee> teamTblView){
@@ -226,6 +207,7 @@ public class TeamTable {
         });
     }
 
+
     public void makeTeamTabTitleEditable(Tab tab) {
         final Label label = new Label(tab.getText());
         final TextField textField = new TextField(tab.getText());
@@ -249,8 +231,6 @@ public class TeamTable {
             Team team = (Team) tab.getUserData();
             try {
                 teamModel.updateTeamName(team.getId(), newTeamName);
-                //update combobox show new name
-                //  makeTeamEditable();
             } catch (BBExceptions e) {
                 showAlert("Error", e.getMessage());
             }
@@ -284,6 +264,34 @@ public class TeamTable {
     }
 
     /////////////////////Format and Editing///////////////////////////
+
+    public void makeOverheadEditable(TableColumn<Employee, Boolean> teamOverHeadCol, Team team) {
+        teamOverHeadCol.setCellValueFactory(cellData -> new SimpleBooleanProperty(cellData.getValue().getIsTeamIsOverhead()));
+        teamOverHeadCol.setCellFactory(column -> new TableCell<Employee, Boolean>() {
+            private final CheckBox checkBox = new CheckBox();
+
+            @Override
+            protected void updateItem(Boolean item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(checkBox);
+                    Employee employee = getTableView().getItems().get(getIndex());
+                    checkBox.setSelected(employee.getIsTeamIsOverhead());
+                    //we use setOnAction with the checkbox to make it listen if there is a change
+                    checkBox.setOnAction(e -> {
+                        employee.setTeamIsOverhead(checkBox.isSelected());
+                        try {
+                            employeeModel.updateTeamIsOverheadForEmployee(team.getId(), employee.getId(), checkBox.isSelected());
+                        } catch (BBExceptions ex) {
+                            ex.printStackTrace();
+                        }
+                    });
+                }
+            }
+        });
+    }
 
     private void editUtilization(TableColumn<Employee, BigDecimal> teamUtilCol, Team team){
         //util column is editable

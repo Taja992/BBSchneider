@@ -2,20 +2,25 @@ package GUI.controller;
 
 import BE.Employee;
 import BE.Team;
+import DAL.SnapshotDAO;
 import Exceptions.BBExceptions;
 import GUI.model.EmployeeModel;
+import GUI.model.SnapshotModel;
 import GUI.model.TeamModel;
 import com.jfoenix.controls.JFXToggleButton;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class AppController {
 
@@ -86,11 +91,13 @@ public class AppController {
     private final EmployeeModel employeeModel;
     private final TeamModel teamModel;
     private TeamTable teamTable;
+    private SnapshotModel snapshotModel;
 
 
     public AppController(){
         teamModel = new TeamModel();
         employeeModel = new EmployeeModel();
+        snapshotModel = new SnapshotModel();
     }
 
    public void initialize() {
@@ -141,6 +148,19 @@ public class AppController {
         }
     }
 
+    public void CreateSnapshotFile(ActionEvent event) {
+
+        LocalDateTime currentDate = LocalDateTime.now();
+
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy HH.mm");
+
+        //System.out.println(currentDate.format(format));
+        snapshotModel.createSnapshotFile("Snapshot on " + currentDate.format(format));
+
+    }
+
+
+
 
     ////////////////////////////////////////////////////////
     //////////////////Filtering/////////////////////////////
@@ -156,6 +176,9 @@ public class AppController {
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
                 if(newValue != null){
                     filterEmployeeTableByCountry((String) newValue);
+                } else {
+                    countryDayRateLbl.setText("No country selected");
+                    countryHourlyRateLbl.setText("No country selected");
                 }
             }
         });
@@ -207,6 +230,8 @@ public class AppController {
                 // EUR selected
                 currencySymbol = "€";
             }
+
+            //updating Employee rates
             Employee selectedEmployee = overviewEmployeeTable.getSelectedEmployee();
             if (selectedEmployee != null) {
                 // Recalculate and update the rates
@@ -215,23 +240,32 @@ public class AppController {
                 employeeDayRateLbl.setText("No employee selected");
                 employeeHourlyRateLbl.setText("No employee selected");
             }
+
+            //updating total team rates
             Tab selectedTab = teamTabPane.getSelectionModel().getSelectedItem();
             if (selectedTab != null && selectedTab.getContent() instanceof TableView<?>) {
                 TableView<Employee> selectedTable = (TableView<Employee>) selectedTab.getContent();
                 if (!selectedTable.getItems().isEmpty()) {
                     Team team = (Team) selectedTab.getUserData(); //get the Team object from the selected tab
                     int teamId = team.getId(); //get the teamId from the Team object
-                    calculateTeamRates(teamId);
+                        calculateTeamRates(teamId);
                 } else {
                     teamDayRateLbl.setText("$0.00/Day");
                     teamHourlyRateLbl.setText("$0.00/Hour");
                 }
             }
+
+            if(overviewCountryCmbBox.getSelectionModel().getSelectedItem() != null){
+                String selectedCountry = overviewCountryCmbBox.getSelectionModel().getSelectedItem();
+                calculateCountryRates(selectedCountry);
+            }
+
+
         });
     }
 
     private void calculateCountryRates(String country){
-
+    try{
         double hourlyRate = employeeModel.calculateTotalHourlyRateForCountry(country);
         double dailyRate = employeeModel.calculateTotalDailyRateForCountry(country);
 
@@ -254,10 +288,13 @@ public class AppController {
 
         countryHourlyRateLbl.setText(currencySymbol + String.format("%.2f",hourlyRate)+ "/Hour");
         countryDayRateLbl.setText(currencySymbol + String.format("%.2f",dailyRate)+ "/Day");
+      } catch (BBExceptions e) {
+            showAlert("Error", e.getMessage());
+      }
     }
 
-    private void calculateTeamRates(int teamId){
-
+    private void calculateTeamRates(int teamId) {
+    try {
         double hourlyRate = teamModel.calculateTotalHourlyRate(teamId);
         double dailyRate = teamModel.calculateTotalDailyRate(teamId);
         if ("€".equals(currencySymbol)) {
@@ -275,9 +312,13 @@ public class AppController {
         }
         teamHourlyRateLbl.setText(currencySymbol +  String.format("%.2f", hourlyRate)+ "/Hour");
         teamDayRateLbl.setText(currencySymbol + String.format("%.2f", dailyRate) + "/Day");
+          } catch (BBExceptions e) {
+            showAlert("Error calculating team rates", e.getMessage());
+         }
     }
 
     public void calculateEmployeeRates() {
+        try {
         Employee selectedEmployee = overviewEmployeeTable.getSelectedEmployee();
         if(selectedEmployee != null){
             double hourlyRate = employeeModel.calculateHourlyRate(selectedEmployee);
@@ -298,6 +339,9 @@ public class AppController {
             employeeHourlyRateLbl.setText(currencySymbol + String.format("%.2f", hourlyRate) + "/Hour");
             employeeDayRateLbl.setText(currencySymbol +  String.format("%.2f", dailyRate)+ "/Day");
         }
+    } catch (BBExceptions e) {
+        showAlert("Error", e.getMessage());
+    }
     }
 
     public void markUpListener() {
@@ -317,17 +361,21 @@ public class AppController {
                     markUpTxt.setText(String.format("%.2f", markupValue));
                 }
 
-                // Get the current hourly and daily rates
-                double hourlyRate = employeeModel.calculateHourlyRate(overviewEmployeeTable.getSelectedEmployee());
-                double dailyRate = employeeModel.calculateDailyRate(overviewEmployeeTable.getSelectedEmployee());
+                try {
+                    // Get the current hourly and daily rates
+                    double hourlyRate = employeeModel.calculateHourlyRate(overviewEmployeeTable.getSelectedEmployee());
+                    double dailyRate = employeeModel.calculateDailyRate(overviewEmployeeTable.getSelectedEmployee());
 
-                // Apply the multiplier using method in employeebll
-                hourlyRate *= employeeModel.calculateMarkUp(markupValue);
-                dailyRate *= employeeModel.calculateMarkUp(markupValue);
+                    // Apply the multiplier using method in employeebll
+                    hourlyRate *= employeeModel.calculateMarkUp(markupValue);
+                    dailyRate *= employeeModel.calculateMarkUp(markupValue);
 
-                // Update the labels
-                employeeHourlyRateLbl.setText(currencySymbol + String.format("%.2f", hourlyRate) + "/Hour");
-                employeeDayRateLbl.setText(currencySymbol +  String.format("%.2f", dailyRate)+ "/Day");
+                    // Update the labels
+                    employeeHourlyRateLbl.setText(currencySymbol + String.format("%.2f", hourlyRate) + "/Hour");
+                    employeeDayRateLbl.setText(currencySymbol +  String.format("%.2f", dailyRate)+ "/Day");
+                } catch (BBExceptions e) {
+                    showAlert("Error", e.getMessage());
+                }
 
             } catch (NumberFormatException e) {
                 // If the new value is not a number, revert to 0
@@ -352,7 +400,7 @@ public class AppController {
             if(newValue != null){ //if the selected tab isn't empty
                 Team team = (Team) newValue.getUserData(); //get the Team object from the selected tab
                 int teamId = team.getId(); //get the teamId from the Team object
-                calculateTeamRates(teamId); //set all the rates based on the team and the conversion rate
+                    calculateTeamRates(teamId); //set all the rates based on the team and the conversion rate
             } else{ //if the tableview is empty, then just print 0's for the rates
                 teamHourlyRateLbl.setText("$0.00/Hour");
                 teamDayRateLbl.setText("$0.00/Day");
@@ -376,7 +424,6 @@ public class AppController {
     }
 
     public void selectTeamOnStart() {
-
         int teamId = teamModel.getAllTeams().getFirst().getId(); //getting our first team
         calculateTeamRates(teamId);
     }
@@ -395,4 +442,6 @@ public class AppController {
         });
 
     }
+
+
 }

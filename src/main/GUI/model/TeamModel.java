@@ -7,7 +7,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Tab;
 
-import java.sql.SQLException;
 import java.util.List;
 
 public class TeamModel {
@@ -24,19 +23,19 @@ public class TeamModel {
         }
     }
 
-    public void newTeam(Team team) throws BBExceptions {
-        teamBLL.newTeam(team);
+    public void createNewTeam(Team team) throws BBExceptions {
+        teamBLL.createNewTeam(team);
     }
 
     public int getLastTeamId() throws BBExceptions {
         return teamBLL.getLastTeamId();
     }
 
-    public Double calculateTotalHourlyRate(int teamId){
+    public Double calculateTotalHourlyRate(int teamId) throws BBExceptions{
         return teamBLL.calculateTotalHourlyRate(teamId);
     }
 
-    public Double calculateTotalDailyRate(int teamId){
+    public Double calculateTotalDailyRate(int teamId) throws BBExceptions{
         return teamBLL.calculateTotalDailyRate(teamId);
     }
 

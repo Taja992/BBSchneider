@@ -18,6 +18,7 @@ public class Employee {
     private boolean isOverheadCost;
     //because an employee can have multiple teams
     private List<Team> teams;
+    private boolean teamIsOverhead;
 
 
 
@@ -132,6 +133,14 @@ public class Employee {
             teamNames.append(team.getName());
         }
         return teamNames.toString();
+    }
+
+    public boolean getIsTeamIsOverhead() {
+        return teamIsOverhead;
+    }
+
+    public void setTeamIsOverhead(boolean teamIsOverhead) {
+        this.teamIsOverhead = teamIsOverhead;
     }
 
 }

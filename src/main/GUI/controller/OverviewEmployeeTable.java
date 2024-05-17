@@ -45,7 +45,7 @@ public class OverviewEmployeeTable {
     private final TeamModel teamModel;
     private final TableColumn<Employee, BigDecimal> teamUtilColSum;
     private Map<Integer, BigDecimal> totalUtilizationCache = new HashMap<>();
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private ExecutorService executorService = Executors.newFixedThreadPool(4);
     private Button addEmployeeBtn;
 
 
@@ -360,7 +360,7 @@ public class OverviewEmployeeTable {
                             });
                         } else {
                             if (item != null && totalUtilization.compareTo(item) > 0) {
-                                setStyle("-fx-text-fill: #dc0101; -fx-background-color: #efefef;");
+                                setStyle("-fx-text-fill: #dc0101;");
                             } else {
                                 setStyle("");
                             }

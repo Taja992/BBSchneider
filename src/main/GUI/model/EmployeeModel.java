@@ -9,18 +9,12 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
-import javafx.scene.control.Tab;
-
 import java.math.BigDecimal;
-import java.sql.SQLException;
 import java.util.List;
 
 
 public class EmployeeModel {
     private final EmployeeBLL employeeBLL;
-
-    private final TeamModel teamModel = new TeamModel();
-    private final ObservableList<Employee> employees;
     private final BooleanProperty countryAdded = new SimpleBooleanProperty(false);
     private final List<String> allCountries = FXCollections.observableArrayList();
     private final ObservableList<Employee> allEmployees;
@@ -28,32 +22,8 @@ public class EmployeeModel {
 
     public EmployeeModel(){
         employeeBLL = new EmployeeBLL();
-        employees = FXCollections.observableArrayList();
         allEmployees = FXCollections.observableArrayList();
     }
-
-    public void removeEmployee(Employee employee, int teamId) throws BBExceptions {
-        // Find the team to be removed
-        Team teamToRemove = null;
-        for (Team team : employee.getTeams()) {
-            if (team.getId() == teamId) {
-                teamToRemove = team;
-                break;
-            }
-        }
-
-        // Remove the team from the employee's team list
-        if (teamToRemove != null) {
-            employee.getTeams().remove(teamToRemove);
-        }
-
-        // Update the database
-        employeeBLL.removeEmployeeFromTeam(employee.employeeId, teamId);
-    }
-
-//    public void removeEmployeeFromTeam(int employeeId, int teamId) throws BBExceptions {
-//        employeeBLL.removeEmployeeFromTeam(employeeId, teamId);
-//    }
 
 
     public ObservableList<Employee> getEmployees() throws BBExceptions {
@@ -116,7 +86,7 @@ public class EmployeeModel {
             // Set the ID of the employee
             employee.setId(newEmployeeId);
             // Add employees to the observable list
-            employees.add(employee);
+            allEmployees.add(employee);
             // This needs to be done this way to get the generated employee ID from the database so we are able
             // to edit new employees
             if(allCountries != null){
@@ -179,7 +149,7 @@ public class EmployeeModel {
 
         ObservableList<Employee> filteredEmployees = FXCollections.observableArrayList();
 
-        for(Employee employee: employees){
+        for(Employee employee: allEmployees){
             if(employee.getCountry().equals(country)){
                 filteredEmployees.add(employee);
             }
@@ -214,19 +184,19 @@ public class EmployeeModel {
         return employeeBLL.calculateMarkUp(markupValue);
     }
 
-    public Double calculateHourlyRate(Employee selectedEmployee) {
+    public Double calculateHourlyRate(Employee selectedEmployee) throws BBExceptions {
         return employeeBLL.calculateHourlyRate(selectedEmployee);
     }
 
-    public Double calculateTotalHourlyRateForCountry(String country){
+    public Double calculateTotalHourlyRateForCountry(String country) throws BBExceptions{
         return employeeBLL.calculateTotalHourlyRateForCountry(country);
     }
 
-    public Double calculateDailyRate(Employee selectedEmployee) {
+    public Double calculateDailyRate(Employee selectedEmployee) throws BBExceptions{
         return employeeBLL.calculateDailyRate(selectedEmployee);
     }
 
-    public Double calculateTotalDailyRateForCountry(String country) {
+    public Double calculateTotalDailyRateForCountry(String country) throws BBExceptions{
         return employeeBLL.calculateTotalDailyRateForCountry(country);
     }
 
@@ -242,5 +212,7 @@ public class EmployeeModel {
         return employeeBLL.getUtilizationForTeam(employee, team);
     }
 
-
+    public void updateTeamIsOverheadForEmployee(int teamId, int employeeId, boolean isOverhead) throws BBExceptions {
+        employeeBLL.updateTeamIsOverheadForEmployee(teamId, employeeId, isOverhead);
+    }
 }
