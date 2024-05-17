@@ -372,13 +372,22 @@ public class AppController {
                     double individualHourlyRate = employeeModel.calculateHourlyRate(overviewEmployeeTable.getSelectedEmployee());
                     double individualDailyRate = employeeModel.calculateDailyRate(overviewEmployeeTable.getSelectedEmployee());
 
+                    double teamHourlyRate = teamModel.calculateTotalHourlyRate(((Team) teamTabPane.getSelectionModel().getSelectedItem().getUserData()).getId());
+                    double teamDailyRate = teamModel.calculateTotalDailyRate(((Team) teamTabPane.getSelectionModel().getSelectedItem().getUserData()).getId());
+
                     // Apply the multiplier using method in employeebll
                     individualHourlyRate *= employeeModel.calculateMarkUp(markupValue);
                     individualDailyRate *= employeeModel.calculateMarkUp(markupValue);
 
+                    teamHourlyRate *= employeeModel.calculateMarkUp(markupValue);
+                    teamDailyRate *= employeeModel.calculateMarkUp(markupValue);
+
                     // Update the labels
                     employeeHourlyRateLbl.setText(currencySymbol + String.format("%.2f", individualHourlyRate) + "/Hour");
                     employeeDayRateLbl.setText(currencySymbol +  String.format("%.2f", individualDailyRate)+ "/Day");
+
+                    teamHourlyRateLbl.setText(currencySymbol + String.format("%.2f", teamHourlyRate) + "/Hour");
+                    teamDayRateLbl.setText(currencySymbol +  String.format("%.2f", teamDailyRate)+ "/Day");
                 } catch (BBExceptions e) {
                     showAlert("Error", e.getMessage());
                 }
