@@ -216,6 +216,8 @@ public class EmployeeModel {
         return employeeBLL.calculateMarkUp(markupValue);
     }
 
+    public double calculateGrossMargin(double grossMarginValue) {return employeeBLL.calculateGrossMargin(grossMarginValue);}
+
     public Double calculateHourlyRate(Employee selectedEmployee) throws BBExceptions {
         return employeeBLL.calculateHourlyRate(selectedEmployee);
     }
