@@ -29,7 +29,9 @@ public class EmployeeBLL {
     public void addEmployeeToTeam(int employeeId, int teamId) throws BBExceptions {
         employeeDAO.addEmployeeToTeam(employeeId, teamId);
     }
-
+    public void removeEmployeeFromTeam(int employeeId, int teamId) throws BBExceptions {
+        employeeDAO.removeEmployeeFromTeam(employeeId, teamId);
+    }
     public List<Employee> getAllEmployeesFromTeam(int TeamId) throws BBExceptions {
             return employeeDAO.getAllEmployeesFromTeam(TeamId);
     }

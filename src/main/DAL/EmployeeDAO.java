@@ -162,6 +162,18 @@ EmployeeDAO {
             throw new BBExceptions("Error adding employee to team", e);
         }
     }
+    public void removeEmployeeFromTeam(int employeeId, int teamId) throws BBExceptions {
+        String sql = "DELETE FROM Connection WHERE Emp_Id = ? AND Team_Id = ?";
+        try (Connection connection = connectionManager.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, employeeId);
+            ps.setInt(2, teamId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new BBExceptions("Error removing employee from team", e);
+        }
+    }
+
 
 
     public void updateTeamUtilForEmployee(int teamId, int employeeId, BigDecimal newUtil) throws BBExceptions {

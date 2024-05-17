@@ -159,6 +159,7 @@ public class TeamTable {
         editUtilization(teamUtilCol, team);
         makeOverheadEditable(teamOverHeadCol, team);
 
+
         // Get the list of employees for the team
         ObservableList<Employee> employeesInTeam = employeeModel.getAllEmployeesFromTeam(team.getId());
         //enabling editing in table
@@ -166,9 +167,33 @@ public class TeamTable {
         teamTblView.setItems(employeesInTeam);
 
         dragAndDrop(teamTblView);
+        contextMenu(teamTblView, team);
 
         return teamTblView;
     }
+
+    private void contextMenu(TableView<Employee> teamTblView, Team team) {
+        //creating context menu
+        ContextMenu contextMenu = new ContextMenu();
+        MenuItem deleteItem = new MenuItem("Remove");
+        deleteItem.setOnAction(event -> {
+            Employee selectedEmployee = teamTblView.getSelectionModel().getSelectedItem();
+            if (selectedEmployee != null) {
+                try {
+                    employeeModel.removeEmployeeFromTeam(selectedEmployee.getId(), team.getId());
+                } catch (BBExceptions e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        contextMenu.getItems().add(deleteItem);
+        teamTblView.setContextMenu(contextMenu);
+    }
+
+
+
+
+
 
     private void dragAndDrop(TableView<Employee> teamTblView) {
         teamTblView.setOnDragOver(event -> {

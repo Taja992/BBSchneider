@@ -78,6 +78,10 @@ public class EmployeeModel {
         }
     }
 
+    public void removeEmployeeFromTeam(int employeeId, int teamId) throws BBExceptions {
+        employeeBLL.removeEmployeeFromTeam(employeeId, teamId);
+    }
+
 
     public void addNewEmployee(Employee employee) {
         try {
