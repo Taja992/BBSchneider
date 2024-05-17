@@ -214,12 +214,10 @@ public class AppController {
     private void setSearchEvent() {
         searchTextField.setOnKeyReleased(event -> {
             String keyword = searchTextField.getText();
-            try {
+
                 ObservableList<Employee> filteredEmployees = employeeModel.searchEmployees(keyword, overviewCountryCmbBox.getSelectionModel().getSelectedItem());
                 overviewEmployeeTable.setItems(filteredEmployees);
-            } catch (BBExceptions e) {
-                e.printStackTrace();
-            }
+
         });
     }
 

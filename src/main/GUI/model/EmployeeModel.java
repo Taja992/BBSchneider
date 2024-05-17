@@ -111,8 +111,7 @@ public class EmployeeModel {
     }
 
 
-    public void addNewEmployee(Employee employee) {
-        try {
+    public void addNewEmployee(Employee employee) throws BBExceptions{
             // Add employee to database and get the generated ID
             int newEmployeeId = employeeBLL.addNewEmployee(employee);
             // Set the ID of the employee
@@ -135,26 +134,17 @@ public class EmployeeModel {
                     allCountries.add(employee.getCountry());
                 }
             }
-        } catch (BBExceptions e) {
-            e.printStackTrace();
-        }
     }
 
 
-    public ObservableList<Employee> searchEmployees(String keyword, String country) throws BBExceptions {
-        ObservableList<Employee> allEmployees;
-
-        if(country == null || country.isEmpty()){
-            allEmployees = getEmployees();
-        } else {
-            allEmployees = filterEmployeesByCountry(country);
-        }
-
+    public ObservableList<Employee> searchEmployees(String keyword, String country)  {
         ObservableList<Employee> filteredEmployees = FXCollections.observableArrayList();
 
         for (Employee employee : allEmployees) {
             if (employee.getName().toLowerCase().contains(keyword.toLowerCase())) {
-                filteredEmployees.add(employee);
+                if (country == null || country.isEmpty() || employee.getCountry().equals(country)) {
+                    filteredEmployees.add(employee);
+                }
             }
         }
 

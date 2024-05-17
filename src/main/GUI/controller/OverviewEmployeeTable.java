@@ -93,8 +93,11 @@ public class OverviewEmployeeTable {
 
         overviewEmployeeTblView.getSelectionModel().select(newIndex);
         nameCol.getTableView().edit(newIndex, nameCol);
-
+    try {
         employeeModel.addNewEmployee(newEmployee);
+    }catch (BBExceptions e) {
+            showAlert("Error",e.getMessage());
+        }
     }
 
     public void setItems(ObservableList<Employee> employees) {
@@ -142,7 +145,7 @@ public class OverviewEmployeeTable {
 
     private void populateEmployeeTableView() {
         try {
-            // Setup the TableView
+            // Set up the TableView
             setupTableView();
 
             // Get the list of employees from the model
@@ -166,7 +169,7 @@ public class OverviewEmployeeTable {
             overviewEmployeeTblView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
             overviewEmployeeTblView.setItems(employees);
         } catch (BBExceptions e) {
-            e.printStackTrace();
+            showAlert("Error", e.getMessage());
         }
     }
 
@@ -194,7 +197,7 @@ public class OverviewEmployeeTable {
             try {
                 employeeModel.updateEmployee(employee);
             } catch (BBExceptions e) {
-                e.printStackTrace();
+                showAlert("Error", e.getMessage());
             }
         });
     }
@@ -209,7 +212,7 @@ public class OverviewEmployeeTable {
             try {
                 employeeModel.updateEmployee(employee);
             } catch (BBExceptions e) {
-                e.printStackTrace();
+                showAlert("Error", e.getMessage());
             }
         });
     }
@@ -242,7 +245,7 @@ public class OverviewEmployeeTable {
             try {
                 employeeModel.updateEmployee(employee);
             } catch (BBExceptions e) {
-                e.printStackTrace();
+                showAlert("Error", e.getMessage());
             }
         });
     }
@@ -276,7 +279,7 @@ public class OverviewEmployeeTable {
             try {
                 employeeModel.updateEmployee(employee);
             } catch (BBExceptions e) {
-                e.printStackTrace();
+                showAlert("Error", e.getMessage());
             }
         });
     }
@@ -338,7 +341,7 @@ public class OverviewEmployeeTable {
             try {
                 employeeModel.updateEmployee(employee);
             } catch (BBExceptions e) {
-                e.printStackTrace();
+                showAlert("Error", e.getMessage());
             }
         });
     }
@@ -367,7 +370,7 @@ public class OverviewEmployeeTable {
             try {
                 employeeModel.updateEmployee(employee);
             } catch (BBExceptions e) {
-                e.printStackTrace();
+                showAlert("Error", e.getMessage());
             }
         });
     }
@@ -386,7 +389,7 @@ public class OverviewEmployeeTable {
             try {
                 employeeModel.updateEmployee(employee);
             } catch (BBExceptions e){
-                e.printStackTrace();
+                showAlert("Error", e.getMessage());
             }
         });
     }
@@ -412,11 +415,21 @@ public class OverviewEmployeeTable {
                         try {
                             employeeModel.updateEmployee(employee);
                         } catch (BBExceptions ex) {
-                            ex.printStackTrace();
+                           showAlert("Error", ex.getMessage());
                         }
                     });
                 }
             }
         });
+    }
+    private void showAlert(String title, String message) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle(title);
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            alert.showAndWait();
+        });
+
     }
 }
