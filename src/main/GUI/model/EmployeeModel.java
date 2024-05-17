@@ -79,7 +79,35 @@ public class EmployeeModel {
     }
 
     public void removeEmployeeFromTeam(int employeeId, int teamId) throws BBExceptions {
+        Employee employee = null;
+        for(Employee e : allEmployees){
+            if(e.getId() == employeeId){
+                employee = e;
+                break;
+            }
+        }
+        if (employee == null) {
+            throw new BBExceptions("Employee not found");
+        }
+        Team teamToRemove = null;
+        for(Team t : employee.getTeams()){
+            if(t.getId() == teamId){
+                teamToRemove = t;
+                break;
+            }
+        }
+        if (teamToRemove != null) {
+            employee.getTeams().remove(teamToRemove);
+        } else {
+            throw new BBExceptions("Team not found");
+        }
         employeeBLL.removeEmployeeFromTeam(employeeId, teamId);
+        //index is the place where the employee is in the obsvlist
+        int index = allEmployees.indexOf(employee);
+        if (index != -1) {
+            allEmployees.set(index, employee);
+        }
+
     }
 
 
