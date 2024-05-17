@@ -2,20 +2,25 @@ package GUI.controller;
 
 import BE.Employee;
 import BE.Team;
+import DAL.SnapshotDAO;
 import Exceptions.BBExceptions;
 import GUI.model.EmployeeModel;
+import GUI.model.SnapshotModel;
 import GUI.model.TeamModel;
 import com.jfoenix.controls.JFXToggleButton;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class AppController {
 
@@ -86,11 +91,13 @@ public class AppController {
     private final EmployeeModel employeeModel;
     private final TeamModel teamModel;
     private TeamTable teamTable;
+    private SnapshotModel snapshotModel;
 
 
     public AppController(){
         teamModel = new TeamModel();
         employeeModel = new EmployeeModel();
+        snapshotModel = new SnapshotModel();
     }
 
    public void initialize() {
@@ -141,6 +148,19 @@ public class AppController {
         }
     }
 
+    public void CreateSnapshotFile(ActionEvent event) {
+
+        LocalDateTime currentDate = LocalDateTime.now();
+
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy HH.mm");
+
+        //System.out.println(currentDate.format(format));
+        snapshotModel.createSnapshotFile("Snapshot on " + currentDate.format(format));
+
+    }
+
+
+
 
     ////////////////////////////////////////////////////////
     //////////////////Filtering/////////////////////////////
@@ -156,6 +176,9 @@ public class AppController {
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
                 if(newValue != null){
                     filterEmployeeTableByCountry((String) newValue);
+                } else {
+                    countryDayRateLbl.setText("No country selected");
+                    countryHourlyRateLbl.setText("No country selected");
                 }
             }
         });
@@ -207,6 +230,8 @@ public class AppController {
                 // EUR selected
                 currencySymbol = "€";
             }
+
+            //updating Employee rates
             Employee selectedEmployee = overviewEmployeeTable.getSelectedEmployee();
             if (selectedEmployee != null) {
                 // Recalculate and update the rates
@@ -215,6 +240,8 @@ public class AppController {
                 employeeDayRateLbl.setText("No employee selected");
                 employeeHourlyRateLbl.setText("No employee selected");
             }
+
+            //updating total team rates
             Tab selectedTab = teamTabPane.getSelectionModel().getSelectedItem();
             if (selectedTab != null && selectedTab.getContent() instanceof TableView<?>) {
                 TableView<Employee> selectedTable = (TableView<Employee>) selectedTab.getContent();
@@ -227,6 +254,13 @@ public class AppController {
                     teamHourlyRateLbl.setText("$0.00/Hour");
                 }
             }
+
+            if(overviewCountryCmbBox.getSelectionModel().getSelectedItem() != null){
+                String selectedCountry = overviewCountryCmbBox.getSelectionModel().getSelectedItem();
+                calculateCountryRates(selectedCountry);
+            }
+
+
         });
     }
 
@@ -408,4 +442,6 @@ public class AppController {
         });
 
     }
+
+
 }

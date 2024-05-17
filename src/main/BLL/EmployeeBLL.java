@@ -114,7 +114,16 @@ public class EmployeeBLL {
                 totalRate += calculateHourlyRate(employee);
             }
         }
-        return totalRate;
+
+        NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
+        nf.setMaximumFractionDigits(2);
+        nf.setMinimumFractionDigits(2);
+
+        try {
+            return nf.parse(nf.format(totalRate)).doubleValue();
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public Double calculateTotalDailyRateForCountry(String country) throws BBExceptions{
@@ -133,7 +142,15 @@ public class EmployeeBLL {
                 totalRate += calculateHourlyRate(employee);
             }
         }
-        return totalRate;
+        NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
+        nf.setMaximumFractionDigits(2);
+        nf.setMinimumFractionDigits(2);
+
+        try {
+            return nf.parse(nf.format(totalRate)).doubleValue();
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public double calculateMarkUp(double markupValue){
