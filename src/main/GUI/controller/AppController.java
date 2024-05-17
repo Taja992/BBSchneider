@@ -122,8 +122,14 @@ public class AppController {
        addCountryListener();
        countryRatesListener();
        selectTeamOnStart();
+       selectFirstEmployee();
    }
 
+   public void selectFirstEmployee() {
+       if (!overviewEmployeeTblView.getItems().isEmpty()) {
+           overviewEmployeeTblView.getSelectionModel().selectFirst();
+       }
+    }
 
     public void generateMockData() {
         // For LineChart
