@@ -1,7 +1,6 @@
 package GUI.controller;
 
 import BE.Employee;
-import BE.Team;
 import Exceptions.BBExceptions;
 import GUI.model.EmployeeModel;
 import GUI.model.TeamModel;
@@ -44,8 +43,8 @@ public class OverviewEmployeeTable {
     private final EmployeeModel employeeModel;
     private final TeamModel teamModel;
     private final TableColumn<Employee, BigDecimal> teamUtilColSum;
-    private Map<Integer, BigDecimal> totalUtilizationCache = new HashMap<>();
-    private ExecutorService executorService = Executors.newFixedThreadPool(4);
+    private final Map<Integer, BigDecimal> totalUtilizationCache = new HashMap<>();
+    private final ExecutorService executorService = Executors.newFixedThreadPool(4);
     private Button addEmployeeBtn;
 
 
@@ -71,10 +70,10 @@ public class OverviewEmployeeTable {
         this.overviewEmployeeTblView = overviewEmployeeTblView;
         this.addEmployeeBtn = addEmployeeBtn;
 
-        addEmployeeBtn.setOnAction(this::addEmployeeBtn2);
+        addEmployeeBtn.setOnAction(this::addEmployeeBtn);
     }
 
-    private void addEmployeeBtn2(ActionEvent actionEvent) {
+    private void addEmployeeBtn(ActionEvent actionEvent) {
         Employee newEmployee = new Employee();
         newEmployee.setName("New Employee");
         newEmployee.setOverheadMultiPercent(BigDecimal.ZERO);
