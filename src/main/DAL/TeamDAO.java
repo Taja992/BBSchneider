@@ -72,7 +72,7 @@ public class TeamDAO {
         return team;
     }
 
-    public void newTeam(Team team) throws BBExceptions {
+    public void createNewTeam(Team team) throws BBExceptions {
 
         try(Connection con = connectionManager.getConnection()){
             String sql = "INSERT INTO Team (Team_Name) VALUES (?)";

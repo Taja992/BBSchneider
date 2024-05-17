@@ -46,7 +46,7 @@ public class OverviewEmployeeTable {
     private final TeamModel teamModel;
     private final TableColumn<Employee, BigDecimal> teamUtilColSum;
     private Map<Integer, BigDecimal> totalUtilizationCache = new HashMap<>();
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private ExecutorService executorService = Executors.newFixedThreadPool(4);
     private Button addEmployeeBtn;
 
 
@@ -119,14 +119,19 @@ public class OverviewEmployeeTable {
     private void dragAndDrop() {
         overviewEmployeeTblView.setRowFactory(tv -> {
             TableRow<Employee> row = new TableRow<>();
+            //set the Drag method event to the new row
             row.setOnDragDetected(event -> {
                 if (!row.isEmpty()) {
+                    //first we take the index(list number) from the tableview
                     Integer index = row.getIndex();
-                    Dragboard db = row.startDragAndDrop(TransferMode.MOVE);
-                    db.setDragView(row.snapshot(null, null));
-                    ClipboardContent cc = new ClipboardContent();
-                    cc.putString(index.toString());
-                    db.setContent(cc);
+                    //set the transfermode to move only on the row
+                    Dragboard dragBoard = row.startDragAndDrop(TransferMode.MOVE);
+                    ClipboardContent clipboardContent = new ClipboardContent();
+                    //change the int index to a string to attach to clipboard
+                    clipboardContent.putString(index.toString());
+                    //attach our clipboard to the dragboard
+                    dragBoard.setContent(clipboardContent);
+                    //close the event
                     event.consume();
                 }
             });
@@ -306,10 +311,11 @@ public class OverviewEmployeeTable {
                     //f indicates it's a floating point number (a number with a decimal)
                     //% we add this to the end of the number
                     setText(empty ? null : String.format("%.2f%%", value));
-                }
-            });
-            makeutilizationEditable();
-        }
+
+                makeutilizationEditable();
+                 }
+             });
+    }
 
     private void formatTeamUtilSum() {
         teamUtilColSum.setCellFactory(column -> new TableCell<Employee, BigDecimal>() {

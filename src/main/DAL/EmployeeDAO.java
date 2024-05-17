@@ -60,8 +60,7 @@ EmployeeDAO {
         //use a hash map instead of a list to avoid duplicate employees
         Map<Integer, Employee> hashMapEmployees = new HashMap<>();
 
-
-        String sql = "SELECT employee.*, team.*, connection.Team_Util FROM Employee employee " +
+        String sql = "SELECT employee.*, team.*, connection.Team_Util, connection.TeamIsOverhead FROM Employee employee " +
                 "LEFT JOIN Connection connection ON employee.Employee_Id = connection.Emp_Id " +
                 "LEFT JOIN Team team ON connection.Team_Id = team.Team_Id";
 
@@ -87,6 +86,7 @@ EmployeeDAO {
                     employee.setWorkingHours(rs.getInt("WorkingHours"));
                     employee.setUtilization(rs.getBigDecimal("Utilization"));
                     employee.setTeamUtil(rs.getBigDecimal("Team_Util"));
+                    employee.setTeamIsOverhead(rs.getBoolean("TeamIsOverhead"));
                     employee.setIsOverheadCost(rs.getBoolean("isOverheadCost"));
                     //we add the new employee into our hashmap
                     hashMapEmployees.put(employeeId, employee);
@@ -147,7 +147,7 @@ EmployeeDAO {
     }
 
     public void addEmployeeToTeam(int employeeId, int teamId) throws BBExceptions {
-        String sql = "INSERT INTO Connection (Emp_Id, Team_Id, Team_Util, isOverhead) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO Connection (Emp_Id, Team_Id, Team_Util, TeamIsOverhead) VALUES (?, ?, ?, ?)";
 
         try (Connection connection = connectionManager.getConnection();
              PreparedStatement pstmt = connection.prepareStatement(sql)) {
@@ -162,6 +162,18 @@ EmployeeDAO {
             throw new BBExceptions("Error adding employee to team", e);
         }
     }
+    public void removeEmployeeFromTeam(int employeeId, int teamId) throws BBExceptions {
+        String sql = "DELETE FROM Connection WHERE Emp_Id = ? AND Team_Id = ?";
+        try (Connection connection = connectionManager.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
+            ps.setInt(1, employeeId);
+            ps.setInt(2, teamId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new BBExceptions("Error removing employee from team", e);
+        }
+    }
+
 
 
     public void updateTeamUtilForEmployee(int teamId, int employeeId, BigDecimal newUtil) throws BBExceptions {
@@ -178,6 +190,42 @@ EmployeeDAO {
         } catch (SQLException e) {
             throw new BBExceptions("Error updating team utilization for employee with ID " + employeeId + " in team with ID " + teamId, e);
         }
+    }
+
+    public void updateTeamIsOverheadForEmployee(int teamId, int employeeId, boolean isOverhead) throws BBExceptions {
+        String sql = "UPDATE Connection SET TeamIsOverhead = ? WHERE Emp_Id = ? AND Team_Id = ?";
+
+        try (Connection connection = connectionManager.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setBoolean(1, isOverhead);
+            ps.setInt(2, employeeId);
+            ps.setInt(3, teamId);
+
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new BBExceptions("Error updating TeamIsOverhead for employee with ID " + employeeId + " in team with ID " + teamId, e);
+        }
+    }
+
+    public BigDecimal calculateTotalTeamUtilization(int employeeId) throws BBExceptions {
+        BigDecimal totalUtilization = BigDecimal.ZERO;
+        String sql = "SELECT Team_Util FROM Connection WHERE Emp_Id = ?";
+
+        try (Connection connection = connectionManager.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setInt(1, employeeId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                totalUtilization = totalUtilization.add(rs.getBigDecimal("Team_Util"));
+            }
+        } catch (SQLException e) {
+            throw new BBExceptions("Error calculating total team utilization for employee with ID " + employeeId, e);
+        }
+
+        return totalUtilization;
     }
 
     public void updateEmployee(Employee employee) throws BBExceptions {
