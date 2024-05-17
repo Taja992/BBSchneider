@@ -215,8 +215,13 @@ public class AppController {
         searchTextField.setOnKeyReleased(event -> {
             String keyword = searchTextField.getText();
 
-                ObservableList<Employee> filteredEmployees = employeeModel.searchEmployees(keyword, overviewCountryCmbBox.getSelectionModel().getSelectedItem());
-                overviewEmployeeTable.setItems(filteredEmployees);
+            ObservableList<Employee> filteredEmployees = null;
+            try {
+                filteredEmployees = employeeModel.searchEmployees(keyword, overviewCountryCmbBox.getSelectionModel().getSelectedItem());
+            } catch (BBExceptions e) {
+                throw new RuntimeException(e);
+            }
+            overviewEmployeeTable.setItems(filteredEmployees);
 
         });
     }

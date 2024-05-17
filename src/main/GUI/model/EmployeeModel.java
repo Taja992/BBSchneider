@@ -137,14 +137,20 @@ public class EmployeeModel {
     }
 
 
-    public ObservableList<Employee> searchEmployees(String keyword, String country)  {
+    public ObservableList<Employee> searchEmployees(String keyword, String country) throws BBExceptions {
+        ObservableList<Employee> allEmployees;
+
+        if(country == null || country.isEmpty()){
+            allEmployees = getEmployees();
+        } else {
+            allEmployees = filterEmployeesByCountry(country);
+        }
+
         ObservableList<Employee> filteredEmployees = FXCollections.observableArrayList();
 
         for (Employee employee : allEmployees) {
             if (employee.getName().toLowerCase().contains(keyword.toLowerCase())) {
-                if (country == null || country.isEmpty() || employee.getCountry().equals(country)) {
-                    filteredEmployees.add(employee);
-                }
+                filteredEmployees.add(employee);
             }
         }
 
