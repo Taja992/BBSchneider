@@ -369,16 +369,16 @@ public class AppController {
 
                 try {
                     // Get the current hourly and daily rates
-                    double hourlyRate = employeeModel.calculateHourlyRate(overviewEmployeeTable.getSelectedEmployee());
-                    double dailyRate = employeeModel.calculateDailyRate(overviewEmployeeTable.getSelectedEmployee());
+                    double individualHourlyRate = employeeModel.calculateHourlyRate(overviewEmployeeTable.getSelectedEmployee());
+                    double individualDailyRate = employeeModel.calculateDailyRate(overviewEmployeeTable.getSelectedEmployee());
 
                     // Apply the multiplier using method in employeebll
-                    hourlyRate *= employeeModel.calculateMarkUp(markupValue);
-                    dailyRate *= employeeModel.calculateMarkUp(markupValue);
+                    individualHourlyRate *= employeeModel.calculateMarkUp(markupValue);
+                    individualDailyRate *= employeeModel.calculateMarkUp(markupValue);
 
                     // Update the labels
-                    employeeHourlyRateLbl.setText(currencySymbol + String.format("%.2f", hourlyRate) + "/Hour");
-                    employeeDayRateLbl.setText(currencySymbol +  String.format("%.2f", dailyRate)+ "/Day");
+                    employeeHourlyRateLbl.setText(currencySymbol + String.format("%.2f", individualHourlyRate) + "/Hour");
+                    employeeDayRateLbl.setText(currencySymbol +  String.format("%.2f", individualDailyRate)+ "/Day");
                 } catch (BBExceptions e) {
                     showAlert("Error", e.getMessage());
                 }
