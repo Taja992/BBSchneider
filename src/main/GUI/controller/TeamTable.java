@@ -182,7 +182,7 @@ public class TeamTable {
                 try {
                     employeeModel.removeEmployeeFromTeam(selectedEmployee.getId(), team.getId());
                 } catch (BBExceptions e) {
-                    e.printStackTrace();
+                    showAlert("Error", e.getMessage());
                 }
             }
         });
@@ -314,7 +314,7 @@ public class TeamTable {
                         try {
                             employeeModel.updateTeamIsOverheadForEmployee(team.getId(), employee.getId(), checkBox.isSelected());
                         } catch (BBExceptions ex) {
-                            ex.printStackTrace();
+                            showAlert("Error", ex.getMessage());
                         }
                     });
                 }
@@ -330,7 +330,7 @@ public class TeamTable {
             try {
                 employeeModel.updateTeamUtilForEmployee(team.getId(), employee.getId(), event.getNewValue());
             } catch (BBExceptions e) {
-                e.printStackTrace();
+                showAlert("Error", e.getMessage());
             }
         });
     }
