@@ -19,7 +19,7 @@ public class SnapshotModel {
         return snapBLL.getAllSnapshotNames();
     }
 
-    public List<Team> getAllTeamsInSnapshot(String fileName){
+    public List<Team> getAllTeamsInSnapshot(String fileName) throws BBExceptions {
         return snapBLL.getAllTeamsInSnapshot(fileName);
     }
 

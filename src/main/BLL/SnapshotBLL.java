@@ -5,13 +5,17 @@ import BE.Team;
 import DAL.SnapshotDAO;
 import Exceptions.BBExceptions;
 
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class SnapshotBLL {
 
     private SnapshotDAO snapDAO = new SnapshotDAO();
+    private EmployeeBLL employeeBLL = new EmployeeBLL();
 
     public void createSnapshotFile(String fileName){
         int copyNum = 2;
@@ -45,8 +49,46 @@ public class SnapshotBLL {
         return snapDAO.getAllEmployeesFromTeam(teamId, filename);
     }
 
-    public List<Team> getAllTeamsInSnapshot(String fileName){
+    public List<Team> getAllTeamsInSnapshot(String fileName) throws BBExceptions {
         return snapDAO.getAllTeamsInSnapshot(fileName);
+    }
+
+    public Double calculateTotalHourlyRate(int teamId, String fileName) throws BBExceptions{
+        List<Employee> employees = snapDAO.getAllEmployeesFromTeam(teamId, fileName);
+        double totalDailyRate = 0;
+        for(Employee employee : employees){
+            totalDailyRate += employeeBLL.calculateHourlyRate(employee);
+        }
+
+        NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
+        nf.setMaximumFractionDigits(2);
+        nf.setMinimumFractionDigits(2);
+
+        try {
+            return nf.parse(nf.format(totalDailyRate)).doubleValue();
+        } catch (ParseException e) {
+            throw new BBExceptions("Error parsing total daily rate for team with ID '"
+                    + teamId + "' from snapshot '" + fileName + "' ", e);
+        }
+    }
+
+    public Double calculateTotalDailyRate(int teamId, String fileName) throws BBExceptions{
+        List<Employee> employees = snapDAO.getAllEmployeesFromTeam(teamId, fileName);
+        double totalDailyRate = 0;
+        for(Employee employee : employees){
+            totalDailyRate += employeeBLL.calculateDailyRate(employee);
+        }
+
+        NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
+        nf.setMaximumFractionDigits(2);
+        nf.setMinimumFractionDigits(2);
+
+        try {
+            return nf.parse(nf.format(totalDailyRate)).doubleValue();
+        } catch (ParseException e) {
+            throw new BBExceptions("Error parsing total daily rate for team with ID '"
+                    + teamId + "' from snapshot '" + fileName + "' ", e);
+        }
     }
 
 }

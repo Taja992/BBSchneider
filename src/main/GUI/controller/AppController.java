@@ -185,7 +185,12 @@ public class AppController {
 
     private TabPane createTabPaneForSnapshot(String filename){
         TabPane snapTabPane = new TabPane();
-        List<Team> teams = snapshotModel.getAllTeamsInSnapshot(filename);
+        List<Team> teams = null;
+        try {
+            teams = snapshotModel.getAllTeamsInSnapshot(filename);
+        } catch (BBExceptions e) {
+            throw new RuntimeException(e);
+        }
 
         for (Team team: teams){
             Tab tab = new Tab(team.getName());

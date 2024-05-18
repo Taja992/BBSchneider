@@ -188,7 +188,7 @@ public class SnapshotDAO {
         }
     }//end of method
 
-    public List<Team> getAllTeamsInSnapshot(String fileName){
+    public List<Team> getAllTeamsInSnapshot(String fileName) throws BBExceptions {
         String filepath = folderPath + fileName;
         List<Team> allTeams = new ArrayList<>();
 
@@ -212,13 +212,14 @@ public class SnapshotDAO {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new BBExceptions("Error retrieving all teams in snapshot", e);
         }
 
 
         return allTeams;
 
     }
+
 
     public List<String> getAllSnapshotNames(){
         File folder = new File(folderPath.substring(12, folderPath.lastIndexOf('/')));
@@ -241,6 +242,7 @@ public class SnapshotDAO {
 
     }
 
+    //practically identical to the one in EmployeeDAO, but uses snapshot connection instead
     public List<Employee> getAllEmployeesFromTeam(int TeamId, String snapshotFile) throws BBExceptions {
         String filepath = folderPath + snapshotFile;
 
@@ -277,6 +279,28 @@ public class SnapshotDAO {
 
         return employees;
     }
+
+    /*
+    //gets the same team (if exists) in every snapshot (so doesn't get its current version)
+    public List<Team> getAllVersionsOfTeamOverTime(int teamId) throws BBExceptions {
+        List<Team> teams = new ArrayList<>();
+        List<String> allSnapshots = getAllSnapshotNames();
+
+        for(String snapName : allSnapshots){
+            try {
+                Connection con = DriverManager.getConnection(snapName);
+
+
+
+            } catch (SQLException e) {
+                throw new BBExceptions("error connecting to database snapshot '" + snapName + "' ", e);
+
+            }
+        }
+
+        return teams;
+    }
+     */
 
 
     public boolean doesFileExist(String fileName){
