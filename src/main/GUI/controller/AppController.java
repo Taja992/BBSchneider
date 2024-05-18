@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 
 public class AppController {
 
@@ -170,12 +171,12 @@ public class AppController {
     }
 
     private void createTabsForSnapshots(){
-        List<String> allSnapshots = snapshotModel.getAllSnapshotNames();
+        Map<String, String> allSnapshots = snapshotModel.getAllSnapshotNames();
 
-        for(String name : allSnapshots){
+        for(String name : allSnapshots.keySet()){
             //System.out.println(name);
             Tab tab = new Tab(name);
-            tab.setContent(createTabPaneForSnapshot(name));
+            tab.setContent(createTabPaneForSnapshot(allSnapshots.get(name)));
 
             snapshotTabPane.getTabs().add(tab);
         }

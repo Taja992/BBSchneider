@@ -25,19 +25,20 @@ public class SnapshotBLL {
         snapDAO.createNewSnapshotFile(finalFileName);
     }
 
-    public List<String> getAllSnapshotNames(){
-        /*
-        //this Map is so that we can have a clean display name on the tab but can still refence the original file
+    public Map<String, String> getAllSnapshotNames(){
+
+        //this Map is so that we can have a clean display name on the tab but can still reference the original file
         Map<String, String> snapshotMap = new HashMap<>();
         List<String> snapNames = snapDAO.getAllSnapshotNames();
         for(String name : snapNames){
-            String displayName = name.substring(13, name.lastIndexOf('.'));
+            //creating the display name (which will just be the date)
+            String displayName = name.substring(12, name.lastIndexOf('.'));
             displayName = displayName.replace("-", "/");
             snapshotMap.put(displayName, name);
+            //putting in the display name gets you the original file, which will be used to retrieve data
         }
-         */
 
-        return snapDAO.getAllSnapshotNames();
+        return snapshotMap;
     }
 
     public List<Employee> getAllEmployeesFromTeam(int teamId, String filename) throws BBExceptions {

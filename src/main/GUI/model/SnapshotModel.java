@@ -6,6 +6,7 @@ import BLL.SnapshotBLL;
 import Exceptions.BBExceptions;
 
 import java.util.List;
+import java.util.Map;
 
 public class SnapshotModel {
 
@@ -14,7 +15,7 @@ public class SnapshotModel {
     public void createSnapshotFile(String fileName){
         snapBLL.createSnapshotFile(fileName);
     }
-    public List<String> getAllSnapshotNames(){
+    public Map<String, String> getAllSnapshotNames(){
         return snapBLL.getAllSnapshotNames();
     }
 
