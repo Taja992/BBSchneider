@@ -334,6 +334,7 @@ public class TeamTable {
             } catch (BBExceptions e) {
                 showAlert("Error", e.getMessage());
             }
+            employeeModel.invalidateTeamUtilSumCache(employee.getId());
         });
     }
 

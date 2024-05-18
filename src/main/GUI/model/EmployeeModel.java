@@ -10,7 +10,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class EmployeeModel {
@@ -18,7 +20,7 @@ public class EmployeeModel {
     private final BooleanProperty countryAdded = new SimpleBooleanProperty(false);
     private final List<String> allCountries = FXCollections.observableArrayList();
     private final ObservableList<Employee> allEmployees;
-
+    private Map<Integer, BigDecimal> teamUtilSumCache = new HashMap<>();
 
     public EmployeeModel(){
         employeeBLL = new EmployeeBLL();
@@ -34,6 +36,14 @@ public class EmployeeModel {
         }
         //return our observable list
         return allEmployees;
+    }
+
+    public BigDecimal getTeamUtilSumCache(int employeeId) {
+        return teamUtilSumCache.get(employeeId);
+    }
+
+    public void setTeamUtilSumCache(int employeeId, BigDecimal value) {
+        teamUtilSumCache.put(employeeId, value);
     }
 
 
@@ -236,6 +246,21 @@ public class EmployeeModel {
 
     public BigDecimal getUtilizationForTeam(Employee employee, Team team) throws BBExceptions {
         return employeeBLL.getUtilizationForTeam(employee, team);
+    }
+
+//    public BigDecimal getUtilizationForTeam(Employee employee, Team team) throws BBExceptions {
+//        int employeeId = employee.getId();
+//        if (teamUtilizationCache.containsKey(employeeId)) {
+//            return teamUtilizationCache.get(employeeId);
+//        } else {
+//            BigDecimal teamUtilization = employeeBLL.updateTeamUtilForEmployee(team.getId(), employee.getId());
+//            teamUtilizationCache.put(employeeId, teamUtilization);
+//            return teamUtilization;
+//        }
+//    }
+
+    public void invalidateTeamUtilSumCache(int employeeId) {
+        teamUtilSumCache.remove(employeeId);
     }
 
     public void updateTeamIsOverheadForEmployee(int teamId, int employeeId, boolean isOverhead) throws BBExceptions {
