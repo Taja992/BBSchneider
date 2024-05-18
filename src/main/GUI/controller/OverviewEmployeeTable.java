@@ -285,25 +285,6 @@ public class OverviewEmployeeTable {
         });
     }
 
-//    private void populateTeamUtilizationSumColumn() {
-//        teamUtilColSum.setCellValueFactory(cellData -> {
-//            Employee employee = cellData.getValue();
-//            List<Team> teams = employee.getTeams();
-//            BigDecimal totalUtilization = BigDecimal.ZERO;
-//
-//            for (Team team : teams) {
-//                try {
-//                    BigDecimal teamUtilization = employeeModel.getUtilizationForTeam(employee, team);
-//                    totalUtilization = totalUtilization.add(teamUtilization);
-//                } catch (BBExceptions e) {
-//                    throw new RuntimeException(e);
-//                }
-//            }
-//
-//            return new SimpleObjectProperty<>(totalUtilization);
-//        });
-//    }
-
     private void populateTeamUtilizationSumColumn() {
         teamUtilColSum.setCellValueFactory(cellData -> {
             Employee employee = cellData.getValue();

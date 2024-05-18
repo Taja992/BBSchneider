@@ -248,17 +248,6 @@ public class EmployeeModel {
         return employeeBLL.getUtilizationForTeam(employee, team);
     }
 
-//    public BigDecimal getUtilizationForTeam(Employee employee, Team team) throws BBExceptions {
-//        int employeeId = employee.getId();
-//        if (teamUtilizationCache.containsKey(employeeId)) {
-//            return teamUtilizationCache.get(employeeId);
-//        } else {
-//            BigDecimal teamUtilization = employeeBLL.updateTeamUtilForEmployee(team.getId(), employee.getId());
-//            teamUtilizationCache.put(employeeId, teamUtilization);
-//            return teamUtilization;
-//        }
-//    }
-
     public void invalidateTeamUtilSumCache(int employeeId) {
         teamUtilSumCache.remove(employeeId);
     }
