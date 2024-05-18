@@ -1,6 +1,9 @@
 package DAL;
 
+import BE.Employee;
 import BE.Team;
+import Exceptions.BBExceptions;
+import javafx.collections.FXCollections;
 import org.sqlite.core.DB;
 
 import java.io.File;
@@ -14,7 +17,7 @@ public class SnapshotDAO {
 
     private ConnectionManager connectionManager;
 
-    private String folderPath = "jdbc:sqlite:src/resources/";
+    private final String folderPath = "jdbc:sqlite:src/resources/Snapshots/";
 
 
     public SnapshotDAO(){
@@ -27,7 +30,7 @@ public class SnapshotDAO {
             connectionManager = new ConnectionManager(false);
         }
 
-        getAllTeamsInSnapshot("Snapshot on 18-05-2024 04.35");
+        //getAllTeamsInSnapshot("Snapshot on 18-05-2024 04.35");
     }
 
     public void createNewSnapshotFile(String fileName){
@@ -186,7 +189,7 @@ public class SnapshotDAO {
     }//end of method
 
     public List<Team> getAllTeamsInSnapshot(String fileName){
-        String filepath = folderPath + fileName + ".db";
+        String filepath = folderPath + fileName;
         List<Team> allTeams = new ArrayList<>();
 
         try {
@@ -215,6 +218,64 @@ public class SnapshotDAO {
 
         return allTeams;
 
+    }
+
+    public List<String> getAllSnapshotNames(){
+        File folder = new File(folderPath.substring(12, folderPath.lastIndexOf('/')));
+        //getting file from folderpath (but removing the "jdbc:sqlite:" part)
+
+        List<String> fileNames = new ArrayList<>();
+
+        File[] files = folder.listFiles(); //getting all files
+        if(files != null){
+            //System.out.println("isn't null");
+            for (File file : files) {
+                if (file.isFile()) { //just in case there's a folder in there for some reason
+                    fileNames.add(file.getName());
+                }
+            }
+        }
+
+
+        return fileNames;
+
+    }
+
+    public List<Employee> getAllEmployeesFromTeam(int TeamId, String snapshotFile) throws BBExceptions {
+        String filepath = folderPath + snapshotFile;
+
+        List<Employee> employees = FXCollections.observableArrayList();
+
+        String sql = "SELECT Employee.*, Connection.Team_Util FROM Employee" +
+                " INNER JOIN Connection ON Employee.Employee_Id = Connection.Emp_Id" +
+                " WHERE Team_Id = ?";
+
+        try(Connection con = DriverManager.getConnection(filepath)){
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setInt(1, TeamId);
+
+            ResultSet rs = ps.executeQuery();
+
+            while(rs.next()){
+                Employee employee = new Employee();
+                employee.setId(rs.getInt("Employee_Id"));
+                employee.setName(rs.getString("Name"));
+                employee.setAnnualSalary(rs.getBigDecimal("AnnualSalary"));
+                employee.setOverheadMultiPercent(rs.getBigDecimal("OverheadMultiPercent"));
+                employee.setAnnualAmount(rs.getBigDecimal("AnnualAmount"));
+                employee.setCountry(rs.getString("Country"));
+                employee.setWorkingHours(rs.getInt("WorkingHours"));
+                employee.setUtilization(rs.getBigDecimal("Utilization"));
+                employee.setTeamUtil(rs.getBigDecimal("Team_Util")); // Set the utilization from the Connection table
+                employee.setIsOverheadCost(rs.getBoolean("isOverheadCost"));
+                employees.add(employee);
+            }
+
+        } catch (SQLException e){
+            throw new BBExceptions("Error retrieving all employees from team with ID " + TeamId, e);
+        }
+
+        return employees;
     }
 
 

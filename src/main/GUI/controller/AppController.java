@@ -2,7 +2,6 @@ package GUI.controller;
 
 import BE.Employee;
 import BE.Team;
-import DAL.SnapshotDAO;
 import Exceptions.BBExceptions;
 import GUI.model.EmployeeModel;
 import GUI.model.SnapshotModel;
@@ -21,11 +20,14 @@ import javafx.scene.control.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 public class AppController {
 
 
 
+    @FXML
+    private TabPane snapshotTabPane;
     @FXML
     private LineChart<String, Number> lineChart;
     //--------------------------------------
@@ -124,6 +126,7 @@ public class AppController {
        countryRatesListener();
        selectTeamOnStart();
        selectFirstEmployee();
+       createTabsForSnapshots();
    }
 
    public void selectFirstEmployee() {
@@ -166,6 +169,39 @@ public class AppController {
 
     }
 
+    private void createTabsForSnapshots(){
+        List<String> allSnapshots = snapshotModel.getAllSnapshotNames();
+
+        for(String name : allSnapshots){
+            //System.out.println(name);
+            Tab tab = new Tab(name);
+            tab.setContent(createTabPaneForSnapshot(name));
+
+            snapshotTabPane.getTabs().add(tab);
+        }
+
+    }
+
+    private TabPane createTabPaneForSnapshot(String filename){
+        TabPane snapTabPane = new TabPane();
+        List<Team> teams = snapshotModel.getAllTeamsInSnapshot(filename);
+
+        for (Team team: teams){
+            Tab tab = new Tab(team.getName());
+            tab.setUserData(team);
+            tab.setClosable(false);
+            ObservableList<Employee> employeesInTeam = null;
+            try {
+                employeesInTeam = (ObservableList<Employee>) snapshotModel.getAllEmployeesFromTeam(team.getId(), filename);
+            } catch (BBExceptions e) {
+                throw new RuntimeException(e);
+            }
+            tab.setContent(teamTable.createTableForTeam(team, employeesInTeam));
+            snapTabPane.getTabs().add(tab);
+            teamTable.makeTeamTabTitleEditable(tab);
+        }
+        return snapTabPane;
+    }
 
 
 
