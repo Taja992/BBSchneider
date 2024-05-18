@@ -160,8 +160,14 @@
                               <Label text="History" />
                               <TabPane fx:id="snapshotTabPane" minHeight="225.0" prefHeight="225.0" styleClass="teamTabPane" />
                            </children>
+                           <padding>
+                              <Insets left="15.0" right="15.0" />
+                           </padding>
                         </VBox>
                      </center>
+                     <padding>
+                        <Insets top="25.0" />
+                     </padding>
                   </BorderPane>
                   <LineChart fx:id="lineChart" maxHeight="300.0" minHeight="250.0" prefHeight="300.0" VBox.vgrow="NEVER">
                     <xAxis>
