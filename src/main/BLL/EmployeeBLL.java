@@ -4,6 +4,8 @@ import BE.Employee;
 import BE.Team;
 import DAL.EmployeeDAO;
 import Exceptions.BBExceptions;
+import javafx.scene.control.Alert;
+
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -61,12 +63,25 @@ public class EmployeeBLL {
     ////////////////////////////////////////////////////////
 
     private double calculateRate(Employee selectedEmployee) {
-        double annualSalary = selectedEmployee.getAnnualSalary().doubleValue();
-        double overheadMultiplier = selectedEmployee.getOverheadMultiPercent().doubleValue() / 100; // convert to decimal
-        double fixedAnnualAmount = selectedEmployee.getAnnualAmount().doubleValue();
-        double utilizationPercentage = selectedEmployee.getUtilization().doubleValue() / 100; // convert to decimal
-        double annualEffectiveWorkingHours = selectedEmployee.getWorkingHours();
-        return ((annualSalary + fixedAnnualAmount) * (1 + overheadMultiplier)) / (annualEffectiveWorkingHours * utilizationPercentage);
+        if (selectedEmployee != null) {
+            double annualSalary = selectedEmployee.getAnnualSalary().doubleValue();
+            double overheadMultiplier = selectedEmployee.getOverheadMultiPercent().doubleValue() / 100; // convert to decimal
+            double fixedAnnualAmount = selectedEmployee.getAnnualAmount().doubleValue();
+            double utilizationPercentage = selectedEmployee.getUtilization().doubleValue() / 100; // convert to decimal
+            double annualEffectiveWorkingHours = selectedEmployee.getWorkingHours();
+            return ((annualSalary + fixedAnnualAmount) * (1 + overheadMultiplier)) / (annualEffectiveWorkingHours * utilizationPercentage);
+        } else {
+            return alertSelectEmployee();
+        }
+    }
+
+    private double alertSelectEmployee() {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText("No employee selected");
+        alert.setContentText("Please select an employee to calculate the rate");
+        alert.showAndWait();
+        return 0;
     }
 
     public Double calculateHourlyRate(Employee selectedEmployee) throws BBExceptions {
