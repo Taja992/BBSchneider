@@ -67,10 +67,10 @@ public class OverviewEmployeeTable {
         this.overviewEmployeeTblView = overviewEmployeeTblView;
         this.addEmployeeBtn = addEmployeeBtn;
 
-        addEmployeeBtn.setOnAction(this::addEmployeeBtn2);
+        addEmployeeBtn.setOnAction(this::addEmployeeBtn);
     }
 
-    private void addEmployeeBtn2(ActionEvent actionEvent) {
+    private void addEmployeeBtn(ActionEvent actionEvent) {
         Employee newEmployee = new Employee();
         newEmployee.setName("New Employee");
         newEmployee.setOverheadMultiPercent(BigDecimal.ZERO);
