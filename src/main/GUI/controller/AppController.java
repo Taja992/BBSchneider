@@ -8,6 +8,7 @@ import GUI.model.SnapshotModel;
 import GUI.model.TeamModel;
 import com.jfoenix.controls.JFXToggleButton;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -17,8 +18,11 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -162,26 +166,35 @@ public class AppController {
 
         LocalDateTime currentDate = LocalDateTime.now();
 
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy HH.mm");
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
         //System.out.println(currentDate.format(format));
         snapshotModel.createSnapshotFile("Snapshot on " + currentDate.format(format));
 
     }
 
+    //creates the tabs for each snapshot
     private void createTabsForSnapshots(){
         Map<String, String> allSnapshots = snapshotModel.getAllSnapshotNames();
+        //snapshotTabPane.getStyleClass().add(".snapShotTabPane");
 
         for(String name : allSnapshots.keySet()){
             //System.out.println(name);
             Tab tab = new Tab(name);
+            tab.setClosable(false);
+            tab.setId(name);
+            //tab.getStyleClass().add(".snapShotTabPane");
             tab.setContent(createTabPaneForSnapshot(allSnapshots.get(name)));
 
             snapshotTabPane.getTabs().add(tab);
+            //System.out.println(tab.getId());
         }
+        orderSnapshotTabs();
+
 
     }
 
+    //creates the content inside each snapshot tab (the tabpane including all the teams)
     private TabPane createTabPaneForSnapshot(String filename){
         TabPane snapTabPane = new TabPane();
         List<Team> teams = null;
@@ -201,11 +214,66 @@ public class AppController {
             } catch (BBExceptions e) {
                 throw new RuntimeException(e);
             }
-            tab.setContent(teamTable.createTableForTeam(team, employeesInTeam));
+            TableView<Employee> content = teamTable.createTableForTeam(team, employeesInTeam);
+
+            TableColumn<Employee, Boolean> teamOverheadCol = (TableColumn<Employee, Boolean>) content.getColumns().get(7);
+            makeOverheadColumnNotEditable(teamOverheadCol);
+            tab.setContent(content);
             snapTabPane.getTabs().add(tab);
-            teamTable.makeTeamTabTitleEditable(tab);
+
         }
+
         return snapTabPane;
+    }
+
+    private void makeOverheadColumnNotEditable(TableColumn<Employee, Boolean> Col){
+        Col.setCellValueFactory(cellData -> new SimpleBooleanProperty(cellData.getValue().getIsTeamIsOverhead()));
+
+        Col.setCellFactory(column -> new TableCell<Employee, Boolean>() {
+            private final CheckBox checkBox = new CheckBox();
+
+            @Override
+            protected void updateItem(Boolean item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+
+                    Employee employee = getTableView().getItems().get(getIndex());
+                    checkBox.setSelected(employee.getIsTeamIsOverhead());
+                    checkBox.setDisable(true);
+                    setGraphic(checkBox);
+                }
+            }
+        });
+    }
+
+    private void orderSnapshotTabs(){
+        ObservableList<Tab> allTabs = snapshotTabPane.getTabs();
+
+        allTabs.sort((tab1, tab2) ->{
+
+            String tab1Name = tab1.getId();
+            String tab2Name = tab2.getId();
+
+            //remove the "(2)" in case this is a duplicate file
+            if(tab1Name.contains("(")){
+                tab1Name = tab1Name.substring(0, tab1Name.indexOf('(') - 1);
+            }
+            if(tab2Name.contains("(")){
+                tab2Name = tab2Name.substring(0, tab2Name.indexOf('(') - 1);
+            }
+
+            DateTimeFormatter parser = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            LocalDate date1 = LocalDate.parse(tab1Name, parser);
+
+
+            LocalDate date2 = LocalDate.parse(tab2Name, parser);
+
+
+            return date1.compareTo(date2);
+        });
+
     }
 
 
