@@ -38,13 +38,6 @@ public class EmployeeModel {
         return allEmployees;
     }
 
-    public BigDecimal getTeamUtilSumCache(int employeeId) {
-        return teamUtilSumCache.get(employeeId);
-    }
-
-    public void setTeamUtilSumCache(int employeeId, BigDecimal value) {
-        teamUtilSumCache.put(employeeId, value);
-    }
 
 
     public ObservableList<Employee> getAllEmployeesFromTeam(int TeamId) {
@@ -250,6 +243,14 @@ public class EmployeeModel {
 
     public void invalidateTeamUtilSumCache(int employeeId) {
         teamUtilSumCache.remove(employeeId);
+    }
+
+    public BigDecimal getTeamUtilSumCache(int employeeId) {
+        return teamUtilSumCache.get(employeeId);
+    }
+
+    public void setTeamUtilSumCache(int employeeId, BigDecimal value) {
+        teamUtilSumCache.put(employeeId, value);
     }
 
     public void updateTeamIsOverheadForEmployee(int teamId, int employeeId, boolean isOverhead) throws BBExceptions {
