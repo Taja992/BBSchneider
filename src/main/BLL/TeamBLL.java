@@ -2,6 +2,7 @@ package BLL;
 
 import BE.Employee;
 import BE.Team;
+import DAL.EmployeeDAO;
 import DAL.TeamDAO;
 import Exceptions.BBExceptions;
 import java.text.NumberFormat;
@@ -13,6 +14,7 @@ public class TeamBLL {
 
     TeamDAO teamDAO = new TeamDAO();
     EmployeeBLL employeeBLL = new EmployeeBLL();
+    EmployeeDAO employeeDAO = new EmployeeDAO();
 
     public List<Team> getAllTeams() throws BBExceptions {
         return teamDAO.getAllTeams();
@@ -34,15 +36,19 @@ public class TeamBLL {
             return teamDAO.getTeamsForEmployee(employeeId);
     }
 
+
     ////////////////////////////////////////////////////////
     /////////////////Calculation Logic//////////////////////
     ////////////////////////////////////////////////////////
 
     public Double calculateTotalHourlyRate(int teamId) throws BBExceptions{
-        List<Employee> employees = employeeBLL.getAllEmployeesFromTeam(teamId);
+        List<Employee> employees = employeeDAO.getEmployeesWithOverheadStatus(teamId);
         double totalHourlyRate = 0;
         for(Employee employee : employees){
-            totalHourlyRate += employeeBLL.calculateHourlyRate(employee);
+            if (!employee.getTeamOverhead()) {  // Only calculate the hourly rate for non-overhead employees
+                double hourlyRate = employeeBLL.calculateHourlyRate(employee);
+                totalHourlyRate += hourlyRate;
+            }
         }
 
         NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
@@ -57,10 +63,13 @@ public class TeamBLL {
     }
 
     public Double calculateTotalDailyRate(int teamId) throws BBExceptions{
-        List<Employee> employees = employeeBLL.getAllEmployeesFromTeam(teamId);
+        List<Employee> employees = employeeDAO.getEmployeesWithOverheadStatus(teamId);
         double totalDailyRate = 0;
         for(Employee employee : employees){
-            totalDailyRate += employeeBLL.calculateDailyRate(employee);
+            if (!employee.getTeamOverhead()) {  // Only calculate the daily rate for non-overhead employees
+                double dailyRate = employeeBLL.calculateDailyRate(employee);
+                totalDailyRate += dailyRate;
+            }
         }
 
         NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);

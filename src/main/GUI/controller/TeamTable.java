@@ -19,7 +19,6 @@ import javafx.scene.layout.StackPane;
 import javafx.util.converter.BigDecimalStringConverter;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
-import java.util.List;
 
 
 public class TeamTable {
@@ -29,13 +28,15 @@ public class TeamTable {
     private TabPane teamTabPane;
     private final Button addTeamBtn;
     private final OverviewEmployeeTable overviewEmployeeTable;
+    private final AppController appController;
 
-    public TeamTable(EmployeeModel employeeModel, TeamModel teamModel, TabPane teamTabPane, Button addTeamBtn, OverviewEmployeeTable overviewEmployeeTable) {
+    public TeamTable(EmployeeModel employeeModel, TeamModel teamModel, TabPane teamTabPane, Button addTeamBtn, OverviewEmployeeTable overviewEmployeeTable, AppController appController) {
         this.employeeModel = employeeModel;
         this.teamModel = teamModel;
         this.teamTabPane = teamTabPane;
         this.overviewEmployeeTable = overviewEmployeeTable;
         this.addTeamBtn = addTeamBtn;
+        this.appController = appController;
 
         addTeamBtn.setOnAction(this::addTeam);
     }
@@ -228,6 +229,7 @@ public class TeamTable {
                 if (team != null) {
                     try {
                         employeeModel.addEmployeeToTeam(draggedEmployee, team);
+                        appController.calculateTeamRates(team.getId());
                     } catch (BBExceptions e) {
                         throw new RuntimeException(e);
                     }
@@ -297,7 +299,7 @@ public class TeamTable {
     /////////////////////Format and Editing///////////////////////////
 
     public void makeOverheadEditable(TableColumn<Employee, Boolean> teamOverHeadCol, Team team) {
-        teamOverHeadCol.setCellValueFactory(cellData -> new SimpleBooleanProperty(cellData.getValue().getIsTeamIsOverhead()));
+        teamOverHeadCol.setCellValueFactory(cellData -> new SimpleBooleanProperty(cellData.getValue().getTeamOverhead()));
         teamOverHeadCol.setCellFactory(column -> new TableCell<Employee, Boolean>() {
             private final CheckBox checkBox = new CheckBox();
 
@@ -309,12 +311,13 @@ public class TeamTable {
                 } else {
                     setGraphic(checkBox);
                     Employee employee = getTableView().getItems().get(getIndex());
-                    checkBox.setSelected(employee.getIsTeamIsOverhead());
+                    checkBox.setSelected(employee.getTeamOverhead());
                     //we use setOnAction with the checkbox to make it listen if there is a change
                     checkBox.setOnAction(e -> {
-                        employee.setTeamIsOverhead(checkBox.isSelected());
+                        employee.setTeamOverhead(checkBox.isSelected());
                         try {
                             employeeModel.updateTeamIsOverheadForEmployee(team.getId(), employee.getId(), checkBox.isSelected());
+                            appController.calculateTeamRates(team.getId());
                         } catch (BBExceptions ex) {
                             showAlert("Error", ex.getMessage());
                         }
