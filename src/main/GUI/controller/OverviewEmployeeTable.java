@@ -51,6 +51,7 @@ public class OverviewEmployeeTable {
 
 
 
+
     public OverviewEmployeeTable (EmployeeModel employeeModel, TeamModel teamModel,
                                   TableColumn<Employee, String> nameCol, TableColumn<Employee, String> teamCol, TableColumn<Employee, BigDecimal> annualSalaryCol,
                                   TableColumn<Employee, BigDecimal> overHeadMultiCol, TableColumn<Employee, BigDecimal> annualAmountCol,
@@ -287,19 +288,25 @@ public class OverviewEmployeeTable {
     private void populateTeamUtilizationSumColumn() {
         teamUtilColSum.setCellValueFactory(cellData -> {
             Employee employee = cellData.getValue();
-            List<Team> teams = employee.getTeams();
-            BigDecimal totalUtilization = BigDecimal.ZERO;
+            int employeeId = employee.getId();
+            if (employeeModel.getTeamUtilSumCache(employeeId) != null) {
+                return new SimpleObjectProperty<>(employeeModel.getTeamUtilSumCache(employeeId));
+            } else {
+                List<Team> teams = employee.getTeams();
+                BigDecimal totalUtilization = BigDecimal.ZERO;
 
-            for (Team team : teams) {
-                try {
-                    BigDecimal teamUtilization = employeeModel.getUtilizationForTeam(employee, team);
-                    totalUtilization = totalUtilization.add(teamUtilization);
-                } catch (BBExceptions e) {
-                    throw new RuntimeException(e);
+                for (Team team : teams) {
+                    try {
+                        BigDecimal teamUtilization = employeeModel.getUtilizationForTeam(employee, team);
+                        totalUtilization = totalUtilization.add(teamUtilization);
+                    } catch (BBExceptions e) {
+                        throw new RuntimeException(e);
+                    }
                 }
-            }
 
-            return new SimpleObjectProperty<>(totalUtilization);
+                employeeModel.setTeamUtilSumCache(employeeId, totalUtilization);
+                return new SimpleObjectProperty<>(totalUtilization);
+            }
         });
     }
 

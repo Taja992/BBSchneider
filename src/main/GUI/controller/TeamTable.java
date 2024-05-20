@@ -19,7 +19,7 @@ import javafx.scene.layout.StackPane;
 import javafx.util.converter.BigDecimalStringConverter;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
-
+import java.util.List;
 
 
 public class TeamTable {
@@ -52,7 +52,8 @@ public class TeamTable {
             Tab tab = new Tab(newTeam.getName());
             tab.setUserData(newTeam); //So our new tab carries the team data
             tab.setClosable(false);
-            tab.setContent(createTableForTeam(newTeam));
+            ObservableList<Employee> employeesInTeam = employeeModel.getAllEmployeesFromTeam(newTeam.getId());
+            tab.setContent(createTableForTeam(newTeam, employeesInTeam));
             teamTabPane.getTabs().add(tab);
             makeTeamTabTitleEditable(tab);
 
@@ -68,7 +69,8 @@ public class TeamTable {
             Tab tab = new Tab(team.getName()); //create a new tab for that team
             tab.setUserData(team);
             tab.setClosable(false);
-            tab.setContent(createTableForTeam(team)); //adds a table with the employees from team to the tab
+            ObservableList<Employee> employeesInTeam = employeeModel.getAllEmployeesFromTeam(team.getId());
+            tab.setContent(createTableForTeam(team, employeesInTeam)); //adds a table with the employees from team to the tab
             teamTabPane.getTabs().add(tab); //add that tab to TabPane
             makeTeamTabTitleEditable(tab); // make the tab title editable
         }
@@ -101,7 +103,7 @@ public class TeamTable {
         });
     }
 
-    private TableView<Employee> createTableForTeam(Team team){
+    public TableView<Employee> createTableForTeam(Team team, ObservableList<Employee> data){
         //creating table and its columns and adding columns to table
         TableView<Employee> teamTblView = new TableView<>();
         teamTblView.setUserData(team);
@@ -161,10 +163,10 @@ public class TeamTable {
 
 
         // Get the list of employees for the team
-        ObservableList<Employee> employeesInTeam = employeeModel.getAllEmployeesFromTeam(team.getId());
+        //ObservableList<Employee> employeesInTeam = employeeModel.getAllEmployeesFromTeam(team.getId());
         //enabling editing in table
         teamTblView.setEditable(true);
-        teamTblView.setItems(employeesInTeam);
+        teamTblView.setItems(data);
 
         dragAndDrop(teamTblView);
         contextMenu(teamTblView, team);
@@ -332,6 +334,7 @@ public class TeamTable {
             } catch (BBExceptions e) {
                 showAlert("Error", e.getMessage());
             }
+            employeeModel.invalidateTeamUtilSumCache(employee.getId());
         });
     }
 

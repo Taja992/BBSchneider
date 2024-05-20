@@ -158,4 +158,8 @@ public class EmployeeBLL {
     public double calculateMarkUp(double markupValue){
         return 1 + (markupValue / 100);
     }
+
+    public double calculateGrossMargin(double grossMarginValue) {
+        return 1 + (grossMarginValue / 100);
+    }
 }
