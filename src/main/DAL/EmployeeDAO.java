@@ -86,7 +86,7 @@ EmployeeDAO {
                     employee.setWorkingHours(rs.getInt("WorkingHours"));
                     employee.setUtilization(rs.getBigDecimal("Utilization"));
                     employee.setTeamUtil(rs.getBigDecimal("Team_Util"));
-                    employee.setTeamIsOverhead(rs.getBoolean("TeamIsOverhead"));
+                    employee.setTeamOverhead(rs.getBoolean("TeamIsOverhead"));
                     employee.setIsOverheadCost(rs.getBoolean("isOverheadCost"));
                     //we add the new employee into our hashmap
                     hashMapEmployees.put(employeeId, employee);
@@ -270,5 +270,41 @@ EmployeeDAO {
         } catch (SQLException e) {
             throw new BBExceptions("Error retrieving utilization for employee in team", e);
         }
+    }
+
+    public List<Employee> getEmployeesWithOverheadStatus(int teamId) throws BBExceptions {
+        List<Employee> employees = new ArrayList<>();
+
+        String sql = "SELECT E.*, C.TeamIsOverhead FROM Employee E " +
+                "INNER JOIN Connection C ON E.Employee_Id = C.Emp_Id " +
+                "WHERE C.Team_Id = ?";
+
+        try (Connection connection = connectionManager.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)) {
+
+            ps.setInt(1, teamId);
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Employee employee = new Employee();
+                employee.setId(rs.getInt("Employee_Id"));
+                employee.setName(rs.getString("Name"));
+                employee.setAnnualSalary(rs.getBigDecimal("AnnualSalary"));
+                employee.setOverheadMultiPercent(rs.getBigDecimal("OverheadMultiPercent"));
+                employee.setAnnualAmount(rs.getBigDecimal("AnnualAmount"));
+                employee.setCountry(rs.getString("Country"));
+                employee.setWorkingHours(rs.getInt("WorkingHours"));
+                employee.setUtilization(rs.getBigDecimal("Utilization"));
+                employee.setIsOverheadCost(rs.getBoolean("isOverheadCost"));
+                employee.setTeamOverhead(rs.getBoolean("TeamIsOverhead"));
+
+                employees.add(employee);
+            }
+        } catch (SQLException e) {
+            throw new BBExceptions("Error retrieving employees for team with ID " + teamId, e);
+        }
+
+        return employees;
     }
 }

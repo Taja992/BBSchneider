@@ -135,11 +135,11 @@ public class Employee {
         return teamNames.toString();
     }
 
-    public boolean getIsTeamIsOverhead() {
+    public boolean getTeamOverhead() {
         return teamIsOverhead;
     }
 
-    public void setTeamIsOverhead(boolean teamIsOverhead) {
+    public void setTeamOverhead(boolean teamIsOverhead) {
         this.teamIsOverhead = teamIsOverhead;
     }
 

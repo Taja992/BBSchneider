@@ -109,7 +109,7 @@ public class AppController {
 
        this.overviewEmployeeTable.initialize();
 
-       this.teamTable = new TeamTable(employeeModel, teamModel, teamTabPane, addTeamBtn, overviewEmployeeTable);
+       this.teamTable = new TeamTable(employeeModel, teamModel, teamTabPane, addTeamBtn, overviewEmployeeTable, this);
 
        this.teamTable.initialize();
 
@@ -344,7 +344,7 @@ public class AppController {
       }
     }
 
-    private void calculateTeamRates(int teamId) {
+    void calculateTeamRates(int teamId) {
     try {
         double hourlyRate = teamModel.calculateTotalHourlyRate(teamId);
         double dailyRate = teamModel.calculateTotalDailyRate(teamId);
