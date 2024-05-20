@@ -12,8 +12,8 @@ public class SnapshotModel {
 
     private SnapshotBLL snapBLL = new SnapshotBLL();
 
-    public void createSnapshotFile(String fileName){
-        snapBLL.createSnapshotFile(fileName);
+    public String createSnapshotFile(String fileName){
+        return snapBLL.createSnapshotFile(fileName);
     }
     public Map<String, String> getAllSnapshotNames(){
         return snapBLL.getAllSnapshotNames();
