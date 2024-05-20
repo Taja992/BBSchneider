@@ -269,7 +269,7 @@ public class SnapshotDAO {
                 employee.setWorkingHours(rs.getInt("WorkingHours"));
                 employee.setUtilization(rs.getBigDecimal("Utilization"));
                 employee.setTeamUtil(rs.getBigDecimal("Team_Util")); // Set the utilization from the Connection table
-                employee.setTeamIsOverhead(rs.getBoolean("TeamIsOverhead"));
+                employee.setTeamOverhead(rs.getBoolean("TeamIsOverhead"));
                 employee.setIsOverheadCost(rs.getBoolean("isOverheadCost"));
                 employees.add(employee);
             }

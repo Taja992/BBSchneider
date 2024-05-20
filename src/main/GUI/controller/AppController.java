@@ -237,7 +237,7 @@ public class AppController {
     }
 
     private void makeOverheadColumnNotEditable(TableColumn<Employee, Boolean> Col){
-        Col.setCellValueFactory(cellData -> new SimpleBooleanProperty(cellData.getValue().getIsTeamIsOverhead()));
+        Col.setCellValueFactory(cellData -> new SimpleBooleanProperty(cellData.getValue().getTeamOverhead()));
 
         Col.setCellFactory(column -> new TableCell<Employee, Boolean>() {
             private final CheckBox checkBox = new CheckBox();
@@ -250,7 +250,7 @@ public class AppController {
                 } else {
 
                     Employee employee = getTableView().getItems().get(getIndex());
-                    checkBox.setSelected(employee.getIsTeamIsOverhead());
+                    checkBox.setSelected(employee.getTeamOverhead());
                     checkBox.setDisable(true);
                     setGraphic(checkBox);
                 }
@@ -266,22 +266,22 @@ public class AppController {
             String tab1Name = tab1.getId();
             String tab2Name = tab2.getId();
 
-            //remove the "(2)" in case this is a duplicate file
-            if(tab1Name.contains("(")){
-                tab1Name = tab1Name.substring(0, tab1Name.indexOf('(') - 1);
+            //if either name contains "(2)" in case this is a duplicate file
+            if(tab1Name.contains("(") || tab2Name.contains("(")){
+                return tab1Name.compareTo(tab2Name); //compare them as strings if can't compare as date
+
+            } else {
+                DateTimeFormatter parser = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                LocalDate date1 = LocalDate.parse(tab1Name, parser);
+
+
+                LocalDate date2 = LocalDate.parse(tab2Name, parser);
+
+
+                return date1.compareTo(date2);
             }
-            if(tab2Name.contains("(")){
-                tab2Name = tab2Name.substring(0, tab2Name.indexOf('(') - 1);
-            }
-
-            DateTimeFormatter parser = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-            LocalDate date1 = LocalDate.parse(tab1Name, parser);
 
 
-            LocalDate date2 = LocalDate.parse(tab2Name, parser);
-
-
-            return date1.compareTo(date2);
         });
 
     }
