@@ -23,11 +23,7 @@ import javafx.util.converter.BigDecimalStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 
 public class OverviewEmployeeTable {
@@ -45,8 +41,6 @@ public class OverviewEmployeeTable {
     private final EmployeeModel employeeModel;
     private final TeamModel teamModel;
     private final TableColumn<Employee, BigDecimal> teamUtilColSum;
-    private Map<Integer, BigDecimal> totalUtilizationCache = new HashMap<>();
-    private ExecutorService executorService = Executors.newFixedThreadPool(4);
     private Button addEmployeeBtn;
 
 
