@@ -1,15 +1,23 @@
 package DAL;
 
+import BE.Employee;
+import BE.Team;
+import Exceptions.BBExceptions;
+import javafx.collections.FXCollections;
 import org.sqlite.core.DB;
 
 import java.io.File;
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SnapshotDAO {
 
     private ConnectionManager connectionManager;
 
-    private String folderPath = "jdbc:sqlite:src/resources/";
+    private final String folderPath = "jdbc:sqlite:src/resources/Snapshots/";
 
 
     public SnapshotDAO(){
@@ -21,6 +29,8 @@ public class SnapshotDAO {
         } catch (SQLException e) {
             connectionManager = new ConnectionManager(false);
         }
+
+        //getAllTeamsInSnapshot("Snapshot on 18-05-2024 04.35");
     }
 
     public void createNewSnapshotFile(String fileName){
@@ -177,6 +187,120 @@ public class SnapshotDAO {
 
         }
     }//end of method
+
+    public List<Team> getAllTeamsInSnapshot(String fileName) throws BBExceptions {
+        String filepath = folderPath + fileName;
+        List<Team> allTeams = new ArrayList<>();
+
+        try {
+            Connection con = DriverManager.getConnection(filepath);
+
+            String sql = "SELECT * FROM Team";
+
+            PreparedStatement ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()){
+
+                int teamId = rs.getInt(1);
+                String teamName = rs.getString(2);
+
+                Team team = new Team(teamId, teamName);
+
+                allTeams.add(team);
+
+            }
+
+        } catch (SQLException e) {
+            throw new BBExceptions("Error retrieving all teams in snapshot", e);
+        }
+
+
+        return allTeams;
+
+    }
+
+
+    public List<String> getAllSnapshotNames(){
+        File folder = new File(folderPath.substring(12, folderPath.lastIndexOf('/')));
+        //getting file from folderpath (but removing the "jdbc:sqlite:" part)
+
+        List<String> fileNames = new ArrayList<>();
+
+        File[] files = folder.listFiles(); //getting all files
+        if(files != null){
+            //System.out.println("isn't null");
+            for (File file : files) {
+                if (file.isFile()) { //just in case there's a folder in there for some reason
+                    fileNames.add(file.getName());
+                }
+            }
+        }
+
+
+        return fileNames;
+
+    }
+
+    //practically identical to the one in EmployeeDAO, but uses snapshot connection instead
+    public List<Employee> getAllEmployeesFromTeam(int TeamId, String snapshotFile) throws BBExceptions {
+        String filepath = folderPath + snapshotFile;
+
+        List<Employee> employees = FXCollections.observableArrayList();
+
+        String sql = "SELECT Employee.*, Connection.Team_Util FROM Employee" +
+                " INNER JOIN Connection ON Employee.Employee_Id = Connection.Emp_Id" +
+                " WHERE Team_Id = ?";
+
+        try(Connection con = DriverManager.getConnection(filepath)){
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setInt(1, TeamId);
+
+            ResultSet rs = ps.executeQuery();
+
+            while(rs.next()){
+                Employee employee = new Employee();
+                employee.setId(rs.getInt("Employee_Id"));
+                employee.setName(rs.getString("Name"));
+                employee.setAnnualSalary(rs.getBigDecimal("AnnualSalary"));
+                employee.setOverheadMultiPercent(rs.getBigDecimal("OverheadMultiPercent"));
+                employee.setAnnualAmount(rs.getBigDecimal("AnnualAmount"));
+                employee.setCountry(rs.getString("Country"));
+                employee.setWorkingHours(rs.getInt("WorkingHours"));
+                employee.setUtilization(rs.getBigDecimal("Utilization"));
+                employee.setTeamUtil(rs.getBigDecimal("Team_Util")); // Set the utilization from the Connection table
+                employee.setIsOverheadCost(rs.getBoolean("isOverheadCost"));
+                employees.add(employee);
+            }
+
+        } catch (SQLException e){
+            throw new BBExceptions("Error retrieving all employees from team with ID " + TeamId, e);
+        }
+
+        return employees;
+    }
+
+    /*
+    //gets the same team (if exists) in every snapshot (so doesn't get its current version)
+    public List<Team> getAllVersionsOfTeamOverTime(int teamId) throws BBExceptions {
+        List<Team> teams = new ArrayList<>();
+        List<String> allSnapshots = getAllSnapshotNames();
+
+        for(String snapName : allSnapshots){
+            try {
+                Connection con = DriverManager.getConnection(snapName);
+
+
+
+            } catch (SQLException e) {
+                throw new BBExceptions("error connecting to database snapshot '" + snapName + "' ", e);
+
+            }
+        }
+
+        return teams;
+    }
+     */
 
 
     public boolean doesFileExist(String fileName){

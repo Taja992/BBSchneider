@@ -19,7 +19,7 @@ import javafx.scene.layout.StackPane;
 import javafx.util.converter.BigDecimalStringConverter;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
-
+import java.util.List;
 
 
 public class TeamTable {
@@ -52,12 +52,13 @@ public class TeamTable {
             Tab tab = new Tab(newTeam.getName());
             tab.setUserData(newTeam); //So our new tab carries the team data
             tab.setClosable(false);
-            tab.setContent(createTableForTeam(newTeam));
+            ObservableList<Employee> employeesInTeam = employeeModel.getAllEmployeesFromTeam(newTeam.getId());
+            tab.setContent(createTableForTeam(newTeam, employeesInTeam));
             teamTabPane.getTabs().add(tab);
             makeTeamTabTitleEditable(tab);
 
         } catch (BBExceptions e) {
-            e.printStackTrace();
+            showAlert("Error", e.getMessage());
         }
     }
 
@@ -68,7 +69,8 @@ public class TeamTable {
             Tab tab = new Tab(team.getName()); //create a new tab for that team
             tab.setUserData(team);
             tab.setClosable(false);
-            tab.setContent(createTableForTeam(team)); //adds a table with the employees from team to the tab
+            ObservableList<Employee> employeesInTeam = employeeModel.getAllEmployeesFromTeam(team.getId());
+            tab.setContent(createTableForTeam(team, employeesInTeam)); //adds a table with the employees from team to the tab
             teamTabPane.getTabs().add(tab); //add that tab to TabPane
             makeTeamTabTitleEditable(tab); // make the tab title editable
         }
@@ -101,7 +103,7 @@ public class TeamTable {
         });
     }
 
-    private TableView<Employee> createTableForTeam(Team team){
+    public TableView<Employee> createTableForTeam(Team team, ObservableList<Employee> data){
         //creating table and its columns and adding columns to table
         TableView<Employee> teamTblView = new TableView<>();
         teamTblView.setUserData(team);
@@ -159,16 +161,41 @@ public class TeamTable {
         editUtilization(teamUtilCol, team);
         makeOverheadEditable(teamOverHeadCol, team);
 
+
         // Get the list of employees for the team
-        ObservableList<Employee> employeesInTeam = employeeModel.getAllEmployeesFromTeam(team.getId());
+        //ObservableList<Employee> employeesInTeam = employeeModel.getAllEmployeesFromTeam(team.getId());
         //enabling editing in table
         teamTblView.setEditable(true);
-        teamTblView.setItems(employeesInTeam);
+        teamTblView.setItems(data);
 
         dragAndDrop(teamTblView);
+        contextMenu(teamTblView, team);
 
         return teamTblView;
     }
+
+    private void contextMenu(TableView<Employee> teamTblView, Team team) {
+        //creating context menu
+        ContextMenu contextMenu = new ContextMenu();
+        MenuItem deleteItem = new MenuItem("Remove");
+        deleteItem.setOnAction(event -> {
+            Employee selectedEmployee = teamTblView.getSelectionModel().getSelectedItem();
+            if (selectedEmployee != null) {
+                try {
+                    employeeModel.removeEmployeeFromTeam(selectedEmployee.getId(), team.getId());
+                } catch (BBExceptions e) {
+                    showAlert("Error", e.getMessage());
+                }
+            }
+        });
+        contextMenu.getItems().add(deleteItem);
+        teamTblView.setContextMenu(contextMenu);
+    }
+
+
+
+
+
 
     private void dragAndDrop(TableView<Employee> teamTblView) {
         teamTblView.setOnDragOver(event -> {
@@ -242,23 +269,21 @@ public class TeamTable {
             }
         });
 
-//        // When the text field loses focus, save the new title, hide the text field, and update the team name in the database
-//        textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
-//            if (!newValue) {
-//                String newTeamName = textField.getText();
-//                tab.setText(newTeamName);
-//                label.setText(newTeamName);
-//                textField.setVisible(false);
-//                Team team = (Team) tab.getUserData();
-//                try {
-//                    teamModel.updateTeamName(team.getId(), newTeamName);
-//                    //update combobox show new name
-//                 //   makeTeamEditable();
-//                } catch (BBExceptions e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        });
+        // When the text field loses focus, save the new title, hide the text field, and update the team name in the database
+        textField.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {
+                String newTeamName = textField.getText();
+                tab.setText(newTeamName);
+                label.setText(newTeamName);
+                textField.setVisible(false);
+                Team team = (Team) tab.getUserData();
+                try {
+                    teamModel.updateTeamName(team.getId(), newTeamName);
+                } catch (BBExceptions e) {
+                    showAlert("Error", e.getMessage());
+                }
+            }
+        });
 
         // Create a StackPane to hold the label and text field
         StackPane stackPane = new StackPane();
@@ -291,7 +316,7 @@ public class TeamTable {
                         try {
                             employeeModel.updateTeamIsOverheadForEmployee(team.getId(), employee.getId(), checkBox.isSelected());
                         } catch (BBExceptions ex) {
-                            ex.printStackTrace();
+                            showAlert("Error", ex.getMessage());
                         }
                     });
                 }
@@ -307,8 +332,9 @@ public class TeamTable {
             try {
                 employeeModel.updateTeamUtilForEmployee(team.getId(), employee.getId(), event.getNewValue());
             } catch (BBExceptions e) {
-                e.printStackTrace();
+                showAlert("Error", e.getMessage());
             }
+            employeeModel.invalidateTeamUtilSumCache(employee.getId());
         });
     }
 

@@ -10,7 +10,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class EmployeeModel {
@@ -18,7 +20,7 @@ public class EmployeeModel {
     private final BooleanProperty countryAdded = new SimpleBooleanProperty(false);
     private final List<String> allCountries = FXCollections.observableArrayList();
     private final ObservableList<Employee> allEmployees;
-
+    private Map<Integer, BigDecimal> teamUtilSumCache = new HashMap<>();
 
     public EmployeeModel(){
         employeeBLL = new EmployeeBLL();
@@ -35,6 +37,7 @@ public class EmployeeModel {
         //return our observable list
         return allEmployees;
     }
+
 
 
     public ObservableList<Employee> getAllEmployeesFromTeam(int TeamId) {
@@ -78,9 +81,40 @@ public class EmployeeModel {
         }
     }
 
+    public void removeEmployeeFromTeam(int employeeId, int teamId) throws BBExceptions {
+        Employee employee = null;
+        for(Employee e : allEmployees){
+            if(e.getId() == employeeId){
+                employee = e;
+                break;
+            }
+        }
+        if (employee == null) {
+            throw new BBExceptions("Employee not found");
+        }
+        Team teamToRemove = null;
+        for(Team t : employee.getTeams()){
+            if(t.getId() == teamId){
+                teamToRemove = t;
+                break;
+            }
+        }
+        if (teamToRemove != null) {
+            employee.getTeams().remove(teamToRemove);
+        } else {
+            throw new BBExceptions("Team not found");
+        }
+        employeeBLL.removeEmployeeFromTeam(employeeId, teamId);
+        //index is the place where the employee is in the obsvlist
+        int index = allEmployees.indexOf(employee);
+        if (index != -1) {
+            allEmployees.set(index, employee);
+        }
 
-    public void addNewEmployee(Employee employee) {
-        try {
+    }
+
+
+    public void addNewEmployee(Employee employee) throws BBExceptions{
             // Add employee to database and get the generated ID
             int newEmployeeId = employeeBLL.addNewEmployee(employee);
             // Set the ID of the employee
@@ -103,9 +137,6 @@ public class EmployeeModel {
                     allCountries.add(employee.getCountry());
                 }
             }
-        } catch (BBExceptions e) {
-            e.printStackTrace();
-        }
     }
 
 
@@ -184,6 +215,8 @@ public class EmployeeModel {
         return employeeBLL.calculateMarkUp(markupValue);
     }
 
+    public double calculateGrossMargin(double grossMarginValue) {return employeeBLL.calculateGrossMargin(grossMarginValue);}
+
     public Double calculateHourlyRate(Employee selectedEmployee) throws BBExceptions {
         return employeeBLL.calculateHourlyRate(selectedEmployee);
     }
@@ -200,16 +233,24 @@ public class EmployeeModel {
         return employeeBLL.calculateTotalDailyRateForCountry(country);
     }
 
-    public BigDecimal calculateTotalTeamUtil(int employeeId) throws BBExceptions {
-        return employeeBLL.calculateTotalTeamUtil(employeeId);
-    }
-
     public void updateTeamUtilForEmployee(int teamId, int employeeId, BigDecimal newUtil) throws BBExceptions {
         employeeBLL.updateTeamUtilForEmployee(teamId, employeeId, newUtil);
     }
 
     public BigDecimal getUtilizationForTeam(Employee employee, Team team) throws BBExceptions {
         return employeeBLL.getUtilizationForTeam(employee, team);
+    }
+
+    public void invalidateTeamUtilSumCache(int employeeId) {
+        teamUtilSumCache.remove(employeeId);
+    }
+
+    public BigDecimal getTeamUtilSumCache(int employeeId) {
+        return teamUtilSumCache.get(employeeId);
+    }
+
+    public void setTeamUtilSumCache(int employeeId, BigDecimal value) {
+        teamUtilSumCache.put(employeeId, value);
     }
 
     public void updateTeamIsOverheadForEmployee(int teamId, int employeeId, boolean isOverhead) throws BBExceptions {
