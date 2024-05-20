@@ -18,7 +18,8 @@ public class SnapshotBLL {
     private SnapshotDAO snapDAO = new SnapshotDAO();
     private EmployeeBLL employeeBLL = new EmployeeBLL();
 
-    public void createSnapshotFile(String fileName){
+
+    public String createSnapshotFile(String fileName){
         int copyNum = 2;
         String finalFileName = fileName;
 
@@ -28,6 +29,9 @@ public class SnapshotBLL {
         }
 
         snapDAO.createNewSnapshotFile(finalFileName);
+        return finalFileName;
+        //since the name can have a number at the end,
+        //return the final name so that the tab in the UI can have a proper name
     }
 
     public Map<String, String> getAllSnapshotNames(){

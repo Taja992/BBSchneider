@@ -168,8 +168,18 @@ public class AppController {
 
         DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
-        //System.out.println(currentDate.format(format));
-        snapshotModel.createSnapshotFile("Snapshot on " + currentDate.format(format));
+        String newFileName = snapshotModel.createSnapshotFile("Snapshot on " + currentDate.format(format));
+
+        String tabName = newFileName.substring(12);
+        tabName = tabName.replace("-", "/");
+
+
+        Tab tab = new Tab(tabName);
+        tab.setClosable(false);
+        tab.setId(tabName);
+        tab.setContent(createTabPaneForSnapshot(newFileName + ".db"));
+
+        snapshotTabPane.getTabs().add(tab);
 
     }
 
