@@ -100,7 +100,7 @@
                                     </VBox>
                                  </children>
                                  <VBox.margin>
-                                    <Insets top="70.0" />
+                                    <Insets top="50.0" />
                                  </VBox.margin>
                               </HBox>
                               <HBox alignment="TOP_CENTER" prefHeight="46.0" prefWidth="168.0">
@@ -131,6 +131,12 @@
                               <Label fx:id="teamHourlyRateLbl" text="\$0.00/Hour" />
                               <VBox alignment="CENTER">
                                  <children>
+                                    <Label alignment="CENTER" contentDisplay="CENTER" text="Working Hours" />
+                                    <TextField fx:id="workingHoursTxt">
+                                       <VBox.margin>
+                                          <Insets bottom="15.0" />
+                                       </VBox.margin>
+                                    </TextField>
                                     <Label alignment="CENTER" contentDisplay="CENTER" text="Conversion Rate:" />
                                     <TextField fx:id="conversionRateTxt" prefHeight="27.0" prefWidth="100.0" promptText="USD &gt; EUR (0.92 Default)" />
                                     <HBox alignment="CENTER" prefWidth="151.0">
