@@ -15,7 +15,6 @@ import java.util.Map;
 public class TeamModel {
 
     TeamBLL teamBLL = new TeamBLL();
-    private Map<String, BigDecimal> teamUtilCache = new HashMap<>();
 
     public ObservableList<Team> getAllTeams() {
         try {
@@ -44,21 +43,5 @@ public class TeamModel {
 
     public void updateTeamName(int teamId, String newTeamName) throws BBExceptions {
         teamBLL.updateTeamName(teamId, newTeamName);
-    }
-
-    public BigDecimal getTeamUtilForEmployee(int employeeId, int teamId) throws BBExceptions {
-        String key = employeeId + "-" + teamId;
-        if (teamUtilCache.containsKey(key)) {
-            return teamUtilCache.get(key);
-        } else {
-            BigDecimal teamUtil = teamBLL.getTeamUtilForEmployee(employeeId, teamId);
-            teamUtilCache.put(key, teamUtil);
-            return teamUtil;
-        }
-    }
-
-    public void invalidateCacheForEmployeeAndTeam(int employeeId, int teamId) {
-        String key = employeeId + "-" + teamId;
-        teamUtilCache.remove(key);
     }
 }

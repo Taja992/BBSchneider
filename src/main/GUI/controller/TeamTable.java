@@ -158,7 +158,7 @@ public class TeamTable {
         teamUtilCol.setCellValueFactory(cellData -> {
             try {
                 Employee employee = cellData.getValue();
-                BigDecimal newUtil = teamModel.getTeamUtilForEmployee(employee.getId(), team.getId());
+                BigDecimal newUtil = employeeModel.getTeamUtilForEmployee(employee.getId(), team.getId());
                 return new SimpleObjectProperty<>(newUtil);
             } catch (BBExceptions e) {
                 System.err.println("Error getting team util for employee: " + e.getMessage());
@@ -362,7 +362,7 @@ public class TeamTable {
             BigDecimal newUtil = event.getNewValue();
             try {
                 employeeModel.updateTeamUtilForEmployee(team.getId(), employee.getId(), newUtil);
-                teamModel.invalidateCacheForEmployeeAndTeam(employee.getId(), team.getId());
+                employeeModel.invalidateCacheForEmployeeAndTeam(employee.getId(), team.getId());
             } catch (BBExceptions e) {
                 showAlert("Error", e.getMessage());
             }

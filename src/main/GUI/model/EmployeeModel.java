@@ -21,6 +21,7 @@ public class EmployeeModel {
     private final List<String> allCountries = FXCollections.observableArrayList();
     private final ObservableList<Employee> allEmployees;
     private Map<Integer, BigDecimal> teamUtilSumCache = new HashMap<>();
+    private Map<String, BigDecimal> teamUtilCache = new HashMap<>();
 
     public EmployeeModel(){
         employeeBLL = new EmployeeBLL();
@@ -265,11 +266,27 @@ public class EmployeeModel {
         employeeBLL.updateTeamIsOverheadForEmployee(teamId, employeeId, isOverhead);
     }
 
-    public double calculateTeamHourlyRate(Employee employee, BigDecimal teamUtil) throws BBExceptions {
-        return employeeBLL.calculateTeamHourlyRate(employee, teamUtil);
+    public BigDecimal getTeamUtilForEmployee(int employeeId, int teamId) throws BBExceptions {
+        String key = employeeId + "-" + teamId;
+        if (teamUtilCache.containsKey(key)) {
+            return teamUtilCache.get(key);
+        } else {
+            BigDecimal teamUtil = employeeBLL.getUtilizationForTeam(employeeId, teamId);
+            teamUtilCache.put(key, teamUtil);
+            return teamUtil;
+        }
     }
 
-    public double calculateTeamDailyRate(Employee employee, BigDecimal teamUtil, int hoursPerDay) throws BBExceptions {
-        return employeeBLL.calculateTeamDailyRate(employee, teamUtil, hoursPerDay);
+    public void invalidateCacheForEmployeeAndTeam(int employeeId, int teamId) {
+        String key = employeeId + "-" + teamId;
+        teamUtilCache.remove(key);
     }
+
+//    public double calculateTeamHourlyRate(Employee employee, BigDecimal teamUtil) throws BBExceptions {
+//        return employeeBLL.calculateTeamHourlyRate(employee, teamUtil);
+//    }
+//
+//    public double calculateTeamDailyRate(Employee employee, BigDecimal teamUtil, int hoursPerDay) throws BBExceptions {
+//        return employeeBLL.calculateTeamDailyRate(employee, teamUtil, hoursPerDay);
+//    }
 }
