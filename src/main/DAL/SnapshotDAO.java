@@ -248,7 +248,7 @@ public class SnapshotDAO {
 
         List<Employee> employees = FXCollections.observableArrayList();
 
-        String sql = "SELECT Employee.*, Connection.Team_Util FROM Employee" +
+        String sql = "SELECT Employee.*, Connection.Team_Util, connection.TeamIsOverhead FROM Employee" +
                 " INNER JOIN Connection ON Employee.Employee_Id = Connection.Emp_Id" +
                 " WHERE Team_Id = ?";
 
@@ -269,6 +269,7 @@ public class SnapshotDAO {
                 employee.setWorkingHours(rs.getInt("WorkingHours"));
                 employee.setUtilization(rs.getBigDecimal("Utilization"));
                 employee.setTeamUtil(rs.getBigDecimal("Team_Util")); // Set the utilization from the Connection table
+                employee.setTeamOverhead(rs.getBoolean("TeamIsOverhead"));
                 employee.setIsOverheadCost(rs.getBoolean("isOverheadCost"));
                 employees.add(employee);
             }
@@ -280,33 +281,7 @@ public class SnapshotDAO {
         return employees;
     }
 
-    /*
-    //gets the same team (if exists) in every snapshot (so doesn't get its current version)
-    public List<Team> getAllVersionsOfTeamOverTime(int teamId) throws BBExceptions {
-        List<Team> teams = new ArrayList<>();
-        List<String> allSnapshots = getAllSnapshotNames();
-
-        for(String snapName : allSnapshots){
-            try {
-                Connection con = DriverManager.getConnection(snapName);
 
 
-
-            } catch (SQLException e) {
-                throw new BBExceptions("error connecting to database snapshot '" + snapName + "' ", e);
-
-            }
-        }
-
-        return teams;
-    }
-     */
-
-
-    public boolean doesFileExist(String fileName){
-        File file = new File(fileName);
-
-        return file.exists();
-    }
 
 }

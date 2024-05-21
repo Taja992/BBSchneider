@@ -2,6 +2,7 @@ package BLL;
 
 import BE.Employee;
 import BE.Team;
+import DAL.EmployeeDAO;
 import DAL.TeamDAO;
 import Exceptions.BBExceptions;
 import java.text.NumberFormat;
@@ -13,6 +14,7 @@ public class TeamBLL {
 
     TeamDAO teamDAO = new TeamDAO();
     EmployeeBLL employeeBLL = new EmployeeBLL();
+    EmployeeDAO employeeDAO = new EmployeeDAO();
 
     public List<Team> getAllTeams() throws BBExceptions {
         return teamDAO.getAllTeams();
@@ -34,15 +36,19 @@ public class TeamBLL {
             return teamDAO.getTeamsForEmployee(employeeId);
     }
 
+
     ////////////////////////////////////////////////////////
     /////////////////Calculation Logic//////////////////////
     ////////////////////////////////////////////////////////
 
     public Double calculateTotalHourlyRate(int teamId) throws BBExceptions{
-        List<Employee> employees = employeeBLL.getAllEmployeesFromTeam(teamId);
+        List<Employee> employees = employeeDAO.getEmployeesWithOverheadStatus(teamId);
         double totalHourlyRate = 0;
         for(Employee employee : employees){
-            totalHourlyRate += employeeBLL.calculateHourlyRate(employee);
+            if (!employee.getTeamOverhead()) {  // Only calculate the hourly rate for non-overhead employees
+                double hourlyRate = employeeBLL.calculateHourlyRate(employee);
+                totalHourlyRate += hourlyRate;
+            }
         }
 
         NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
@@ -55,7 +61,7 @@ public class TeamBLL {
             throw new BBExceptions("Error parsing total hourly rate", e);
         }
     }
-
+    
     public Double calculateTotalDailyRate(int teamId, int hoursPerDay) throws BBExceptions{
         List<Employee> employees = employeeBLL.getAllEmployeesFromTeam(teamId);
         double totalDailyRate = 0;
