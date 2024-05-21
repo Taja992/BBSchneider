@@ -72,11 +72,11 @@ public class SnapshotBLL {
         }
     }
 
-    public Double calculateTotalDailyRate(int teamId, String fileName) throws BBExceptions{
+    public Double calculateTotalDailyRate(int teamId, String fileName, int hoursPerDay) throws BBExceptions{
         List<Employee> employees = snapDAO.getAllEmployeesFromTeam(teamId, fileName);
         double totalDailyRate = 0;
         for(Employee employee : employees){
-            totalDailyRate += employeeBLL.calculateDailyRate(employee);
+            totalDailyRate += employeeBLL.calculateDailyRate(employee, hoursPerDay);
         }
 
         NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);

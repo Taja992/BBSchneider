@@ -56,11 +56,11 @@ public class TeamBLL {
         }
     }
 
-    public Double calculateTotalDailyRate(int teamId) throws BBExceptions{
+    public Double calculateTotalDailyRate(int teamId, int hoursPerDay) throws BBExceptions{
         List<Employee> employees = employeeBLL.getAllEmployeesFromTeam(teamId);
         double totalDailyRate = 0;
         for(Employee employee : employees){
-            totalDailyRate += employeeBLL.calculateDailyRate(employee);
+            totalDailyRate += employeeBLL.calculateDailyRate(employee, hoursPerDay);
         }
 
         NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);

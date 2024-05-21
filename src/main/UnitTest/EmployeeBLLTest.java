@@ -52,7 +52,7 @@ public class EmployeeBLLTest {
         double expectedDailyRate = 25.96; // Expected result based on the provided values
 
         // Act
-        Double dailyRate = employeeBLL.calculateDailyRate(testEmployee);
+        Double dailyRate = employeeBLL.calculateDailyRate(testEmployee, 8);
 
         // Assert
         assertEquals(expectedDailyRate, dailyRate, 0.01);
