@@ -1,5 +1,6 @@
 package GUI.model;
 
+import BE.Employee;
 import BE.Team;
 import BLL.TeamBLL;
 import Exceptions.BBExceptions;

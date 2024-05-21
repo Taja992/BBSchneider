@@ -438,28 +438,58 @@ public class AppController {
       }
     }
 
+//    void calculateTeamRates(int teamId) {
+//    try {
+//        double hourlyRate = teamModel.calculateTotalHourlyRate(teamId);
+//        double dailyRate = teamModel.calculateTotalDailyRate(teamId, Integer.parseInt(workingHoursTxt.getText()));
+//        if ("€".equals(currencySymbol)) {
+//            String conversionText = conversionRateTxt.getText();
+//            double conversion = 0.92;
+//            if (conversionText != null && !conversionText.isEmpty()) {
+//                try {
+//                    conversion = Double.parseDouble(conversionText);
+//                } catch (NumberFormatException e) {
+//                    showAlert("Invalid input", "Please enter a valid number for the conversion rate.");
+//                }
+//            }
+//            hourlyRate *= conversion;
+//            dailyRate *= conversion;
+//        }
+//        teamHourlyRateLbl.setText(currencySymbol +  String.format("%.2f", hourlyRate)+ "/Hour");
+//        teamDayRateLbl.setText(currencySymbol + String.format("%.2f", dailyRate) + "/Day");
+//          } catch (BBExceptions e) {
+//            showAlert("Error calculating team rates", e.getMessage());
+//         }
+//    }
+
     void calculateTeamRates(int teamId) {
-    try {
-        double hourlyRate = teamModel.calculateTotalHourlyRate(teamId);
-        double dailyRate = teamModel.calculateTotalDailyRate(teamId, Integer.parseInt(workingHoursTxt.getText()));
-        if ("€".equals(currencySymbol)) {
-            String conversionText = conversionRateTxt.getText();
-            double conversion = 0.92;
-            if (conversionText != null && !conversionText.isEmpty()) {
-                try {
-                    conversion = Double.parseDouble(conversionText);
-                } catch (NumberFormatException e) {
-                    showAlert("Invalid input", "Please enter a valid number for the conversion rate.");
-                }
+        try {
+            ObservableList<Employee> teamMembers = employeeModel.getAllEmployeesFromTeam(teamId);
+            double totalHourlyRate = 0.0;
+            double totalDailyRate = 0.0;
+            for (Employee employee : teamMembers) {
+                BigDecimal teamUtil = teamModel.getTeamUtilForEmployee(employee.getId(), teamId);
+                totalHourlyRate += employeeModel.calculateTeamHourlyRate(employee, teamUtil);
+                totalDailyRate += employeeModel.calculateTeamDailyRate(employee, teamUtil, Integer.parseInt(workingHoursTxt.getText()));
             }
-            hourlyRate *= conversion;
-            dailyRate *= conversion;
-        }
-        teamHourlyRateLbl.setText(currencySymbol +  String.format("%.2f", hourlyRate)+ "/Hour");
-        teamDayRateLbl.setText(currencySymbol + String.format("%.2f", dailyRate) + "/Day");
-          } catch (BBExceptions e) {
+            if ("€".equals(currencySymbol)) {
+                String conversionText = conversionRateTxt.getText();
+                double conversion = 0.92;
+                if (conversionText != null && !conversionText.isEmpty()) {
+                    try {
+                        conversion = Double.parseDouble(conversionText);
+                    } catch (NumberFormatException e) {
+                        showAlert("Invalid input", "Please enter a valid number for the conversion rate.");
+                    }
+                }
+                totalHourlyRate *= conversion;
+                totalDailyRate *= conversion;
+            }
+            teamHourlyRateLbl.setText(currencySymbol + String.format("%.2f", totalHourlyRate) + "/Hour");
+            teamDayRateLbl.setText(currencySymbol + String.format("%.2f", totalDailyRate) + "/Day");
+        } catch (BBExceptions e) {
             showAlert("Error calculating team rates", e.getMessage());
-         }
+        }
     }
 
     public void calculateEmployeeRates() {
@@ -674,6 +704,7 @@ public class AppController {
         overviewEmployeeTable.getTableView().getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
                 calculateEmployeeRates();
+                calculateTeamRates(((Team) teamTabPane.getSelectionModel().getSelectedItem().getUserData()).getId());
             }
         });
     }

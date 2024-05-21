@@ -264,4 +264,12 @@ public class EmployeeModel {
     public void updateTeamIsOverheadForEmployee(int teamId, int employeeId, boolean isOverhead) throws BBExceptions {
         employeeBLL.updateTeamIsOverheadForEmployee(teamId, employeeId, isOverhead);
     }
+
+    public double calculateTeamHourlyRate(Employee employee, BigDecimal teamUtil) throws BBExceptions {
+        return employeeBLL.calculateTeamHourlyRate(employee, teamUtil);
+    }
+
+    public double calculateTeamDailyRate(Employee employee, BigDecimal teamUtil, int hoursPerDay) throws BBExceptions {
+        return employeeBLL.calculateTeamDailyRate(employee, teamUtil, hoursPerDay);
+    }
 }
