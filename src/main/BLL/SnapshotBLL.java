@@ -5,6 +5,7 @@ import BE.Team;
 import DAL.SnapshotDAO;
 import Exceptions.BBExceptions;
 
+import java.io.File;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.HashMap;
@@ -17,16 +18,20 @@ public class SnapshotBLL {
     private SnapshotDAO snapDAO = new SnapshotDAO();
     private EmployeeBLL employeeBLL = new EmployeeBLL();
 
-    public void createSnapshotFile(String fileName){
+
+    public String createSnapshotFile(String fileName){
         int copyNum = 2;
         String finalFileName = fileName;
 
-        while(snapDAO.doesFileExist(finalFileName + ".db")){
+        while(doesFileExist(finalFileName + ".db")){
             finalFileName = fileName + " (" + copyNum + ")";
             copyNum++;
         }
 
         snapDAO.createNewSnapshotFile(finalFileName);
+        return finalFileName;
+        //since the name can have a number at the end,
+        //return the final name so that the tab in the UI can have a proper name
     }
 
     public Map<String, String> getAllSnapshotNames(){
@@ -38,6 +43,7 @@ public class SnapshotBLL {
             //creating the display name (which will just be the date)
             String displayName = name.substring(12, name.lastIndexOf('.'));
             displayName = displayName.replace("-", "/");
+
             snapshotMap.put(displayName, name);
             //putting in the display name gets you the original file, which will be used to retrieve data
         }
@@ -53,6 +59,8 @@ public class SnapshotBLL {
         return snapDAO.getAllTeamsInSnapshot(fileName);
     }
 
+
+    //for future implementation
     public Double calculateTotalHourlyRate(int teamId, String fileName) throws BBExceptions{
         List<Employee> employees = snapDAO.getAllEmployeesFromTeam(teamId, fileName);
         double totalDailyRate = 0;
@@ -89,6 +97,12 @@ public class SnapshotBLL {
             throw new BBExceptions("Error parsing total daily rate for team with ID '"
                     + teamId + "' from snapshot '" + fileName + "' ", e);
         }
+    }
+
+    public boolean doesFileExist(String fileName){
+        File file = new File("src/resources/Snapshots/" + fileName);
+
+        return file.getAbsoluteFile().exists();
     }
 
 }

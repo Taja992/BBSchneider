@@ -8,17 +8,27 @@ import GUI.model.SnapshotModel;
 import GUI.model.TeamModel;
 import com.jfoenix.controls.JFXToggleButton;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -162,26 +172,50 @@ public class AppController {
 
         LocalDateTime currentDate = LocalDateTime.now();
 
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy HH.mm");
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
-        //System.out.println(currentDate.format(format));
-        snapshotModel.createSnapshotFile("Snapshot on " + currentDate.format(format));
+        String newFileName = snapshotModel.createSnapshotFile("Snapshot on " + currentDate.format(format));
+
+        String tabName = newFileName.substring(12);
+        tabName = tabName.replace("-", "/");
+
+
+        Tab tab = new Tab(tabName);
+        tab.setClosable(false);
+        tab.setId(tabName);
+        tab.setContent(createTabPaneForSnapshot(newFileName + ".db"));
+
+        snapshotTabPane.getTabs().add(tab);
 
     }
 
+    //creates the tabs for each snapshot
     private void createTabsForSnapshots(){
         Map<String, String> allSnapshots = snapshotModel.getAllSnapshotNames();
+        //snapshotTabPane.getStyleClass().add(".snapShotTabPane");
 
         for(String name : allSnapshots.keySet()){
             //System.out.println(name);
-            Tab tab = new Tab(name);
+            Tab tab = new Tab();
+            tab.setClosable(false);
+            tab.setId(name);
+
+            Label snapNameLbl = new Label(name);
+            //setting padding on label so it's aligned to the center
+            snapNameLbl.setPadding(new Insets(0,35,0,0));
+            tab.setGraphic(snapNameLbl);
+
             tab.setContent(createTabPaneForSnapshot(allSnapshots.get(name)));
 
             snapshotTabPane.getTabs().add(tab);
+            //System.out.println(tab.getId());
         }
+        orderSnapshotTabs();
+
 
     }
 
+    //creates the content inside each snapshot tab (the tabpane including all the teams)
     private TabPane createTabPaneForSnapshot(String filename){
         TabPane snapTabPane = new TabPane();
         List<Team> teams = null;
@@ -201,11 +235,66 @@ public class AppController {
             } catch (BBExceptions e) {
                 throw new RuntimeException(e);
             }
-            tab.setContent(teamTable.createTableForTeam(team, employeesInTeam));
+            TableView<Employee> content = teamTable.createTableForTeam(team, employeesInTeam);
+
+            TableColumn<Employee, Boolean> teamOverheadCol = (TableColumn<Employee, Boolean>) content.getColumns().get(7);
+            makeOverheadColumnNotEditable(teamOverheadCol);
+            tab.setContent(content);
             snapTabPane.getTabs().add(tab);
-            teamTable.makeTeamTabTitleEditable(tab);
+
         }
+
         return snapTabPane;
+    }
+
+    private void makeOverheadColumnNotEditable(TableColumn<Employee, Boolean> Col){
+        Col.setCellValueFactory(cellData -> new SimpleBooleanProperty(cellData.getValue().getTeamOverhead()));
+
+        Col.setCellFactory(column -> new TableCell<Employee, Boolean>() {
+            private final CheckBox checkBox = new CheckBox();
+
+            @Override
+            protected void updateItem(Boolean item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+
+                    Employee employee = getTableView().getItems().get(getIndex());
+                    checkBox.setSelected(employee.getTeamOverhead());
+                    checkBox.setDisable(true);
+                    setGraphic(checkBox);
+                }
+            }
+        });
+    }
+
+    private void orderSnapshotTabs(){
+        ObservableList<Tab> allTabs = snapshotTabPane.getTabs();
+
+        allTabs.sort((tab1, tab2) ->{
+
+            String tab1Name = tab1.getId();
+            String tab2Name = tab2.getId();
+
+            //if either name contains "(2)" in case this is a duplicate file
+            if(tab1Name.contains("(") || tab2Name.contains("(")){
+                return tab1Name.compareTo(tab2Name); //compare them as strings if can't compare as date
+
+            } else {
+                DateTimeFormatter parser = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                LocalDate date1 = LocalDate.parse(tab1Name, parser);
+
+
+                LocalDate date2 = LocalDate.parse(tab2Name, parser);
+
+
+                return date1.compareTo(date2);
+            }
+
+
+        });
+
     }
 
 
