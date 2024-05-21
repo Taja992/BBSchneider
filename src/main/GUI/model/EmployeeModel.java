@@ -245,8 +245,8 @@ public class EmployeeModel {
         employeeBLL.updateTeamUtilForEmployee(teamId, employeeId, newUtil);
     }
 
-    public BigDecimal getUtilizationForTeam(Employee employee, Team team) throws BBExceptions {
-        return employeeBLL.getUtilizationForTeam(employee, team);
+    public BigDecimal getUtilizationForTeam(int employeeId, int teamId) throws BBExceptions {
+        return employeeBLL.getUtilizationForTeam(employeeId, teamId);
     }
 
     public void invalidateTeamUtilSumCache(int employeeId) {

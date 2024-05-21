@@ -48,7 +48,7 @@ public class TeamBLL {
         double totalHourlyRate = 0;
         for(Employee employee : employees){
             if (!employee.getTeamOverhead()) {  // Only calculate the hourly rate for non-overhead employees
-                BigDecimal teamUtilization = employeeDAO.getUtilizationForTeam(employee, teamDAO.getTeam(teamId));
+                BigDecimal teamUtilization = employeeDAO.getUtilizationForTeam(employee.getId(), teamId);
                 double hourlyRate = calculateTeamHourlyRate(employee, teamUtilization);
                 totalHourlyRate += hourlyRate;
             }
@@ -70,7 +70,7 @@ public class TeamBLL {
         double totalDailyRate = 0;
         for(Employee employee : employees){
             if (!employee.getTeamOverhead()) {  // Only calculate the daily rate for non-overhead employees
-                double dailyRate = calculateTeamDailyRate(employee, employeeDAO.getUtilizationForTeam(employee, teamDAO.getTeam(teamId)), hoursPerDay);
+                double dailyRate = calculateTeamDailyRate(employee, employeeDAO.getUtilizationForTeam(employee.getId(), teamId), hoursPerDay);
                 totalDailyRate += dailyRate;
             }
         }

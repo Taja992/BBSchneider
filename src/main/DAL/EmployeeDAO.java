@@ -251,21 +251,21 @@ EmployeeDAO {
         }
     }
 
-    public BigDecimal getUtilizationForTeam(Employee employee, Team team) throws BBExceptions {
+    public BigDecimal getUtilizationForTeam(int employeeId, int teamId) throws BBExceptions {
         String sql = "SELECT Team_Util FROM Connection WHERE Emp_Id = ? AND Team_Id = ?";
 
         try (Connection connection = connectionManager.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql)) {
 
-            ps.setInt(1, employee.getId());
-            ps.setInt(2, team.getId());
+            ps.setInt(1, employeeId);
+            ps.setInt(2, teamId);
 
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
                 return rs.getBigDecimal("Team_Util");
             } else {
-                throw new BBExceptions("No utilization found for employee with ID " + employee.getId() + " in team with ID " + team.getId());
+                throw new BBExceptions("No utilization found for employee with ID " + employeeId + " in team with ID " + teamId);
             }
         } catch (SQLException e) {
             throw new BBExceptions("Error retrieving utilization for employee in team", e);
