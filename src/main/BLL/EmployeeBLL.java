@@ -4,8 +4,6 @@ import BE.Employee;
 import BE.Team;
 import DAL.EmployeeDAO;
 import Exceptions.BBExceptions;
-import javafx.scene.control.Alert;
-
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -62,7 +60,7 @@ public class EmployeeBLL {
     /////////////////Calculation Logic//////////////////////
     ////////////////////////////////////////////////////////
 
-    private double calculateRate(Employee selectedEmployee) {
+    private double calculateRate(Employee selectedEmployee) throws BBExceptions {
         if (selectedEmployee != null) {
             double annualSalary = selectedEmployee.getAnnualSalary().doubleValue();
             double overheadMultiplier = selectedEmployee.getOverheadMultiPercent().doubleValue() / 100; // convert to decimal
@@ -71,18 +69,10 @@ public class EmployeeBLL {
             double annualEffectiveWorkingHours = selectedEmployee.getWorkingHours(); // convert to total working hours in a year
             return (((annualSalary + fixedAnnualAmount) * (1 + overheadMultiplier)) / (annualEffectiveWorkingHours * utilizationPercentage));
         } else {
-            return alertSelectEmployee();
+            throw new BBExceptions("No employee selected");
         }
     }
 
-    private double alertSelectEmployee() {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
-        alert.setHeaderText("No employee selected");
-        alert.setContentText("Please select an employee to calculate the rate");
-        alert.showAndWait();
-        return 0;
-    }
 
     public Double calculateHourlyRate(Employee selectedEmployee) throws BBExceptions {
         double rate = calculateRate(selectedEmployee);  // The rate calculated is already in hourly rate
@@ -123,7 +113,7 @@ public class EmployeeBLL {
         try {
             allEmployees = getAllEmployees();
         } catch (BBExceptions e) {
-            throw new BBExceptions("Error getting all employees", e);
+            throw new BBExceptions("Alert", e);
         }
 
         Double totalRate = 0.0;
