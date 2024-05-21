@@ -6,6 +6,7 @@ import Exceptions.BBExceptions;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class TeamModel {
@@ -42,8 +43,7 @@ public class TeamModel {
         teamBLL.updateTeamName(teamId, newTeamName);
     }
 
-    public List<Team> getTeamsForEmployee(int employeeId) throws BBExceptions {
-        return teamBLL.getTeamsForEmployee(employeeId);
+    public BigDecimal getTeamUtilForEmployee(int employeeId, int teamId) throws BBExceptions {
+        return teamBLL.getTeamUtilForEmployee(employeeId, teamId);
     }
-
 }

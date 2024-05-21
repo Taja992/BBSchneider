@@ -327,13 +327,28 @@ public class TeamTable {
         });
     }
 
+//    private void editUtilization(TableColumn<Employee, BigDecimal> teamUtilCol, Team team){
+//        //util column is editable
+//        teamUtilCol.setOnEditCommit(event -> {
+//            Employee employee = event.getRowValue();
+//            employee.setTeamUtil(event.getNewValue());
+//            try {
+//                employeeModel.updateTeamUtilForEmployee(team.getId(), employee.getId(), event.getNewValue());
+//            } catch (BBExceptions e) {
+//                showAlert("Error", e.getMessage());
+//            }
+//            employeeModel.invalidateTeamUtilSumCache(employee.getId());
+//        });
+//    }
+
     private void editUtilization(TableColumn<Employee, BigDecimal> teamUtilCol, Team team){
         //util column is editable
         teamUtilCol.setOnEditCommit(event -> {
             Employee employee = event.getRowValue();
-            employee.setTeamUtil(event.getNewValue());
             try {
-                employeeModel.updateTeamUtilForEmployee(team.getId(), employee.getId(), event.getNewValue());
+                BigDecimal newUtil = teamModel.getTeamUtilForEmployee(employee.getId(), team.getId());
+                employee.setTeamUtil(newUtil);
+                employeeModel.updateTeamUtilForEmployee(team.getId(), employee.getId(), newUtil);
             } catch (BBExceptions e) {
                 showAlert("Error", e.getMessage());
             }
