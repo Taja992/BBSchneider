@@ -27,6 +27,14 @@ public class EmployeeModel {
         allEmployees = FXCollections.observableArrayList();
     }
 
+    public static int setWorkingHours(int newWorkingHours) {
+        return EmployeeBLL.setWorkingHours(newWorkingHours);
+    }
+
+    public static int getWorkingHours() {
+        return EmployeeBLL.getWorkingHours();
+    }
+
 
     public ObservableList<Employee> getEmployees() throws BBExceptions {
         if(allEmployees.isEmpty()) {
@@ -225,12 +233,12 @@ public class EmployeeModel {
         return employeeBLL.calculateTotalHourlyRateForCountry(country);
     }
 
-    public Double calculateDailyRate(Employee selectedEmployee) throws BBExceptions{
-        return employeeBLL.calculateDailyRate(selectedEmployee);
+    public Double calculateDailyRate(Employee selectedEmployee, int hoursPerDay) throws BBExceptions{
+        return employeeBLL.calculateDailyRate(selectedEmployee, hoursPerDay);
     }
 
-    public Double calculateTotalDailyRateForCountry(String country) throws BBExceptions{
-        return employeeBLL.calculateTotalDailyRateForCountry(country);
+    public Double calculateTotalDailyRateForCountry(String country, int hoursPerDay) throws BBExceptions{
+        return employeeBLL.calculateTotalDailyRateForCountry(country, hoursPerDay);
     }
 
     public void updateTeamUtilForEmployee(int teamId, int employeeId, BigDecimal newUtil) throws BBExceptions {
