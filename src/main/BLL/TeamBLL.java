@@ -5,6 +5,8 @@ import BE.Team;
 import DAL.EmployeeDAO;
 import DAL.TeamDAO;
 import Exceptions.BBExceptions;
+
+import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.List;
@@ -78,5 +80,9 @@ public class TeamBLL {
         } catch (ParseException e) {
             throw new BBExceptions("Error parsing total daily rate", e);
         }
+    }
+
+    public BigDecimal getTeamUtilForEmployee(int employeeId, int teamId) throws BBExceptions {
+        return teamDAO.getTeamUtilForEmployee(employeeId, teamId);
     }
 }
