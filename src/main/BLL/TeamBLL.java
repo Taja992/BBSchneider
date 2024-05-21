@@ -50,7 +50,7 @@ public class TeamBLL {
             if (!employee.getTeamOverhead()) {  // Only calculate the hourly rate for non-overhead employees
                 BigDecimal teamUtilization = employeeDAO.getUtilizationForTeam(employee, teamDAO.getTeam(teamId));
                 double hourlyRate = calculateTeamHourlyRate(employee, teamUtilization);
-                totalHourlyRate += hourlyRate * teamUtilization.doubleValue();
+                totalHourlyRate += hourlyRate;
             }
         }
 
