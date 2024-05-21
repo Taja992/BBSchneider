@@ -9,6 +9,7 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
@@ -16,6 +17,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
 <VBox fx:id="mainVbox" prefHeight="834.0" prefWidth="1064.0" stylesheets="/GUI/view/main.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.controller.AppController">
    <children>
@@ -27,11 +29,18 @@
                      <center>
                         <VBox spacing="10.0" BorderPane.alignment="CENTER">
                            <children>
-                              <Label text="Employees Search" />
                               <HBox spacing="25.0">
                                  <children>
-                                    <TextField fx:id="searchTextField" maxWidth="160.0" prefHeight="26.0" prefWidth="160.0" />
+                                    <TextField fx:id="searchTextField" maxWidth="160.0" prefHeight="26.0" prefWidth="160.0" promptText="Search Employees">
+                                       <HBox.margin>
+                                          <Insets left="26.5" />
+                                       </HBox.margin></TextField>
                                     <ComboBox fx:id="overviewCountryCmbBox" prefWidth="150.0" />
+                                    <Button mnemonicParsing="false" onAction="#CreateSnapshotFile" prefHeight="26.0" prefWidth="119.0" text="Create Snapshot">
+                                       <HBox.margin>
+                                          <Insets left="380.0" />
+                                       </HBox.margin>
+                                    </Button>
                                  </children>
                               </HBox>
                               <HBox spacing="1.0" VBox.vgrow="ALWAYS">
@@ -55,7 +64,7 @@
                               </HBox>
                               <HBox spacing="1.0" VBox.vgrow="ALWAYS">
                                  <children>
-                                    <Button fx:id="addTeamBtn" mnemonicParsing="false" text="+" HBox.hgrow="ALWAYS">
+                                    <Button fx:id="addTeamBtn" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="25.6" prefWidth="26.0" text="+" HBox.hgrow="ALWAYS">
                                        <HBox.margin>
                                           <Insets top="38.0" />
                                        </HBox.margin>
@@ -79,11 +88,6 @@
                      <right>
                         <VBox alignment="TOP_CENTER" prefHeight="401.0" prefWidth="168.0" BorderPane.alignment="CENTER">
                            <children>
-                              <Button mnemonicParsing="false" onAction="#CreateSnapshotFile" text="Create Snapshot">
-                                 <VBox.margin>
-                                    <Insets top="20.0" />
-                                 </VBox.margin>
-                              </Button>
                               <HBox spacing="5.0">
                                  <children>
                                     <VBox>
@@ -165,8 +169,19 @@
                      <center>
                         <VBox spacing="10.0" BorderPane.alignment="CENTER">
                            <children>
-                              <Label text="History" />
-                              <HBox fx:id="snapshotHBox" maxHeight="400.0" prefHeight="346.0" prefWidth="919.0">
+                              <Label styleClass="historyLabel" text="History">
+                                 <padding>
+                                    <Insets left="30.0" />
+                                 </padding>
+                                 <font>
+                                    <Font name="System Bold" size="16.0" />
+                                 </font></Label>
+                              <Separator maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" styleClass="separator">
+                                 <VBox.margin>
+                                    <Insets left="99.0" right="30.0" top="-22.5" />
+                                 </VBox.margin>
+                              </Separator>
+                              <HBox fx:id="snapshotHBox" maxHeight="400.0" prefHeight="265.0" prefWidth="831.0">
                                  <VBox.margin>
                                     <Insets left="30.0" right="30.0" />
                                  </VBox.margin></HBox>
@@ -181,7 +196,7 @@
                            <children>
                               <ComboBox fx:id="snapshotComboBox" prefWidth="150.0">
                                  <VBox.margin>
-                                    <Insets top="30.0" />
+                                    <Insets right="15.0" top="30.0" />
                                  </VBox.margin>
                               </ComboBox>
                            </children>
