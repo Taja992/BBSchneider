@@ -14,11 +14,11 @@ import java.util.Locale;
 
 public class EmployeeBLL {
     private final EmployeeDAO employeeDAO;
+    private static int workingHours = 8;
 
     public EmployeeBLL() {
         employeeDAO = new EmployeeDAO();
     }
-
 
     public int addNewEmployee(Employee employee) throws BBExceptions{
         return employeeDAO.newEmployee(employee);
@@ -68,8 +68,8 @@ public class EmployeeBLL {
             double overheadMultiplier = selectedEmployee.getOverheadMultiPercent().doubleValue() / 100; // convert to decimal
             double fixedAnnualAmount = selectedEmployee.getAnnualAmount().doubleValue();
             double utilizationPercentage = selectedEmployee.getUtilization().doubleValue() / 100; // convert to decimal
-            double annualEffectiveWorkingHours = selectedEmployee.getWorkingHours();
-            return ((annualSalary + fixedAnnualAmount) * (1 + overheadMultiplier)) / (annualEffectiveWorkingHours * utilizationPercentage);
+            double annualEffectiveWorkingHours = selectedEmployee.getWorkingHours(); // convert to total working hours in a year
+            return (((annualSalary + fixedAnnualAmount) * (1 + overheadMultiplier)) / (annualEffectiveWorkingHours * utilizationPercentage));
         } else {
             return alertSelectEmployee();
         }
@@ -85,22 +85,26 @@ public class EmployeeBLL {
     }
 
     public Double calculateHourlyRate(Employee selectedEmployee) throws BBExceptions {
-        double rate = calculateRate(selectedEmployee);
-        double hourlyRate = rate / 8; // Assuming 8 working hours in a day, have to ask in sprint review
+        double rate = calculateRate(selectedEmployee);  // The rate calculated is already in hourly rate
 
         NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
         nf.setMaximumFractionDigits(2);
         nf.setMinimumFractionDigits(2);
 
         try {
-            return nf.parse(nf.format(hourlyRate)).doubleValue();
+            return nf.parse(nf.format(rate)).doubleValue();
         } catch (ParseException e) {
             throw new BBExceptions("Error parsing hourly rate", e);
         }
     }
 
-    public Double calculateDailyRate(Employee selectedEmployee) throws BBExceptions{
-        double dailyRate = calculateRate(selectedEmployee); // The rate calculated is already a daily rate
+    public Double calculateDailyRate(Employee selectedEmployee, int hoursPerDay) throws BBExceptions {
+        if (hoursPerDay < 0 || hoursPerDay > 24) {
+            throw new BBExceptions("Invalid number of hours per day. It should be between 0 and 24.");
+        }
+
+        double hourlyRate = calculateHourlyRate(selectedEmployee);
+        double dailyRate = hourlyRate * hoursPerDay;
 
         NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
         nf.setMaximumFractionDigits(2);
@@ -143,7 +147,7 @@ public class EmployeeBLL {
         }
     }
 
-    public Double calculateTotalDailyRateForCountry(String country) throws BBExceptions{
+    public Double calculateTotalDailyRateForCountry(String country, int hoursPerDay) throws BBExceptions{
         List<Employee> allEmployees;
         try {
             allEmployees = getAllEmployees();
@@ -154,7 +158,7 @@ public class EmployeeBLL {
         Double totalRate = 0.0;
         for(Employee employee: allEmployees){
             if(employee.getCountry().equals(country)){
-                totalRate += calculateDailyRate(employee);
+                totalRate += calculateDailyRate(employee, hoursPerDay);
             }else if (country == "All Countries"){
                 totalRate += calculateHourlyRate(employee);
             }
@@ -176,5 +180,13 @@ public class EmployeeBLL {
 
     public double calculateGrossMargin(double grossMarginValue) {
         return 1 + (grossMarginValue / 100);
+    }
+
+    public static int setWorkingHours(int newWorkingHours) {
+        return workingHours = newWorkingHours;
+    }
+
+    public static int getWorkingHours() {
+        return workingHours;
     }
 }

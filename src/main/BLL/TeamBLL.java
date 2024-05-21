@@ -61,15 +61,12 @@ public class TeamBLL {
             throw new BBExceptions("Error parsing total hourly rate", e);
         }
     }
-
-    public Double calculateTotalDailyRate(int teamId) throws BBExceptions{
-        List<Employee> employees = employeeDAO.getEmployeesWithOverheadStatus(teamId);
+    
+    public Double calculateTotalDailyRate(int teamId, int hoursPerDay) throws BBExceptions{
+        List<Employee> employees = employeeBLL.getAllEmployeesFromTeam(teamId);
         double totalDailyRate = 0;
         for(Employee employee : employees){
-            if (!employee.getTeamOverhead()) {  // Only calculate the daily rate for non-overhead employees
-                double dailyRate = employeeBLL.calculateDailyRate(employee);
-                totalDailyRate += dailyRate;
-            }
+            totalDailyRate += employeeBLL.calculateDailyRate(employee, hoursPerDay);
         }
 
         NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);

@@ -34,8 +34,8 @@ public class TeamModel {
         return teamBLL.calculateTotalHourlyRate(teamId);
     }
 
-    public Double calculateTotalDailyRate(int teamId) throws BBExceptions{
-        return teamBLL.calculateTotalDailyRate(teamId);
+    public Double calculateTotalDailyRate(int teamId, int hoursPerDay) throws BBExceptions{
+        return teamBLL.calculateTotalDailyRate(teamId, hoursPerDay);
     }
 
     public void updateTeamName(int teamId, String newTeamName) throws BBExceptions {
