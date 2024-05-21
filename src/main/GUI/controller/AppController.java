@@ -20,6 +20,7 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
@@ -201,7 +202,9 @@ public class AppController {
                 Map<String, String> snapshotList = snapshotModel.getAllSnapshotNames();
 
                 snapshotHBox.getChildren().clear();
-                snapshotHBox.getChildren().add(createTabPaneForSnapshot(snapshotList.get(selectedSnapshot)));
+                TabPane snapTabPane = createTabPaneForSnapshot(snapshotList.get(selectedSnapshot));
+                snapshotHBox.getChildren().add(snapTabPane);
+                HBox.setHgrow(snapTabPane, Priority.ALWAYS);
             }
         });
 
@@ -215,7 +218,9 @@ public class AppController {
                 Map<String, String> snapshotList = snapshotModel.getAllSnapshotNames();
 
                 snapshotHBox.getChildren().clear();
-                snapshotHBox.getChildren().add(createTabPaneForSnapshot(snapshotList.get(selectedSnapshot)));
+                TabPane snapTabPane = createTabPaneForSnapshot(snapshotList.get(selectedSnapshot));
+                snapshotHBox.getChildren().add(snapTabPane);
+                HBox.setHgrow(snapTabPane, Priority.ALWAYS);
 
             }
         }

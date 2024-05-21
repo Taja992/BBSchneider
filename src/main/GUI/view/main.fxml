@@ -17,13 +17,13 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox fx:id="mainVbox" prefHeight="780.0" prefWidth="1049.0" stylesheets="/GUI/view/main.css" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.controller.AppController">
+<VBox fx:id="mainVbox" prefHeight="905.0" prefWidth="1084.0" stylesheets="/GUI/view/main.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="GUI.controller.AppController">
    <children>
-      <ScrollPane fx:id="mainSp" fitToHeight="true" fitToWidth="true" prefWidth="1013.0" vbarPolicy="ALWAYS" VBox.vgrow="ALWAYS">
+      <ScrollPane fx:id="mainSp" fitToWidth="true" prefWidth="1013.0" vbarPolicy="ALWAYS" VBox.vgrow="ALWAYS">
          <content>
-            <VBox VBox.vgrow="ALWAYS">
+            <VBox>
                <children>
-                  <BorderPane VBox.vgrow="ALWAYS">
+                  <BorderPane>
                      <center>
                         <VBox spacing="10.0" BorderPane.alignment="CENTER">
                            <children>
@@ -63,7 +63,8 @@
                                     <TabPane fx:id="teamTabPane" minHeight="225.0" prefHeight="225.0" styleClass="teamTabPane" HBox.hgrow="ALWAYS">
                                        <HBox.margin>
                                           <Insets top="10.0" />
-                                       </HBox.margin></TabPane>
+                                       </HBox.margin>
+                                    </TabPane>
                                  </children>
                                  <VBox.margin>
                                     <Insets />
@@ -81,7 +82,8 @@
                               <Button mnemonicParsing="false" onAction="#CreateSnapshotFile" text="Create Snapshot">
                                  <VBox.margin>
                                     <Insets top="20.0" />
-                                 </VBox.margin></Button>
+                                 </VBox.margin>
+                              </Button>
                               <HBox spacing="5.0">
                                  <children>
                                     <VBox>
@@ -153,34 +155,37 @@
                         </VBox>
                      </right>
                   </BorderPane>
-                  <BorderPane prefHeight="113.0" prefWidth="998.0">
+                  <BorderPane maxHeight="500.0" prefHeight="291.0" prefWidth="1069.0">
                      <center>
-                        <VBox prefHeight="254.0" prefWidth="748.0" BorderPane.alignment="CENTER">
+                        <VBox spacing="10.0" BorderPane.alignment="CENTER">
                            <children>
                               <Label text="History" />
-                              <HBox>
-                                 <children>
-                                    <HBox fx:id="snapshotHBox" prefHeight="346.0" prefWidth="1037.0" HBox.hgrow="ALWAYS" />
-                                 </children>
-                              </HBox>
+                              <HBox fx:id="snapshotHBox" maxHeight="400.0" prefHeight="346.0" prefWidth="919.0">
+                                 <VBox.margin>
+                                    <Insets left="30.0" right="30.0" />
+                                 </VBox.margin></HBox>
                            </children>
-                           <padding>
-                              <Insets left="15.0" right="15.0" />
-                           </padding>
+                           <BorderPane.margin>
+                              <Insets />
+                           </BorderPane.margin>
                         </VBox>
                      </center>
-                     <padding>
-                        <Insets top="25.0" />
-                     </padding>
                      <right>
-                        <ComboBox fx:id="snapshotComboBox" prefHeight="26.0" prefWidth="156.0" BorderPane.alignment="CENTER">
-                           <BorderPane.margin>
-                              <Insets bottom="161700.0" right="9.0" />
-                           </BorderPane.margin>
-                        </ComboBox>
+                        <VBox BorderPane.alignment="CENTER">
+                           <children>
+                              <ComboBox fx:id="snapshotComboBox" prefWidth="150.0">
+                                 <VBox.margin>
+                                    <Insets top="30.0" />
+                                 </VBox.margin>
+                              </ComboBox>
+                           </children>
+                        </VBox>
                      </right>
+                     <VBox.margin>
+                        <Insets top="15.0" />
+                     </VBox.margin>
                   </BorderPane>
-                  <LineChart fx:id="lineChart" maxHeight="300.0" minHeight="250.0" prefHeight="300.0" VBox.vgrow="NEVER">
+                  <LineChart fx:id="lineChart" maxHeight="250.0">
                     <xAxis>
                       <CategoryAxis side="BOTTOM" />
                     </xAxis>
