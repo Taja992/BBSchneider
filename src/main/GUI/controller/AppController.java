@@ -527,8 +527,10 @@ public class AppController {
     }
 
     public void markUpListener() {
-        markUpTxt.focusedProperty().addListener((observable, oldValue, newValue) -> {
+        // When user presses enter, it jumps to another textfield, in this scenario the working hours textfield
+        markUpTxt.setOnAction(event -> {
             if (markUpTxt.getText() == null || markUpTxt.getText().isEmpty()) {
+                workingHoursTxt.requestFocus();
                 return;
             }
             try {
@@ -576,6 +578,7 @@ public class AppController {
                 markUpTxt.setText("0.00");
             }
             updateRates();
+            workingHoursTxt.requestFocus();
         });
     }
 
