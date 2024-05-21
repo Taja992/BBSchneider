@@ -7,6 +7,7 @@ import GUI.model.EmployeeModel;
 import GUI.model.TeamModel;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
@@ -150,8 +151,21 @@ public class TeamTable {
         teamAnnualCol.setCellValueFactory(new PropertyValueFactory<>("AnnualAmount"));
         teamCountryCol.setCellValueFactory(new PropertyValueFactory<>("Country"));
         teamHoursCol.setCellValueFactory(new PropertyValueFactory<>("WorkingHours"));
-        teamUtilCol.setCellValueFactory(new PropertyValueFactory<>("TeamUtil"));
+//        teamUtilCol.setCellValueFactory(new PropertyValueFactory<>("TeamUtil"));
         teamOverHeadCol.setCellValueFactory(new PropertyValueFactory<>("teamIsOverhead"));
+
+        //this code makes the app open up in like 40 seconds
+        teamUtilCol.setCellValueFactory(cellData -> {
+            try {
+                Employee employee = cellData.getValue();
+                BigDecimal newUtil = teamModel.getTeamUtilForEmployee(employee.getId(), team.getId());
+                return new SimpleObjectProperty<>(newUtil);
+            } catch (BBExceptions e) {
+                System.err.println("Error getting team util for employee: " + e.getMessage());
+                e.printStackTrace();
+                throw new RuntimeException("Error getting team util for employee", e);
+            }
+        });
 
         //formatting all the columns that need it, these methods have comments explaining them in OverviewEmployeeTable class
         formatSalaryColumnForTeams(teamSalaryCol);
@@ -345,9 +359,8 @@ public class TeamTable {
         //util column is editable
         teamUtilCol.setOnEditCommit(event -> {
             Employee employee = event.getRowValue();
+            BigDecimal newUtil = event.getNewValue();
             try {
-                BigDecimal newUtil = teamModel.getTeamUtilForEmployee(employee.getId(), team.getId());
-                employee.setTeamUtil(newUtil);
                 employeeModel.updateTeamUtilForEmployee(team.getId(), employee.getId(), newUtil);
             } catch (BBExceptions e) {
                 showAlert("Error", e.getMessage());
