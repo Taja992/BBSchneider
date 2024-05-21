@@ -5,6 +5,8 @@ import BE.Team;
 import DAL.EmployeeDAO;
 import DAL.TeamDAO;
 import Exceptions.BBExceptions;
+
+import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.List;
@@ -46,8 +48,9 @@ public class TeamBLL {
         double totalHourlyRate = 0;
         for(Employee employee : employees){
             if (!employee.getTeamOverhead()) {  // Only calculate the hourly rate for non-overhead employees
+                BigDecimal teamUtilization = employeeDAO.getUtilizationForTeam(employee, teamDAO.getTeam(teamId));
                 double hourlyRate = employeeBLL.calculateHourlyRate(employee);
-                totalHourlyRate += hourlyRate;
+                totalHourlyRate += hourlyRate * teamUtilization.doubleValue();
             }
         }
 
@@ -66,7 +69,8 @@ public class TeamBLL {
         List<Employee> employees = employeeBLL.getAllEmployeesFromTeam(teamId);
         double totalDailyRate = 0;
         for(Employee employee : employees){
-            totalDailyRate += employeeBLL.calculateDailyRate(employee, hoursPerDay);
+            BigDecimal teamUtilization = employeeDAO.getUtilizationForTeam(employee, teamDAO.getTeam(teamId));
+            totalDailyRate += employeeBLL.calculateDailyRate(employee, hoursPerDay) * teamUtilization.doubleValue();
         }
 
         NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
