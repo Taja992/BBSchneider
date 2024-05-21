@@ -105,7 +105,7 @@ public class AppController {
     private TeamTable teamTable;
     private SnapshotModel snapshotModel;
 
-
+        //Coupling
     public AppController(){
         teamModel = new TeamModel();
         employeeModel = new EmployeeModel();
@@ -113,7 +113,7 @@ public class AppController {
     }
 
    public void initialize() {
-
+            //Cohesion
        this.overviewEmployeeTable = new OverviewEmployeeTable(employeeModel, teamModel, nameCol, teamCol, annualSalaryCol, overHeadMultiCol,
                annualAmountCol, countryCol, hoursCol, utilCol, teamUtilColSum, overheadCol, overviewEmployeeTblView, addEmployeeBtn);
 
