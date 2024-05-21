@@ -12,6 +12,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -439,27 +440,40 @@ public class AppController {
     }
 
     void calculateTeamRates(int teamId) {
-    try {
-        double hourlyRate = teamModel.calculateTotalHourlyRate(teamId);
-        double dailyRate = teamModel.calculateTotalDailyRate(teamId, Integer.parseInt(workingHoursTxt.getText()));
-        if ("€".equals(currencySymbol)) {
-            String conversionText = conversionRateTxt.getText();
-            double conversion = 0.92;
-            if (conversionText != null && !conversionText.isEmpty()) {
-                try {
-                    conversion = Double.parseDouble(conversionText);
-                } catch (NumberFormatException e) {
-                    showAlert("Invalid input", "Please enter a valid number for the conversion rate.");
+        Task<Void> calculateRatesTask = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                double hourlyRate = teamModel.calculateTotalHourlyRate(teamId);
+                double dailyRate = teamModel.calculateTotalDailyRate(teamId, Integer.parseInt(workingHoursTxt.getText()));
+                if ("€".equals(currencySymbol)) {
+                    String conversionText = conversionRateTxt.getText();
+                    double conversion = 0.92;
+                    if (conversionText != null && !conversionText.isEmpty()) {
+                        try {
+                            conversion = Double.parseDouble(conversionText);
+                        } catch (NumberFormatException e) {
+                            Platform.runLater(() -> showAlert("Invalid input", "Please enter a valid number for the conversion rate."));
+                        }
+                    }
+                    hourlyRate *= conversion;
+                    dailyRate *= conversion;
                 }
+                final double finalHourlyRate = hourlyRate;
+                final double finalDailyRate = dailyRate;
+                Platform.runLater(() -> {
+                    teamHourlyRateLbl.setText(currencySymbol +  String.format("%.2f", finalHourlyRate)+ "/Hour");
+                    teamDayRateLbl.setText(currencySymbol + String.format("%.2f", finalDailyRate) + "/Day");
+                });
+                return null;
             }
-            hourlyRate *= conversion;
-            dailyRate *= conversion;
-        }
-        teamHourlyRateLbl.setText(currencySymbol +  String.format("%.2f", hourlyRate)+ "/Hour");
-        teamDayRateLbl.setText(currencySymbol + String.format("%.2f", dailyRate) + "/Day");
-          } catch (BBExceptions e) {
-            showAlert("Error calculating team rates", e.getMessage());
-         }
+        };
+
+        calculateRatesTask.setOnFailed(e -> {
+            Throwable ex = calculateRatesTask.getException();
+            showAlert("Error calculating team rates", ex.getMessage());
+        });
+
+        new Thread(calculateRatesTask).start();
     }
 
     public void calculateEmployeeRates() {

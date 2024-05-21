@@ -124,15 +124,19 @@ public class TeamBLL {
     }
 
     private double calculateRateWithTeamUtil(Employee selectedEmployee, BigDecimal teamUtil) throws BBExceptions {
-        if (selectedEmployee != null) {
-            double annualSalary = selectedEmployee.getAnnualSalary().doubleValue();
-            double overheadMultiplier = selectedEmployee.getOverheadMultiPercent().doubleValue() / 100; // convert to decimal
-            double fixedAnnualAmount = selectedEmployee.getAnnualAmount().doubleValue();
-            double utilizationPercentage = teamUtil.doubleValue() / 100; // convert to decimal
-            double annualEffectiveWorkingHours = selectedEmployee.getWorkingHours(); // convert to total working hours in a year
-            return (((annualSalary + fixedAnnualAmount) * (1 + overheadMultiplier)) / (annualEffectiveWorkingHours * utilizationPercentage));
-        } else {
+        if (selectedEmployee == null) {
             throw new BBExceptions("No employee selected");
         }
+
+        if (teamUtil == null || teamUtil.doubleValue() == 0) {
+            return 0.0;
+        }
+
+        double annualSalary = selectedEmployee.getAnnualSalary().doubleValue();
+        double overheadMultiplier = selectedEmployee.getOverheadMultiPercent().doubleValue() / 100; // convert to decimal
+        double fixedAnnualAmount = selectedEmployee.getAnnualAmount().doubleValue();
+        double utilizationPercentage = teamUtil.doubleValue() / 100; // convert to decimal
+        double annualEffectiveWorkingHours = selectedEmployee.getWorkingHours(); // convert to total working hours in a year
+        return (((annualSalary + fixedAnnualAmount) * (1 + overheadMultiplier)) / (annualEffectiveWorkingHours * utilizationPercentage));
     }
 }
