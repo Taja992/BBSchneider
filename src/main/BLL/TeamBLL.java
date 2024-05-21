@@ -49,7 +49,7 @@ public class TeamBLL {
         for(Employee employee : employees){
             if (!employee.getTeamOverhead()) {  // Only calculate the hourly rate for non-overhead employees
                 BigDecimal teamUtilization = employeeDAO.getUtilizationForTeam(employee, teamDAO.getTeam(teamId));
-                double hourlyRate = employeeBLL.calculateHourlyRate(employee);
+                double hourlyRate = calculateTeamHourlyRate(employee, teamUtilization);
                 totalHourlyRate += hourlyRate * teamUtilization.doubleValue();
             }
         }
@@ -70,7 +70,7 @@ public class TeamBLL {
         double totalDailyRate = 0;
         for(Employee employee : employees){
             BigDecimal teamUtilization = employeeDAO.getUtilizationForTeam(employee, teamDAO.getTeam(teamId));
-            totalDailyRate += employeeBLL.calculateDailyRate(employee, hoursPerDay) * teamUtilization.doubleValue();
+            totalDailyRate += calculateTeamDailyRate(employee, teamUtilization, hoursPerDay);
         }
 
         NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
@@ -81,6 +81,56 @@ public class TeamBLL {
             return nf.parse(nf.format(totalDailyRate)).doubleValue();
         } catch (ParseException e) {
             throw new BBExceptions("Error parsing total daily rate", e);
+        }
+    }
+
+    /////////////////////////////////////////////////////////////////
+    /////////////////Calculation Logic for Team//////////////////////
+    /////////////////////////////////////////////////////////////////
+
+    public Double calculateTeamHourlyRate(Employee selectedEmployee, BigDecimal teamUtil) throws BBExceptions {
+        double rate = calculateRateWithTeamUtil(selectedEmployee, teamUtil);  // The rate calculated is already in hourly rate
+
+        NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
+        nf.setMaximumFractionDigits(2);
+        nf.setMinimumFractionDigits(2);
+
+        try {
+            return nf.parse(nf.format(rate)).doubleValue();
+        } catch (ParseException e) {
+            throw new BBExceptions("Error parsing hourly rate", e);
+        }
+    }
+
+    public Double calculateTeamDailyRate(Employee selectedEmployee, BigDecimal teamUtil, int hoursPerDay) throws BBExceptions {
+        if (hoursPerDay < 0 || hoursPerDay > 24) {
+            throw new BBExceptions("Invalid number of hours per day. It should be between 0 and 24.");
+        }
+
+        double hourlyRate = calculateTeamHourlyRate(selectedEmployee, teamUtil);
+        double dailyRate = hourlyRate * hoursPerDay;
+
+        NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
+        nf.setMaximumFractionDigits(2);
+        nf.setMinimumFractionDigits(2);
+
+        try {
+            return nf.parse(nf.format(dailyRate)).doubleValue();
+        } catch (ParseException e) {
+            throw new BBExceptions("Error parsing daily rate", e);
+        }
+    }
+
+    private double calculateRateWithTeamUtil(Employee selectedEmployee, BigDecimal teamUtil) throws BBExceptions {
+        if (selectedEmployee != null) {
+            double annualSalary = selectedEmployee.getAnnualSalary().doubleValue();
+            double overheadMultiplier = selectedEmployee.getOverheadMultiPercent().doubleValue() / 100; // convert to decimal
+            double fixedAnnualAmount = selectedEmployee.getAnnualAmount().doubleValue();
+            double utilizationPercentage = teamUtil.doubleValue() / 100; // convert to decimal
+            double annualEffectiveWorkingHours = selectedEmployee.getWorkingHours(); // convert to total working hours in a year
+            return (((annualSalary + fixedAnnualAmount) * (1 + overheadMultiplier)) / (annualEffectiveWorkingHours * utilizationPercentage));
+        } else {
+            throw new BBExceptions("No employee selected");
         }
     }
 }
