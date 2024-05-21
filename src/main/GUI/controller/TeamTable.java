@@ -362,6 +362,7 @@ public class TeamTable {
             BigDecimal newUtil = event.getNewValue();
             try {
                 employeeModel.updateTeamUtilForEmployee(team.getId(), employee.getId(), newUtil);
+                teamModel.invalidateCacheForEmployeeAndTeam(employee.getId(), team.getId());
             } catch (BBExceptions e) {
                 showAlert("Error", e.getMessage());
             }
