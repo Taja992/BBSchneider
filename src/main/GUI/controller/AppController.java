@@ -236,9 +236,12 @@ public class AppController {
                 throw new RuntimeException(e);
             }
             TableView<Employee> content = teamTable.createTableForTeam(team, employeesInTeam);
+            content.setEditable(false);
 
+            //to counteract the columns being editable (from the createTableForTeam() method)
             TableColumn<Employee, Boolean> teamOverheadCol = (TableColumn<Employee, Boolean>) content.getColumns().get(7);
             makeOverheadColumnNotEditable(teamOverheadCol);
+
             tab.setContent(content);
             snapTabPane.getTabs().add(tab);
 
@@ -252,7 +255,6 @@ public class AppController {
 
         Col.setCellFactory(column -> new TableCell<Employee, Boolean>() {
             private final CheckBox checkBox = new CheckBox();
-
             @Override
             protected void updateItem(Boolean item, boolean empty) {
                 super.updateItem(item, empty);
