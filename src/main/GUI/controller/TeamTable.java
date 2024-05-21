@@ -367,6 +367,7 @@ public class TeamTable {
                 showAlert("Error", e.getMessage());
             }
             employeeModel.invalidateTeamUtilSumCache(employee.getId());
+            appController.calculateTeamRates(team.getId());
         });
     }
 

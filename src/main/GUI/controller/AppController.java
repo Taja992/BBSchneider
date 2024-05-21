@@ -12,6 +12,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -463,33 +464,40 @@ public class AppController {
 //    }
 
     void calculateTeamRates(int teamId) {
-        try {
-            ObservableList<Employee> teamMembers = employeeModel.getAllEmployeesFromTeam(teamId);
-            double totalHourlyRate = 0.0;
-            double totalDailyRate = 0.0;
-            for (Employee employee : teamMembers) {
-                BigDecimal teamUtil = teamModel.getTeamUtilForEmployee(employee.getId(), teamId);
-                totalHourlyRate += employeeModel.calculateTeamHourlyRate(employee, teamUtil);
-                totalDailyRate += employeeModel.calculateTeamDailyRate(employee, teamUtil, Integer.parseInt(workingHoursTxt.getText()));
-            }
-            if ("€".equals(currencySymbol)) {
-                String conversionText = conversionRateTxt.getText();
-                double conversion = 0.92;
-                if (conversionText != null && !conversionText.isEmpty()) {
-                    try {
-                        conversion = Double.parseDouble(conversionText);
-                    } catch (NumberFormatException e) {
-                        showAlert("Invalid input", "Please enter a valid number for the conversion rate.");
+        Task<Void> calculateRatesTask = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                double hourlyRate = teamModel.calculateTotalHourlyRate(teamId);
+                double dailyRate = teamModel.calculateTotalDailyRate(teamId, Integer.parseInt(workingHoursTxt.getText()));
+                if ("€".equals(currencySymbol)) {
+                    String conversionText = conversionRateTxt.getText();
+                    double conversion = 0.92;
+                    if (conversionText != null && !conversionText.isEmpty()) {
+                        try {
+                            conversion = Double.parseDouble(conversionText);
+                        } catch (NumberFormatException e) {
+                            Platform.runLater(() -> showAlert("Invalid input", "Please enter a valid number for the conversion rate."));
+                        }
                     }
+                    hourlyRate *= conversion;
+                    dailyRate *= conversion;
                 }
-                totalHourlyRate *= conversion;
-                totalDailyRate *= conversion;
+                final double finalHourlyRate = hourlyRate;
+                final double finalDailyRate = dailyRate;
+                Platform.runLater(() -> {
+                    teamHourlyRateLbl.setText(currencySymbol +  String.format("%.2f", finalHourlyRate)+ "/Hour");
+                    teamDayRateLbl.setText(currencySymbol + String.format("%.2f", finalDailyRate) + "/Day");
+                });
+                return null;
             }
-            teamHourlyRateLbl.setText(currencySymbol + String.format("%.2f", totalHourlyRate) + "/Hour");
-            teamDayRateLbl.setText(currencySymbol + String.format("%.2f", totalDailyRate) + "/Day");
-        } catch (BBExceptions e) {
-            showAlert("Error calculating team rates", e.getMessage());
-        }
+        };
+
+        calculateRatesTask.setOnFailed(e -> {
+            Throwable ex = calculateRatesTask.getException();
+            showAlert("Error calculating team rates", ex.getMessage());
+        });
+
+        new Thread(calculateRatesTask).start();
     }
 
     public void calculateEmployeeRates() {
@@ -559,11 +567,8 @@ public class AppController {
     public void markUpListener() {
         // When user presses enter, it jumps to another textfield, in this scenario the working hours textfield
         markUpTxt.setOnAction(event -> {
-            workingHoursTxt.requestFocus();
-        });
-        
-        markUpTxt.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (markUpTxt.getText() == null || markUpTxt.getText().isEmpty()) {
+                workingHoursTxt.requestFocus();
                 return;
             }
             try {
@@ -612,6 +617,7 @@ public class AppController {
             }
             updateRates();
 
+            workingHoursTxt.requestFocus();
         });
     }
 
