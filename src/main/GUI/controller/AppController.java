@@ -34,10 +34,8 @@ import java.util.Map;
 
 public class AppController {
 // in this class we handle filtering, snapshots and rates calculations
-
-
     @FXML
-    private TabPane snapshotTabPane;
+    private HBox snapshotHBox;
     @FXML
     private LineChart<String, Number> lineChart;
     //--------------------------------------
@@ -86,6 +84,8 @@ public class AppController {
     private TabPane teamTabPane;
     @FXML
     private ComboBox<String> overviewCountryCmbBox;
+    @FXML
+    private ComboBox<String> snapshotComboBox;
     @FXML
     private TextField conversionRateTxt;
     @FXML
@@ -168,7 +168,7 @@ public class AppController {
         }
     }
 
-    public void CreateSnapshotFile(ActionEvent event) {
+   public void CreateSnapshotFile(ActionEvent event) {
 
         LocalDateTime currentDate = LocalDateTime.now();
 
@@ -179,38 +179,46 @@ public class AppController {
         String tabName = newFileName.substring(12);
         tabName = tabName.replace("-", "/");
 
-
-        Tab tab = new Tab(tabName);
-        tab.setClosable(false);
-        tab.setId(tabName);
-        tab.setContent(createTabPaneForSnapshot(newFileName + ".db"));
-
-        snapshotTabPane.getTabs().add(tab);
+       snapshotComboBox.getItems().add(tabName);
 
     }
-
+    // POPULATE COMBOBOX FROM HERE
     //creates the tabs for each snapshot
     private void createTabsForSnapshots(){
         Map<String, String> allSnapshots = snapshotModel.getAllSnapshotNames();
-        //snapshotTabPane.getStyleClass().add(".snapShotTabPane");
+
+        // Assuming snapshotComboBox is your ComboBox
+        snapshotComboBox.getItems().clear(); // Clear existing items if any
 
         for(String name : allSnapshots.keySet()){
-            //System.out.println(name);
-            Tab tab = new Tab();
-            tab.setClosable(false);
-            tab.setId(name);
-
-            Label snapNameLbl = new Label(name);
-            //setting padding on label so it's aligned to the center
-            snapNameLbl.setPadding(new Insets(0,35,0,0));
-            tab.setGraphic(snapNameLbl);
-
-            tab.setContent(createTabPaneForSnapshot(allSnapshots.get(name)));
-
-            snapshotTabPane.getTabs().add(tab);
-            //System.out.println(tab.getId());
+            snapshotComboBox.getItems().add(name);
         }
+
+        // Set an action listener on the ComboBox
+        snapshotComboBox.setOnAction((event) -> {
+            String selectedSnapshot = snapshotComboBox.getSelectionModel().getSelectedItem();
+            if (selectedSnapshot != null) {
+                Map<String, String> snapshotList = snapshotModel.getAllSnapshotNames();
+
+                snapshotHBox.getChildren().clear();
+                snapshotHBox.getChildren().add(createTabPaneForSnapshot(snapshotList.get(selectedSnapshot)));
+            }
+        });
+
         orderSnapshotTabs();
+
+        // Select the first item by default
+        if (!snapshotComboBox.getItems().isEmpty()) {
+            snapshotComboBox.getSelectionModel().select(0);
+            String selectedSnapshot = snapshotComboBox.getSelectionModel().getSelectedItem();
+            if (selectedSnapshot != null) {
+                Map<String, String> snapshotList = snapshotModel.getAllSnapshotNames();
+
+                snapshotHBox.getChildren().clear();
+                snapshotHBox.getChildren().add(createTabPaneForSnapshot(snapshotList.get(selectedSnapshot)));
+
+            }
+        }
 
 
     }
@@ -218,6 +226,8 @@ public class AppController {
     //creates the content inside each snapshot tab (the tabpane including all the teams)
     private TabPane createTabPaneForSnapshot(String filename){
         TabPane snapTabPane = new TabPane();
+        snapTabPane.getStyleClass().add("teamTabPane");
+        snapTabPane.setMinWidth(826);
         List<Team> teams = null;
         try {
             teams = snapshotModel.getAllTeamsInSnapshot(filename);
@@ -236,6 +246,7 @@ public class AppController {
                 throw new RuntimeException(e);
             }
             TableView<Employee> content = teamTable.createTableForTeam(team, employeesInTeam);
+            content.setEditable(false);
 
             TableColumn<Employee, Boolean> teamOverheadCol = (TableColumn<Employee, Boolean>) content.getColumns().get(7);
             makeOverheadColumnNotEditable(teamOverheadCol);
@@ -270,12 +281,12 @@ public class AppController {
     }
 
     private void orderSnapshotTabs(){
-        ObservableList<Tab> allTabs = snapshotTabPane.getTabs();
+        ObservableList<String> allItems = snapshotComboBox.getItems();
 
-        allTabs.sort((tab1, tab2) ->{
+        allItems.sort((item1, item2) ->{
 
-            String tab1Name = tab1.getId();
-            String tab2Name = tab2.getId();
+            String tab1Name = item1;
+            String tab2Name = item2;
 
             //if either name contains "(2)" in case this is a duplicate file
             if(tab1Name.contains("(") || tab2Name.contains("(")){
