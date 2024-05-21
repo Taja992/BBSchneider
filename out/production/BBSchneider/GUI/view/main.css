@@ -38,6 +38,7 @@
     -fx-pref-width: 125;
     -fx-background-color: #e8e8e8;
     -fx-text-fill: #00A652;
+    -fx-border-radius: 5;
 }
 
 .teamTabPane .tab:selected {
