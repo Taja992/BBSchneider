@@ -14,9 +14,15 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -190,10 +196,15 @@ public class AppController {
 
         for(String name : allSnapshots.keySet()){
             //System.out.println(name);
-            Tab tab = new Tab(name);
+            Tab tab = new Tab();
             tab.setClosable(false);
             tab.setId(name);
-            //tab.getStyleClass().add(".snapShotTabPane");
+
+            Label snapNameLbl = new Label(name);
+            //setting padding on label so it's aligned to the center
+            snapNameLbl.setPadding(new Insets(0,35,0,0));
+            tab.setGraphic(snapNameLbl);
+
             tab.setContent(createTabPaneForSnapshot(allSnapshots.get(name)));
 
             snapshotTabPane.getTabs().add(tab);
@@ -225,9 +236,12 @@ public class AppController {
                 throw new RuntimeException(e);
             }
             TableView<Employee> content = teamTable.createTableForTeam(team, employeesInTeam);
+            content.setEditable(false);
 
+            //to counteract the columns being editable (from the createTableForTeam() method)
             TableColumn<Employee, Boolean> teamOverheadCol = (TableColumn<Employee, Boolean>) content.getColumns().get(7);
             makeOverheadColumnNotEditable(teamOverheadCol);
+
             tab.setContent(content);
             snapTabPane.getTabs().add(tab);
 
@@ -241,7 +255,6 @@ public class AppController {
 
         Col.setCellFactory(column -> new TableCell<Employee, Boolean>() {
             private final CheckBox checkBox = new CheckBox();
-
             @Override
             protected void updateItem(Boolean item, boolean empty) {
                 super.updateItem(item, empty);
