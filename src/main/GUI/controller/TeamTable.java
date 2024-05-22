@@ -229,9 +229,8 @@ public class TeamTable {
                 if (team != null) {
                     try {
                         employeeModel.addEmployeeToTeam(draggedEmployee, team);
-                        appController.calculateTeamRates(team.getId());
                     } catch (BBExceptions e) {
-                        throw new RuntimeException(e);
+                        showAlert("Error", e.getMessage());
                     }
                 }
 
