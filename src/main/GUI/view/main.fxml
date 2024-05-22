@@ -129,7 +129,7 @@
                               <Label fx:id="teamHourlyRateLbl" text="\$0.00/Hour" />
                               <VBox alignment="CENTER">
                                  <children>
-                                    <Label alignment="CENTER" contentDisplay="CENTER" text="Working Hours" />
+                                    <Label alignment="CENTER" contentDisplay="CENTER" text="Daily Working Hours" />
                                     <TextField fx:id="workingHoursTxt">
                                        <VBox.margin>
                                           <Insets bottom="15.0" />

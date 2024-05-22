@@ -6,7 +6,6 @@ import Exceptions.BBExceptions;
 import GUI.model.EmployeeModel;
 import GUI.model.TeamModel;
 import com.neovisionaries.i18n.CountryCode;
-import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -291,7 +290,7 @@ public class OverviewEmployeeTable {
 
                 for (Team team : teams) {
                     try {
-                        BigDecimal teamUtilization = employeeModel.getUtilizationForTeam(employee, team);
+                        BigDecimal teamUtilization = employeeModel.getUtilizationForTeam(employeeId, team.getId());
                         totalUtilization = totalUtilization.add(teamUtilization);
                     } catch (BBExceptions e) {
                         throw new RuntimeException(e);
@@ -423,14 +422,12 @@ public class OverviewEmployeeTable {
             }
         });
     }
-    private void showAlert(String title, String message) {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle(title);
-            alert.setHeaderText(null);
-            alert.setContentText(message);
-            alert.showAndWait();
-        });
 
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

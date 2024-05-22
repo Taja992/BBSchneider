@@ -25,6 +25,7 @@ public class EmployeeModel {
     public EmployeeModel(){
         employeeBLL = new EmployeeBLL();
         allEmployees = FXCollections.observableArrayList();
+
     }
 
     public static int setWorkingHours(int newWorkingHours) {
@@ -245,8 +246,8 @@ public class EmployeeModel {
         employeeBLL.updateTeamUtilForEmployee(teamId, employeeId, newUtil);
     }
 
-    public BigDecimal getUtilizationForTeam(Employee employee, Team team) throws BBExceptions {
-        return employeeBLL.getUtilizationForTeam(employee, team);
+    public BigDecimal getUtilizationForTeam(int employeeId, int teamId) throws BBExceptions {
+        return employeeBLL.getUtilizationForTeam(employeeId, teamId);
     }
 
     public void invalidateTeamUtilSumCache(int employeeId) {
