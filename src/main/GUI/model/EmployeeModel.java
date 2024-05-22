@@ -25,6 +25,7 @@ public class EmployeeModel {
     public EmployeeModel(){
         employeeBLL = new EmployeeBLL();
         allEmployees = FXCollections.observableArrayList();
+
     }
 
     public static int setWorkingHours(int newWorkingHours) {
