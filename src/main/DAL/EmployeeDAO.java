@@ -3,6 +3,7 @@ package DAL;
 import BE.Employee;
 import BE.Team;
 import Exceptions.BBExceptions;
+import com.microsoft.sqlserver.jdbc.SQLServerException;
 
 import java.math.BigDecimal;
 import java.sql.*;
@@ -159,9 +160,15 @@ EmployeeDAO {
 
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            throw new BBExceptions("Error adding employee to team", e);
+            if (e instanceof SQLServerException && e.getMessage().contains("Violation of UNIQUE KEY constraint")) {
+                throw new BBExceptions("The employee is already on the team.", e);
+            } else {
+                throw new BBExceptions("Error adding employee to team", e);
+            }
         }
     }
+
+
     public void removeEmployeeFromTeam(int employeeId, int teamId) throws BBExceptions {
         String sql = "DELETE FROM Connection WHERE Emp_Id = ? AND Team_Id = ?";
         try (Connection connection = connectionManager.getConnection();

@@ -198,6 +198,7 @@ public class TeamTable {
             if (selectedEmployee != null) {
                 try {
                     employeeModel.removeEmployeeFromTeam(selectedEmployee.getId(), team.getId());
+                    appController.calculateTeamRates(team.getId());
                 } catch (BBExceptions e) {
                     showAlert("Error", e.getMessage());
                 }
@@ -206,11 +207,6 @@ public class TeamTable {
         contextMenu.getItems().add(deleteItem);
         teamTblView.setContextMenu(contextMenu);
     }
-
-
-
-
-
 
     private void dragAndDrop(TableView<Employee> teamTblView) {
         teamTblView.setOnDragOver(event -> {
@@ -243,9 +239,9 @@ public class TeamTable {
                 if (team != null) {
                     try {
                         employeeModel.addEmployeeToTeam(draggedEmployee, team);
-                        appController.calculateTeamRates(team.getId());
+                        draggedEmployee.setTeamUtil(new BigDecimal("0.00"));
                     } catch (BBExceptions e) {
-                        throw new RuntimeException(e);
+                        showAlert("Error", e.getMessage());
                     }
                 }
 
@@ -412,13 +408,10 @@ public class TeamTable {
 
 
     private void showAlert(String title, String message) {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle(title);
-            alert.setHeaderText(null);
-            alert.setContentText(message);
-            alert.showAndWait();
-        });
-
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }
