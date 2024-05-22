@@ -229,9 +229,8 @@ public class TeamTable {
                 if (team != null) {
                     try {
                         employeeModel.addEmployeeToTeam(draggedEmployee, team);
-                        appController.calculateTeamRates(team.getId());
                     } catch (BBExceptions e) {
-                        throw new RuntimeException(e);
+                        showAlert("Error", e.getMessage());
                     }
                 }
 
@@ -338,6 +337,7 @@ public class TeamTable {
                 showAlert("Error", e.getMessage());
             }
             employeeModel.invalidateTeamUtilSumCache(employee.getId());
+            appController.calculateTeamRates(team.getId());
         });
     }
 

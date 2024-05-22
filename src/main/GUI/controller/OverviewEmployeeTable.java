@@ -291,7 +291,7 @@ public class OverviewEmployeeTable {
 
                 for (Team team : teams) {
                     try {
-                        BigDecimal teamUtilization = employeeModel.getUtilizationForTeam(employee, team);
+                        BigDecimal teamUtilization = employeeModel.getUtilizationForTeam(employeeId, team.getId());
                         totalUtilization = totalUtilization.add(teamUtilization);
                     } catch (BBExceptions e) {
                         throw new RuntimeException(e);
