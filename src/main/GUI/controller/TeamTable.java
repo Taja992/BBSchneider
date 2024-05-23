@@ -158,7 +158,7 @@ public class TeamTable {
         teamUtilCol.setCellValueFactory(cellData -> {
             try {
                 Employee employee = cellData.getValue();
-                BigDecimal newUtil = teamModel.getTeamUtilForEmployee(employee.getId(), team.getId());
+                BigDecimal newUtil = employeeModel.getTeamUtilForEmployee(employee.getId(), team.getId());
                 return new SimpleObjectProperty<>(newUtil);
             } catch (BBExceptions e) {
                 System.err.println("Error getting team util for employee: " + e.getMessage());
@@ -198,6 +198,7 @@ public class TeamTable {
             if (selectedEmployee != null) {
                 try {
                     employeeModel.removeEmployeeFromTeam(selectedEmployee.getId(), team.getId());
+                    appController.calculateTeamRates(team.getId());
                 } catch (BBExceptions e) {
                     showAlert("Error", e.getMessage());
                 }
@@ -206,11 +207,6 @@ public class TeamTable {
         contextMenu.getItems().add(deleteItem);
         teamTblView.setContextMenu(contextMenu);
     }
-
-
-
-
-
 
     private void dragAndDrop(TableView<Employee> teamTblView) {
         teamTblView.setOnDragOver(event -> {
@@ -243,9 +239,9 @@ public class TeamTable {
                 if (team != null) {
                     try {
                         employeeModel.addEmployeeToTeam(draggedEmployee, team);
-                        appController.calculateTeamRates(team.getId());
+                        draggedEmployee.setTeamUtil(new BigDecimal("0.00"));
                     } catch (BBExceptions e) {
-                        throw new RuntimeException(e);
+                        showAlert("Error", e.getMessage());
                     }
                 }
 
@@ -362,11 +358,12 @@ public class TeamTable {
             BigDecimal newUtil = event.getNewValue();
             try {
                 employeeModel.updateTeamUtilForEmployee(team.getId(), employee.getId(), newUtil);
-                teamModel.invalidateCacheForEmployeeAndTeam(employee.getId(), team.getId());
+                employeeModel.invalidateCacheForEmployeeAndTeam(employee.getId(), team.getId());
             } catch (BBExceptions e) {
                 showAlert("Error", e.getMessage());
             }
             employeeModel.invalidateTeamUtilSumCache(employee.getId());
+            appController.calculateTeamRates(team.getId());
         });
     }
 
@@ -411,13 +408,10 @@ public class TeamTable {
 
 
     private void showAlert(String title, String message) {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle(title);
-            alert.setHeaderText(null);
-            alert.setContentText(message);
-            alert.showAndWait();
-        });
-
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

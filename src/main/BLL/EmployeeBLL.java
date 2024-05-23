@@ -44,8 +44,8 @@ public class EmployeeBLL {
         employeeDAO.updateEmployee(employee);
     }
 
-    public BigDecimal getUtilizationForTeam(Employee employee, Team team) throws BBExceptions {
-        return employeeDAO.getUtilizationForTeam(employee, team);
+    public BigDecimal getUtilizationForTeam(int employeeId, int teamId) throws BBExceptions {
+        return employeeDAO.getUtilizationForTeam(employeeId, teamId);
     }
 
     public void updateTeamUtilForEmployee(int teamId, int employeeId, BigDecimal newUtil) throws BBExceptions {
@@ -163,6 +163,8 @@ public class EmployeeBLL {
             throw new RuntimeException(e);
         }
     }
+
+
 
     public double calculateMarkUp(double markupValue){
         return 1 + (markupValue / 100);

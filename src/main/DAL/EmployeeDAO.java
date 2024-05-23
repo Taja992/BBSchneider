@@ -3,6 +3,7 @@ package DAL;
 import BE.Employee;
 import BE.Team;
 import Exceptions.BBExceptions;
+import com.microsoft.sqlserver.jdbc.SQLServerException;
 
 import java.math.BigDecimal;
 import java.sql.*;
@@ -159,9 +160,15 @@ EmployeeDAO {
 
             pstmt.executeUpdate();
         } catch (SQLException e) {
-            throw new BBExceptions("Error adding employee to team", e);
+            if (e instanceof SQLServerException && e.getMessage().contains("Violation of UNIQUE KEY constraint")) {
+                throw new BBExceptions("The employee is already on the team.", e);
+            } else {
+                throw new BBExceptions("Error adding employee to team", e);
+            }
         }
     }
+
+
     public void removeEmployeeFromTeam(int employeeId, int teamId) throws BBExceptions {
         String sql = "DELETE FROM Connection WHERE Emp_Id = ? AND Team_Id = ?";
         try (Connection connection = connectionManager.getConnection();
@@ -251,21 +258,22 @@ EmployeeDAO {
         }
     }
 
-    public BigDecimal getUtilizationForTeam(Employee employee, Team team) throws BBExceptions {
+    public BigDecimal getUtilizationForTeam(int employeeId, int teamId) throws BBExceptions {
         String sql = "SELECT Team_Util FROM Connection WHERE Emp_Id = ? AND Team_Id = ?";
 
         try (Connection connection = connectionManager.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql)) {
 
-            ps.setInt(1, employee.getId());
-            ps.setInt(2, team.getId());
+            ps.setInt(1, employeeId);
+            ps.setInt(2, teamId);
 
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
                 return rs.getBigDecimal("Team_Util");
             } else {
-                throw new BBExceptions("No utilization found for employee with ID " + employee.getId() + " in team with ID " + team.getId());
+                return BigDecimal.ZERO;
+//                throw new BBExceptions("No utilization found for employee with ID " + employeeId + " in team with ID " + teamId);
             }
         } catch (SQLException e) {
             throw new BBExceptions("Error retrieving utilization for employee in team", e);
