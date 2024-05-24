@@ -39,13 +39,8 @@ public class AppController {
 
     @FXML
     private TextField workingHoursTxt;
-
     @FXML
     private HBox snapshotHBox;
-    @FXML
-    private LineChart<String, Number> lineChart;
-    //--------------------------------------
-    //----------Overview Tab----------------
     @FXML
     public ComboBox grossMarginComboBox;
     @FXML
@@ -76,8 +71,6 @@ public class AppController {
     private TableColumn<Employee, BigDecimal> utilCol;
     @FXML
     private TableColumn<Employee, BigDecimal> teamUtilColSum;
-    @FXML
-    private TableColumn<Employee, Boolean> overheadCol;
     @FXML
     public TableColumn<Employee, String> teamCol;
     @FXML
@@ -119,7 +112,7 @@ public class AppController {
    public void initialize() {
             //Cohesion
        this.overviewEmployeeTable = new OverviewEmployeeTable(employeeModel, teamModel, nameCol, teamCol, annualSalaryCol, overHeadMultiCol,
-               annualAmountCol, countryCol, hoursCol, utilCol, teamUtilColSum, overheadCol, overviewEmployeeTblView, addEmployeeBtn);
+               annualAmountCol, countryCol, hoursCol, utilCol, teamUtilColSum, overviewEmployeeTblView, addEmployeeBtn);
 
        this.overviewEmployeeTable.initialize();
 
@@ -129,7 +122,6 @@ public class AppController {
 
 
        workingHoursTxt.setText(Integer.toString(8));
-       generateMockData();
        employeeRatesListener();
        setSearchEvent();
        teamRatesListener();
@@ -152,22 +144,6 @@ public class AppController {
        }
     }
 
-    public void generateMockData() {
-        // For LineChart
-        XYChart.Series<String, Number> series1 = new XYChart.Series<>();
-        series1.setName("Team 1");
-        for (int week = 1; week <= 52; week++) {
-            series1.getData().add(new XYChart.Data<>(String.valueOf(week), Math.random() * 5000));
-        }
-        lineChart.getData().add(series1);
-
-        XYChart.Series<String, Number> series2 = new XYChart.Series<>();
-        series2.setName("Team 2");
-        for (int week = 1; week <= 52; week++) {
-            series2.getData().add(new XYChart.Data<>(String.valueOf(week), Math.random() * 5000));
-        }
-        lineChart.getData().add(series2);
-    }
 
     public void populateComboBox() {
         for (int i = 0; i <= 100; i++) {

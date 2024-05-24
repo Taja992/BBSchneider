@@ -35,7 +35,6 @@ public class OverviewEmployeeTable {
     private final TableColumn<Employee, String> countryCol;
     private final TableColumn<Employee, Integer> hoursCol;
     private final TableColumn<Employee, BigDecimal> utilCol;
-    private final TableColumn<Employee, Boolean> overheadCol;
     private final TableView<Employee> overviewEmployeeTblView;
     private final EmployeeModel employeeModel;
     private final TeamModel teamModel;
@@ -49,7 +48,7 @@ public class OverviewEmployeeTable {
                                   TableColumn<Employee, String> nameCol, TableColumn<Employee, String> teamCol, TableColumn<Employee, BigDecimal> annualSalaryCol,
                                   TableColumn<Employee, BigDecimal> overHeadMultiCol, TableColumn<Employee, BigDecimal> annualAmountCol,
                                   TableColumn<Employee, String> countryCol, TableColumn<Employee, Integer> hoursCol,
-                                  TableColumn<Employee, BigDecimal> utilCol, TableColumn<Employee, BigDecimal> teamUtilColSum, TableColumn<Employee, Boolean> overheadCol,
+                                  TableColumn<Employee, BigDecimal> utilCol, TableColumn<Employee, BigDecimal> teamUtilColSum,
                                   TableView<Employee> overviewEmployeeTblView, Button addEmployeeBtn) {
         this.employeeModel = employeeModel;
         this.teamModel = teamModel;
@@ -62,7 +61,6 @@ public class OverviewEmployeeTable {
         this.hoursCol = hoursCol;
         this.utilCol = utilCol;
         this.teamUtilColSum = teamUtilColSum;
-        this.overheadCol = overheadCol;
         this.overviewEmployeeTblView = overviewEmployeeTblView;
         this.addEmployeeBtn = addEmployeeBtn;
 
@@ -156,7 +154,6 @@ public class OverviewEmployeeTable {
             formatOverheadMultiPercent();
             formatUtilization();
             formatTeamUtilSum();
-            makeOverheadEditable();
             populateTeamUtilizationSumColumn();
 
 
@@ -178,7 +175,6 @@ public class OverviewEmployeeTable {
         utilCol.setCellValueFactory(new PropertyValueFactory<>("utilization"));
         overHeadMultiCol.setCellValueFactory(new PropertyValueFactory<>("overheadMultiPercent"));
         countryCol.setCellValueFactory(new PropertyValueFactory<>("country"));
-        overheadCol.setCellValueFactory(cellData -> new SimpleBooleanProperty(cellData.getValue().getIsOverheadCost()));
     }
 
     private void makeNameEditable() {
@@ -394,34 +390,6 @@ public class OverviewEmployeeTable {
         });
     }
 
-
-    public void makeOverheadEditable() {
-        overheadCol.setCellValueFactory(cellData -> new SimpleBooleanProperty(cellData.getValue().getIsOverheadCost()));
-        overheadCol.setCellFactory(column -> new TableCell<Employee, Boolean>() {
-            private final CheckBox checkBox = new CheckBox();
-
-            @Override
-            protected void updateItem(Boolean item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) {
-                    setGraphic(null);
-                } else {
-                    setGraphic(checkBox);
-                    Employee employee = getTableView().getItems().get(getIndex());
-                    checkBox.setSelected(employee.getIsOverheadCost());
-                    //we use setOnAction with the checkbox to make it listen if there is a change
-                    checkBox.setOnAction(e -> {
-                        employee.setIsOverheadCost(checkBox.isSelected());
-                        try {
-                            employeeModel.updateEmployee(employee);
-                        } catch (BBExceptions ex) {
-                           showAlert("Error", ex.getMessage());
-                        }
-                    });
-                }
-            }
-        });
-    }
 
     private void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
