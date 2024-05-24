@@ -1,17 +1,20 @@
 package GUI.model;
 
+import BE.Employee;
 import BE.Team;
 import BLL.TeamBLL;
 import Exceptions.BBExceptions;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TeamModel {
 
     TeamBLL teamBLL = new TeamBLL();
-
 
     public ObservableList<Team> getAllTeams() {
         try {
@@ -41,9 +44,4 @@ public class TeamModel {
     public void updateTeamName(int teamId, String newTeamName) throws BBExceptions {
         teamBLL.updateTeamName(teamId, newTeamName);
     }
-
-    public List<Team> getTeamsForEmployee(int employeeId) throws BBExceptions {
-        return teamBLL.getTeamsForEmployee(employeeId);
-    }
-
 }
