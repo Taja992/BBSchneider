@@ -44,19 +44,25 @@
                                           <Image url="@/schneiderlogo2.png" />
                                        </image>
                                     </ImageView>
-                                    <HBox spacing="5.0">
+                                    <HBox alignment="CENTER" spacing="5.0">
                                        <children>
                                           <VBox alignment="CENTER">
                                              <children>
                                                 <Label text="Mark Up %" />
                                                 <TextField fx:id="markUpTxt" />
                                              </children>
+                                             <HBox.margin>
+                                                <Insets bottom="17.0" />
+                                             </HBox.margin>
                                           </VBox>
                                           <VBox alignment="CENTER">
                                              <children>
                                                 <Label text="Gross Margin" />
                                                 <ComboBox fx:id="grossMarginComboBox" prefWidth="150.0" />
                                              </children>
+                                             <HBox.margin>
+                                                <Insets bottom="17.0" />
+                                             </HBox.margin>
                                           </VBox>
                                        </children>
                                     </HBox>
