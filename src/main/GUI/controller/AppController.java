@@ -626,55 +626,55 @@ public void updateRates(double value) {
     }
 }
 
-public void updateRates() {
-    if (markUpTxt.getText() == null || markUpTxt.getText().isEmpty() ||
-            grossMarginComboBox.getSelectionModel().getSelectedItem() == null ||
-            overviewEmployeeTable.getSelectedEmployee() == null ||
-            teamTabPane.getSelectionModel().getSelectedItem().getUserData() == null) {
-        return;
-    }
-
-    try {
-        // Parse the markup and gross margin values
-        double markupValue = Double.parseDouble(markUpTxt.getText().replace(",", "."));
-        double grossMarginValue = Double.parseDouble(grossMarginComboBox.getSelectionModel().getSelectedItem().toString().replace("%", "").replace(",", "."));
-
-        // Get the current hourly and daily rates
-        double individualHourlyRate = employeeModel.calculateHourlyRate(overviewEmployeeTable.getSelectedEmployee());
-        double individualDailyRate = employeeModel.calculateDailyRate(overviewEmployeeTable.getSelectedEmployee(), Integer.parseInt(workingHoursTxt.getText()));
-
-        double teamHourlyRate = teamModel.calculateTotalHourlyRate(((Team) teamTabPane.getSelectionModel().getSelectedItem().getUserData()).getId());
-        double teamDailyRate = teamModel.calculateTotalDailyRate(((Team) teamTabPane.getSelectionModel().getSelectedItem().getUserData()).getId(), Integer.parseInt(workingHoursTxt.getText()));
-
-        // Apply the multipliers
-        individualHourlyRate *= employeeModel.calculateMarkUp(markupValue);
-        individualDailyRate *= employeeModel.calculateMarkUp(markupValue);
-
-        teamHourlyRate *= employeeModel.calculateMarkUp(markupValue);
-        teamDailyRate *= employeeModel.calculateMarkUp(markupValue);
-
-        individualHourlyRate *= employeeModel.calculateGrossMargin(grossMarginValue);
-        individualDailyRate *= employeeModel.calculateGrossMargin(grossMarginValue);
-
-        teamHourlyRate *= employeeModel.calculateGrossMargin(grossMarginValue);
-        teamDailyRate *= employeeModel.calculateGrossMargin(grossMarginValue);
-
-        // Update the labels
-        NumberFormat nf = NumberFormat.getNumberInstance(new Locale("en", "US"));
-        nf.setMaximumFractionDigits(2);
-        nf.setMinimumFractionDigits(2);
-
-        employeeHourlyRateLbl.setText(currencySymbol + nf.format(individualHourlyRate) + "/Hour");
-        employeeDayRateLbl.setText(currencySymbol +  nf.format(individualDailyRate)+ "/Day");
-
-        teamHourlyRateLbl.setText(currencySymbol + nf.format(teamHourlyRate) + "/Hour");
-        teamDayRateLbl.setText(currencySymbol +  nf.format(teamDailyRate)+ "/Day");
-    } catch (BBExceptions e) {
-        showAlert("Error", e.getMessage());
-    } catch (NumberFormatException e) {
-        showAlert("Invalid input", "Please enter valid numbers for the markup and gross margin.");
-    }
-}
+//public void updateRates() {
+//    if (markUpTxt.getText() == null || markUpTxt.getText().isEmpty() ||
+//            grossMarginComboBox.getSelectionModel().getSelectedItem() == null ||
+//            overviewEmployeeTable.getSelectedEmployee() == null ||
+//            teamTabPane.getSelectionModel().getSelectedItem().getUserData() == null) {
+//        return;
+//    }
+//
+//    try {
+//        // Parse the markup and gross margin values
+//        double markupValue = Double.parseDouble(markUpTxt.getText().replace(",", "."));
+//        double grossMarginValue = Double.parseDouble(grossMarginComboBox.getSelectionModel().getSelectedItem().toString().replace("%", "").replace(",", "."));
+//
+//        // Get the current hourly and daily rates
+//        double individualHourlyRate = employeeModel.calculateHourlyRate(overviewEmployeeTable.getSelectedEmployee());
+//        double individualDailyRate = employeeModel.calculateDailyRate(overviewEmployeeTable.getSelectedEmployee(), Integer.parseInt(workingHoursTxt.getText()));
+//
+//        double teamHourlyRate = teamModel.calculateTotalHourlyRate(((Team) teamTabPane.getSelectionModel().getSelectedItem().getUserData()).getId());
+//        double teamDailyRate = teamModel.calculateTotalDailyRate(((Team) teamTabPane.getSelectionModel().getSelectedItem().getUserData()).getId(), Integer.parseInt(workingHoursTxt.getText()));
+//
+//        // Apply the multipliers
+//        individualHourlyRate *= employeeModel.calculateMarkUp(markupValue);
+//        individualDailyRate *= employeeModel.calculateMarkUp(markupValue);
+//
+//        teamHourlyRate *= employeeModel.calculateMarkUp(markupValue);
+//        teamDailyRate *= employeeModel.calculateMarkUp(markupValue);
+//
+//        individualHourlyRate *= employeeModel.calculateGrossMargin(grossMarginValue);
+//        individualDailyRate *= employeeModel.calculateGrossMargin(grossMarginValue);
+//
+//        teamHourlyRate *= employeeModel.calculateGrossMargin(grossMarginValue);
+//        teamDailyRate *= employeeModel.calculateGrossMargin(grossMarginValue);
+//
+//        // Update the labels
+//        NumberFormat nf = NumberFormat.getNumberInstance(new Locale("en", "US"));
+//        nf.setMaximumFractionDigits(2);
+//        nf.setMinimumFractionDigits(2);
+//
+//        employeeHourlyRateLbl.setText(currencySymbol + nf.format(individualHourlyRate) + "/Hour");
+//        employeeDayRateLbl.setText(currencySymbol +  nf.format(individualDailyRate)+ "/Day");
+//
+//        teamHourlyRateLbl.setText(currencySymbol + nf.format(teamHourlyRate) + "/Hour");
+//        teamDayRateLbl.setText(currencySymbol +  nf.format(teamDailyRate)+ "/Day");
+//    } catch (BBExceptions e) {
+//        showAlert("Error", e.getMessage());
+//    } catch (NumberFormatException e) {
+//        showAlert("Invalid input", "Please enter valid numbers for the markup and gross margin.");
+//    }
+//}
 
     public void employeeRatesListener() {
 
