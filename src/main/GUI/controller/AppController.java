@@ -26,13 +26,11 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class AppController {
 
@@ -86,8 +84,6 @@ public class AppController {
     private TableView<Employee> overviewEmployeeTblView;
     @FXML
     private TextField searchTextField;
-    @FXML
-    private TextField employeesSearchTxt;
     @FXML
     private TabPane teamTabPane;
     @FXML
@@ -460,29 +456,6 @@ public class AppController {
       }
     }
 
-//    void calculateTeamRates(int teamId) {
-//    try {
-//        double hourlyRate = teamModel.calculateTotalHourlyRate(teamId);
-//        double dailyRate = teamModel.calculateTotalDailyRate(teamId, Integer.parseInt(workingHoursTxt.getText()));
-//        if ("€".equals(currencySymbol)) {
-//            String conversionText = conversionRateTxt.getText();
-//            double conversion = 0.92;
-//            if (conversionText != null && !conversionText.isEmpty()) {
-//                try {
-//                    conversion = Double.parseDouble(conversionText);
-//                } catch (NumberFormatException e) {
-//                    showAlert("Invalid input", "Please enter a valid number for the conversion rate.");
-//                }
-//            }
-//            hourlyRate *= conversion;
-//            dailyRate *= conversion;
-//        }
-//        teamHourlyRateLbl.setText(currencySymbol +  String.format("%.2f", hourlyRate)+ "/Hour");
-//        teamDayRateLbl.setText(currencySymbol + String.format("%.2f", dailyRate) + "/Day");
-//          } catch (BBExceptions e) {
-//            showAlert("Error calculating team rates", e.getMessage());
-//         }
-//    }
 
     void calculateTeamRates(int teamId) {
         Task<Void> calculateRatesTask = new Task<Void>() {
@@ -585,145 +558,99 @@ public class AppController {
         calculateCountryRates(overviewCountryCmbBox.getSelectionModel().getSelectedItem(), Integer.parseInt(workingHoursTxt.getText()));
     }
 
-    public void markUpListener() {
-        // When user presses enter, it jumps to another textfield, in this scenario the working hours textfield
-        markUpTxt.setOnAction(event -> {
-            if (markUpTxt.getText() == null || markUpTxt.getText().isEmpty()) {
-                workingHoursTxt.requestFocus();
-                return;
-            }
-            try {
-                // Parse the new value to a double
-                double markupValue = Double.parseDouble(markUpTxt.getText());
-
-                // If the value is greater than 100, set it to 100
-                if (markupValue > 100) {
-                    markUpTxt.setText("100.00");
-                } else if (markupValue < 0) {
-                    // If the value is less than 0, set it to 0
-                    markUpTxt.setText("0.00");
-                } else {
-                    // If the value is within the range, format it to two decimal places
-                    markUpTxt.setText(String.format("%.2f", markupValue));
-                }
-
-                try {
-                    // Get the current hourly and daily rates
-                    double individualHourlyRate = employeeModel.calculateHourlyRate(overviewEmployeeTable.getSelectedEmployee());
-                    double individualDailyRate = employeeModel.calculateDailyRate(overviewEmployeeTable.getSelectedEmployee(), Integer.parseInt(workingHoursTxt.getText()));
-
-                    double teamHourlyRate = teamModel.calculateTotalHourlyRate(((Team) teamTabPane.getSelectionModel().getSelectedItem().getUserData()).getId());
-                    double teamDailyRate = teamModel.calculateTotalDailyRate(((Team) teamTabPane.getSelectionModel().getSelectedItem().getUserData()).getId(), Integer.parseInt(workingHoursTxt.getText()));
-
-                    // Apply the multiplier using method in employeebll
-                    individualHourlyRate *= employeeModel.calculateMarkUp(markupValue);
-                    individualDailyRate *= employeeModel.calculateMarkUp(markupValue);
-
-                    teamHourlyRate *= employeeModel.calculateMarkUp(markupValue);
-                    teamDailyRate *= employeeModel.calculateMarkUp(markupValue);
-
-                    // Update the labels
-                    employeeHourlyRateLbl.setText(currencySymbol + String.format("%.2f", individualHourlyRate) + "/Hour");
-                    employeeDayRateLbl.setText(currencySymbol +  String.format("%.2f", individualDailyRate)+ "/Day");
-
-                    teamHourlyRateLbl.setText(currencySymbol + String.format("%.2f", teamHourlyRate) + "/Hour");
-                    teamDayRateLbl.setText(currencySymbol +  String.format("%.2f", teamDailyRate)+ "/Day");
-                } catch (BBExceptions e) {
-                    showAlert("Error", e.getMessage());
-                }
-
-            } catch (NumberFormatException e) {
-                // If the new value is not a number, revert to 0
-                markUpTxt.setText("0.00");
-            }
-            updateRates();
-
+public void markUpListener() {
+    markUpTxt.setOnAction(event -> {
+        if (markUpTxt.getText() == null || markUpTxt.getText().isEmpty()) {
             workingHoursTxt.requestFocus();
-        });
-    }
-
-    public void grossMarginListener(){
-        grossMarginComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (grossMarginComboBox.getSelectionModel().getSelectedItem() == null) {
-                return;
-            }
-                if (newValue != null) {
-                    // Parse the selected value to a double
-                    double grossMarginValue = Double.parseDouble(grossMarginComboBox.getSelectionModel().getSelectedItem().toString().replace("%", ""));
-                    // Get the current hourly and daily rates
-                    try {
-                        double individualHourlyRate = employeeModel.calculateHourlyRate(overviewEmployeeTable.getSelectedEmployee());
-                        double individualDailyRate = employeeModel.calculateDailyRate(overviewEmployeeTable.getSelectedEmployee(), Integer.parseInt(workingHoursTxt.getText()));
-
-                        double teamHourlyRate = teamModel.calculateTotalHourlyRate(((Team) teamTabPane.getSelectionModel().getSelectedItem().getUserData()).getId());
-                        double teamDailyRate = teamModel.calculateTotalDailyRate(((Team) teamTabPane.getSelectionModel().getSelectedItem().getUserData()).getId(), Integer.parseInt(workingHoursTxt.getText()));
-
-                        // Apply the multiplier using method in employeebll
-                        individualHourlyRate *= employeeModel.calculateGrossMargin(grossMarginValue);
-                        individualDailyRate *= employeeModel.calculateGrossMargin(grossMarginValue);
-
-                        teamHourlyRate *= employeeModel.calculateGrossMargin(grossMarginValue);
-                        teamDailyRate *= employeeModel.calculateGrossMargin(grossMarginValue);
-
-                        // Update the labels
-                        employeeHourlyRateLbl.setText(currencySymbol + String.format("%.2f", individualHourlyRate) + "/Hour");
-                        employeeDayRateLbl.setText(currencySymbol +  String.format("%.2f", individualDailyRate)+ "/Day");
-
-                        teamHourlyRateLbl.setText(currencySymbol + String.format("%.2f", teamHourlyRate) + "/Hour");
-                        teamDayRateLbl.setText(currencySymbol +  String.format("%.2f", teamDailyRate)+ "/Day");
-                    } catch (BBExceptions e) {
-                        showAlert("Error", e.getMessage());
-                    }
-                }
-                updateRates();
-        });
-    }
-
-    public void updateRates() {
-        if (markUpTxt.getText() == null || markUpTxt.getText().isEmpty() ||
-                grossMarginComboBox.getSelectionModel().getSelectedItem() == null ||
-                overviewEmployeeTable.getSelectedEmployee() == null ||
-                teamTabPane.getSelectionModel().getSelectedItem().getUserData() == null) {
             return;
         }
-
         try {
-            // Parse the markup and gross margin values
             double markupValue = Double.parseDouble(markUpTxt.getText());
-            double grossMarginValue = Double.parseDouble(grossMarginComboBox.getSelectionModel().getSelectedItem().toString().replace("%", ""));
+            if (markupValue > 100) {
+                markUpTxt.setText("100.00");
+            } else if (markupValue < 0) {
+                markUpTxt.setText("0.00");
+            } else {
+                markUpTxt.setText(String.format("%.2f", markupValue));
+            }
 
-            // Get the current hourly and daily rates
-            double individualHourlyRate = employeeModel.calculateHourlyRate(overviewEmployeeTable.getSelectedEmployee());
-            double individualDailyRate = employeeModel.calculateDailyRate(overviewEmployeeTable.getSelectedEmployee(), Integer.parseInt(workingHoursTxt.getText()));
+            Task<Void> task = new Task<>() {
+                @Override
+                protected Void call() {
+                    //create a task and start new thread to run updateRates
+                    updateRates(markupValue);
+                    return null;
+                }
+            };
+            new Thread(task).start();
 
-            double teamHourlyRate = teamModel.calculateTotalHourlyRate(((Team) teamTabPane.getSelectionModel().getSelectedItem().getUserData()).getId());
-            double teamDailyRate = teamModel.calculateTotalDailyRate(((Team) teamTabPane.getSelectionModel().getSelectedItem().getUserData()).getId(), Integer.parseInt(workingHoursTxt.getText()));
-
-            // Apply the multipliers
-            individualHourlyRate *= employeeModel.calculateMarkUp(markupValue);
-            individualDailyRate *= employeeModel.calculateMarkUp(markupValue);
-
-            teamHourlyRate *= employeeModel.calculateMarkUp(markupValue);
-            teamDailyRate *= employeeModel.calculateMarkUp(markupValue);
-
-            individualHourlyRate *= employeeModel.calculateGrossMargin(grossMarginValue);
-            individualDailyRate *= employeeModel.calculateGrossMargin(grossMarginValue);
-
-            teamHourlyRate *= employeeModel.calculateGrossMargin(grossMarginValue);
-            teamDailyRate *= employeeModel.calculateGrossMargin(grossMarginValue);
-
-            // Update the labels
-            employeeHourlyRateLbl.setText(currencySymbol + String.format("%.2f", individualHourlyRate) + "/Hour");
-            employeeDayRateLbl.setText(currencySymbol +  String.format("%.2f", individualDailyRate)+ "/Day");
-
-            teamHourlyRateLbl.setText(currencySymbol + String.format("%.2f", teamHourlyRate) + "/Hour");
-            teamDayRateLbl.setText(currencySymbol +  String.format("%.2f", teamDailyRate)+ "/Day");
-        } catch (BBExceptions e) {
-            showAlert("Error", e.getMessage());
         } catch (NumberFormatException e) {
-            showAlert("Invalid input", "Please enter valid numbers for the markup and gross margin.");
+            markUpTxt.setText("0.00");
         }
+        workingHoursTxt.requestFocus();
+    });
+}
+
+public void grossMarginListener() {
+        //listener on grossMarginComboBox
+    grossMarginComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+        if (grossMarginComboBox.getSelectionModel().getSelectedItem() == null) {
+            return;
+        }
+        if (newValue != null) {
+            //removes the % for calculation
+            double grossMarginValue = Double.parseDouble(grossMarginComboBox.getSelectionModel().getSelectedItem().toString().replace("%", ""));
+            Task<Void> task = new Task<>() {
+                @Override
+                protected Void call() throws Exception {
+                    //we override call method and call our updateRates method using our value as calculation
+                    updateRates(grossMarginValue);
+                    return null;
+                }
+            };
+            //start our task in a new thread
+            new Thread(task).start();
+        }
+    });
+}
+
+public void updateRates(double value) {
+    try {
+        double individualHourlyRate = employeeModel.calculateHourlyRate(overviewEmployeeTable.getSelectedEmployee());
+        double individualDailyRate = employeeModel.calculateDailyRate(overviewEmployeeTable.getSelectedEmployee(), Integer.parseInt(workingHoursTxt.getText()));
+
+        double teamHourlyRate = teamModel.calculateTotalHourlyRate(((Team) teamTabPane.getSelectionModel().getSelectedItem().getUserData()).getId());
+        double teamDailyRate = teamModel.calculateTotalDailyRate(((Team) teamTabPane.getSelectionModel().getSelectedItem().getUserData()).getId(), Integer.parseInt(workingHoursTxt.getText()));
+
+        individualHourlyRate *= employeeModel.calculateMarkUp(value);
+        individualDailyRate *= employeeModel.calculateMarkUp(value);
+
+        teamHourlyRate *= employeeModel.calculateMarkUp(value);
+        teamDailyRate *= employeeModel.calculateMarkUp(value);
+
+        NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
+        nf.setMaximumFractionDigits(2);
+        nf.setMinimumFractionDigits(2);
+
+        final double finalIndividualHourlyRate = individualHourlyRate;
+        final double finalIndividualDailyRate = individualDailyRate;
+        final double finalTeamHourlyRate = teamHourlyRate;
+        final double finalTeamDailyRate = teamDailyRate;
+
+        //platform.runlater to make sure the labels are updated on the JavaFX thread and not our new one
+        Platform.runLater(() -> {
+            employeeHourlyRateLbl.setText(currencySymbol + nf.format(finalIndividualHourlyRate) + "/Hour");
+            employeeDayRateLbl.setText(currencySymbol + nf.format(finalIndividualDailyRate) + "/Day");
+
+            teamHourlyRateLbl.setText(currencySymbol + nf.format(finalTeamHourlyRate) + "/Hour");
+            teamDayRateLbl.setText(currencySymbol + nf.format(finalTeamDailyRate) + "/Day");
+        });
+    } catch (BBExceptions e) {
+        Platform.runLater(() -> showAlert("Error", e.getMessage()));
+    } catch (NumberFormatException e) {
+        Platform.runLater(() -> showAlert("Invalid input", "Please enter valid numbers for the markup and gross margin."));
     }
+}
 
     public void employeeRatesListener() {
 
