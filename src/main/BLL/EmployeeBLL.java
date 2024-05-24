@@ -164,6 +164,8 @@ public class EmployeeBLL {
         }
     }
 
+
+
     public double calculateMarkUp(double markupValue){
         return 1 + (markupValue / 100);
     }
