@@ -140,3 +140,11 @@
     -fx-pref-height: 0.5px;
     -fx-background-color: #00A652;
 }
+
+.teamLbls {
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+}
+
+.imageView {
+}
