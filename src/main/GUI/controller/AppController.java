@@ -80,8 +80,6 @@ public class AppController {
     @FXML
     private TextField searchTextField;
     @FXML
-    private TextField employeesSearchTxt;
-    @FXML
     private TabPane teamTabPane;
     @FXML
     private ComboBox<String> overviewCountryCmbBox;
@@ -437,29 +435,6 @@ public class AppController {
       }
     }
 
-//    void calculateTeamRates(int teamId) {
-//    try {
-//        double hourlyRate = teamModel.calculateTotalHourlyRate(teamId);
-//        double dailyRate = teamModel.calculateTotalDailyRate(teamId, Integer.parseInt(workingHoursTxt.getText()));
-//        if ("€".equals(currencySymbol)) {
-//            String conversionText = conversionRateTxt.getText();
-//            double conversion = 0.92;
-//            if (conversionText != null && !conversionText.isEmpty()) {
-//                try {
-//                    conversion = Double.parseDouble(conversionText);
-//                } catch (NumberFormatException e) {
-//                    showAlert("Invalid input", "Please enter a valid number for the conversion rate.");
-//                }
-//            }
-//            hourlyRate *= conversion;
-//            dailyRate *= conversion;
-//        }
-//        teamHourlyRateLbl.setText(currencySymbol +  String.format("%.2f", hourlyRate)+ "/Hour");
-//        teamDayRateLbl.setText(currencySymbol + String.format("%.2f", dailyRate) + "/Day");
-//          } catch (BBExceptions e) {
-//            showAlert("Error calculating team rates", e.getMessage());
-//         }
-//    }
 
     void calculateTeamRates(int teamId) {
         Task<Void> calculateRatesTask = new Task<Void>() {
@@ -578,9 +553,10 @@ public void markUpListener() {
                 markUpTxt.setText(String.format("%.2f", markupValue));
             }
 
-            Task<Void> task = new Task<Void>() {
+            Task<Void> task = new Task<>() {
                 @Override
-                protected Void call() throws Exception {
+                protected Void call() {
+                    //create a task and start new thread to run updateRates
                     updateRates(markupValue);
                     return null;
                 }
@@ -595,19 +571,23 @@ public void markUpListener() {
 }
 
 public void grossMarginListener() {
+        //listener on grossMarginComboBox
     grossMarginComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
         if (grossMarginComboBox.getSelectionModel().getSelectedItem() == null) {
             return;
         }
         if (newValue != null) {
+            //removes the % for calculation
             double grossMarginValue = Double.parseDouble(grossMarginComboBox.getSelectionModel().getSelectedItem().toString().replace("%", ""));
-            Task<Void> task = new Task<Void>() {
+            Task<Void> task = new Task<>() {
                 @Override
                 protected Void call() throws Exception {
+                    //we override call method and call our updateRates method using our value as calculation
                     updateRates(grossMarginValue);
                     return null;
                 }
             };
+            //start our task in a new thread
             new Thread(task).start();
         }
     });
@@ -636,6 +616,7 @@ public void updateRates(double value) {
         final double finalTeamHourlyRate = teamHourlyRate;
         final double finalTeamDailyRate = teamDailyRate;
 
+        //platform.runlater to make sure the labels are updated on the JavaFX thread and not our new one
         Platform.runLater(() -> {
             employeeHourlyRateLbl.setText(currencySymbol + nf.format(finalIndividualHourlyRate) + "/Hour");
             employeeDayRateLbl.setText(currencySymbol + nf.format(finalIndividualDailyRate) + "/Day");
@@ -649,56 +630,6 @@ public void updateRates(double value) {
         Platform.runLater(() -> showAlert("Invalid input", "Please enter valid numbers for the markup and gross margin."));
     }
 }
-
-//public void updateRates() {
-//    if (markUpTxt.getText() == null || markUpTxt.getText().isEmpty() ||
-//            grossMarginComboBox.getSelectionModel().getSelectedItem() == null ||
-//            overviewEmployeeTable.getSelectedEmployee() == null ||
-//            teamTabPane.getSelectionModel().getSelectedItem().getUserData() == null) {
-//        return;
-//    }
-//
-//    try {
-//        // Parse the markup and gross margin values
-//        double markupValue = Double.parseDouble(markUpTxt.getText().replace(",", "."));
-//        double grossMarginValue = Double.parseDouble(grossMarginComboBox.getSelectionModel().getSelectedItem().toString().replace("%", "").replace(",", "."));
-//
-//        // Get the current hourly and daily rates
-//        double individualHourlyRate = employeeModel.calculateHourlyRate(overviewEmployeeTable.getSelectedEmployee());
-//        double individualDailyRate = employeeModel.calculateDailyRate(overviewEmployeeTable.getSelectedEmployee(), Integer.parseInt(workingHoursTxt.getText()));
-//
-//        double teamHourlyRate = teamModel.calculateTotalHourlyRate(((Team) teamTabPane.getSelectionModel().getSelectedItem().getUserData()).getId());
-//        double teamDailyRate = teamModel.calculateTotalDailyRate(((Team) teamTabPane.getSelectionModel().getSelectedItem().getUserData()).getId(), Integer.parseInt(workingHoursTxt.getText()));
-//
-//        // Apply the multipliers
-//        individualHourlyRate *= employeeModel.calculateMarkUp(markupValue);
-//        individualDailyRate *= employeeModel.calculateMarkUp(markupValue);
-//
-//        teamHourlyRate *= employeeModel.calculateMarkUp(markupValue);
-//        teamDailyRate *= employeeModel.calculateMarkUp(markupValue);
-//
-//        individualHourlyRate *= employeeModel.calculateGrossMargin(grossMarginValue);
-//        individualDailyRate *= employeeModel.calculateGrossMargin(grossMarginValue);
-//
-//        teamHourlyRate *= employeeModel.calculateGrossMargin(grossMarginValue);
-//        teamDailyRate *= employeeModel.calculateGrossMargin(grossMarginValue);
-//
-//        // Update the labels
-//        NumberFormat nf = NumberFormat.getNumberInstance(new Locale("en", "US"));
-//        nf.setMaximumFractionDigits(2);
-//        nf.setMinimumFractionDigits(2);
-//
-//        employeeHourlyRateLbl.setText(currencySymbol + nf.format(individualHourlyRate) + "/Hour");
-//        employeeDayRateLbl.setText(currencySymbol +  nf.format(individualDailyRate)+ "/Day");
-//
-//        teamHourlyRateLbl.setText(currencySymbol + nf.format(teamHourlyRate) + "/Hour");
-//        teamDayRateLbl.setText(currencySymbol +  nf.format(teamDailyRate)+ "/Day");
-//    } catch (BBExceptions e) {
-//        showAlert("Error", e.getMessage());
-//    } catch (NumberFormatException e) {
-//        showAlert("Invalid input", "Please enter valid numbers for the markup and gross margin.");
-//    }
-//}
 
     public void employeeRatesListener() {
 
