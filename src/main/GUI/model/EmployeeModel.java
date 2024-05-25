@@ -29,21 +29,7 @@ public class EmployeeModel {
         employeeBLL = new EmployeeBLL();
         allEmployees = FXCollections.observableArrayList();
         filteredEmployees = new FilteredList<>(allEmployees);
-
-        filteredEmployees.addListener((ListChangeListener<Employee>) c -> {
-            while (c.next()) {
-                if (c.wasUpdated()) {
-                    // For each updated employee in the filtered list, update the same employee in the allEmployees list
-                    for (int i = c.getFrom(); i < c.getTo(); ++i) {
-                        Employee updatedEmployee = filteredEmployees.get(i);
-                        int indexInAllEmployees = allEmployees.indexOf(updatedEmployee);
-                        if (indexInAllEmployees != -1) {
-                            allEmployees.set(indexInAllEmployees, updatedEmployee);
-                        }
-                    }
-                }
-            }
-        });
+        teamViewListener();
     }
 
 
@@ -81,6 +67,24 @@ public class EmployeeModel {
             return false;
         });
         return teamEmployees;
+    }
+
+    //this listener lets the team coloumn on Overview Table reflect if someone has been removed from a team
+    public void teamViewListener() {
+        filteredEmployees.addListener((ListChangeListener<Employee>) listChange -> {
+            while (listChange.next()) {
+                if (listChange.wasUpdated()) {
+                    // For each updated employee in the filtered list, update the same employee in the allEmployees list
+                    for (int i = listChange.getFrom(); i < listChange.getTo(); ++i) {
+                        Employee updatedEmployee = filteredEmployees.get(i);
+                        int indexInAllEmployees = allEmployees.indexOf(updatedEmployee);
+                        if (indexInAllEmployees != -1) {
+                            allEmployees.set(indexInAllEmployees, updatedEmployee);
+                        }
+                    }
+                }
+            }
+        });
     }
 
     public void updateEmployee(Employee employee) throws BBExceptions{
