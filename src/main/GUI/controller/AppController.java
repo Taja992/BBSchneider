@@ -93,6 +93,8 @@ public class AppController {
     private Button addTeamBtn;
     @FXML
     private Button addEmployeeBtn;
+    @FXML
+    private Button createSnapshotBtn;
     // -------------------------------------
 
     private String currencySymbol = "$";
@@ -136,6 +138,7 @@ public class AppController {
        selectFirstEmployee();
        createTabsForSnapshots();
        populateComboBox();
+       toolTips();
    }
 
    public void selectFirstEmployee() {
@@ -683,5 +686,17 @@ public void updateRates(double value) {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    public void toolTips() {
+        installTooltip(addEmployeeBtn, "Create new employee");
+        installTooltip(addTeamBtn, "Create new team");
+        installTooltip(createSnapshotBtn, "Create database snapshot");
+
+    }
+
+    private void installTooltip(javafx.scene.Node node, String text) {
+        Tooltip tooltip = new Tooltip(text);
+        Tooltip.install(node, tooltip);
     }
 }
