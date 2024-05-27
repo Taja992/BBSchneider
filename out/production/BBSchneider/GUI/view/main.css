@@ -4,12 +4,6 @@
     -fx-border-radius: 20;
 }
 
-/*.button {*/
-/*    -fx-background-color: #00A652;*/
-/*    -fx-text-fill: white;*/
-/*    -fx-border-radius: 5;*/
-/*    -fx-background-radius: 5;*/
-/*}*/
 
 .snapshotButton {
     -fx-background-image: url('/downloadDb.png');
@@ -166,7 +160,4 @@
 .teamLbls {
     -fx-font-weight: bold;
     -fx-font-size: 14px;
-}
-
-.imageView {
 }
