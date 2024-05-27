@@ -4,14 +4,12 @@ import BE.Employee;
 import BE.Team;
 import Exceptions.BBExceptions;
 import GUI.model.SnapshotModel;
-import GUI.model.TeamModel;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;

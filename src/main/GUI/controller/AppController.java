@@ -8,28 +8,15 @@ import GUI.model.SnapshotModel;
 import GUI.model.TeamModel;
 import com.jfoenix.controls.JFXToggleButton;
 import javafx.application.Platform;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
-
 import java.math.BigDecimal;
 import java.text.NumberFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class AppController {
@@ -114,7 +101,7 @@ public class AppController {
 
    public void initialize() {
             //Cohesion
-       this.overviewEmployeeTable = new OverviewEmployeeTable(employeeModel, teamModel, nameCol, teamCol, annualSalaryCol, overHeadMultiCol,
+       this.overviewEmployeeTable = new OverviewEmployeeTable(employeeModel, nameCol, teamCol, annualSalaryCol, overHeadMultiCol,
                annualAmountCol, countryCol, hoursCol, utilCol, teamUtilColSum, overviewEmployeeTblView, addEmployeeBtn);
 
        this.overviewEmployeeTable.initialize();

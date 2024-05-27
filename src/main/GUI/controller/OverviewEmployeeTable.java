@@ -37,21 +37,19 @@ public class OverviewEmployeeTable {
     private final TableColumn<Employee, BigDecimal> utilCol;
     private final TableView<Employee> overviewEmployeeTblView;
     private final EmployeeModel employeeModel;
-    private final TeamModel teamModel;
     private final TableColumn<Employee, BigDecimal> teamUtilColSum;
     private Button addEmployeeBtn;
 
 
 
 
-    public OverviewEmployeeTable (EmployeeModel employeeModel, TeamModel teamModel,
+    public OverviewEmployeeTable (EmployeeModel employeeModel,
                                   TableColumn<Employee, String> nameCol, TableColumn<Employee, String> teamCol, TableColumn<Employee, BigDecimal> annualSalaryCol,
                                   TableColumn<Employee, BigDecimal> overHeadMultiCol, TableColumn<Employee, BigDecimal> annualAmountCol,
                                   TableColumn<Employee, String> countryCol, TableColumn<Employee, Integer> hoursCol,
                                   TableColumn<Employee, BigDecimal> utilCol, TableColumn<Employee, BigDecimal> teamUtilColSum,
                                   TableView<Employee> overviewEmployeeTblView, Button addEmployeeBtn) {
         this.employeeModel = employeeModel;
-        this.teamModel = teamModel;
         this.nameCol = nameCol;
         this.teamCol = teamCol;
         this.annualSalaryCol = annualSalaryCol;

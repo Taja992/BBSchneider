@@ -6,7 +6,7 @@
 
 
 .snapshotButton {
-    -fx-background-image: url('/downloadDb.png');
+    -fx-background-image: url('/downloadDb2.png');
         -fx-background-size: contain;
         -fx-background-repeat: no-repeat;
         -fx-background-position: center;
@@ -16,7 +16,7 @@
 }
 
 .addEmployeeButton{
-    -fx-background-image: url('/addEmployee.png');
+    -fx-background-image: url('/addEmployee2.png');
     -fx-background-size: contain;
     -fx-background-repeat: no-repeat;
     -fx-background-position: center;
@@ -26,7 +26,7 @@
 }
 
 .addTeamButton{
-    -fx-background-image: url('/addTeam.png');
+    -fx-background-image: url('/addTeam2.png');
     -fx-background-size: contain;
     -fx-background-repeat: no-repeat;
     -fx-background-position: center;
