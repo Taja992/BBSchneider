@@ -52,6 +52,15 @@
     -fx-scale-y: 0.9;
 }
 
+
+/*.button:hover {*/
+/*    -fx-background-color: #278338;*/
+/*}*/
+
+/*.button:pressed {*/
+/*    -fx-background-color: #1A5A29;*/
+/*}*/
+
 .teamTabPane {
     -fx-tab-min-width: 125px;
 }
