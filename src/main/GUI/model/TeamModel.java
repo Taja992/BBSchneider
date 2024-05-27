@@ -1,17 +1,17 @@
 package GUI.model;
 
+
 import BE.Team;
 import BLL.TeamBLL;
 import Exceptions.BBExceptions;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import java.util.List;
+
 
 public class TeamModel {
 
     TeamBLL teamBLL = new TeamBLL();
-
 
     public ObservableList<Team> getAllTeams() {
         try {
@@ -34,16 +34,11 @@ public class TeamModel {
         return teamBLL.calculateTotalHourlyRate(teamId);
     }
 
-    public Double calculateTotalDailyRate(int teamId) throws BBExceptions{
-        return teamBLL.calculateTotalDailyRate(teamId);
+    public Double calculateTotalDailyRate(int teamId, int hoursPerDay) throws BBExceptions{
+        return teamBLL.calculateTotalDailyRate(teamId, hoursPerDay);
     }
 
     public void updateTeamName(int teamId, String newTeamName) throws BBExceptions {
         teamBLL.updateTeamName(teamId, newTeamName);
     }
-
-    public List<Team> getTeamsForEmployee(int employeeId) throws BBExceptions {
-        return teamBLL.getTeamsForEmployee(employeeId);
-    }
-
 }

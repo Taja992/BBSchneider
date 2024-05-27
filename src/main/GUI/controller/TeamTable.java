@@ -5,8 +5,8 @@ import BE.Team;
 import Exceptions.BBExceptions;
 import GUI.model.EmployeeModel;
 import GUI.model.TeamModel;
-import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
@@ -150,8 +150,21 @@ public class TeamTable {
         teamAnnualCol.setCellValueFactory(new PropertyValueFactory<>("AnnualAmount"));
         teamCountryCol.setCellValueFactory(new PropertyValueFactory<>("Country"));
         teamHoursCol.setCellValueFactory(new PropertyValueFactory<>("WorkingHours"));
-        teamUtilCol.setCellValueFactory(new PropertyValueFactory<>("TeamUtil"));
+//        teamUtilCol.setCellValueFactory(new PropertyValueFactory<>("TeamUtil"));
         teamOverHeadCol.setCellValueFactory(new PropertyValueFactory<>("teamIsOverhead"));
+
+        //this code makes the app open up in like 40 seconds
+        teamUtilCol.setCellValueFactory(cellData -> {
+            try {
+                Employee employee = cellData.getValue();
+                BigDecimal newUtil = employeeModel.getTeamUtilForEmployee(employee.getId(), team.getId());
+                return new SimpleObjectProperty<>(newUtil);
+            } catch (BBExceptions e) {
+                System.err.println("Error getting team util for employee: " + e.getMessage());
+                e.printStackTrace();
+                throw new RuntimeException("Error getting team util for employee", e);
+            }
+        });
 
         //formatting all the columns that need it, these methods have comments explaining them in OverviewEmployeeTable class
         formatSalaryColumnForTeams(teamSalaryCol);
@@ -184,6 +197,7 @@ public class TeamTable {
             if (selectedEmployee != null) {
                 try {
                     employeeModel.removeEmployeeFromTeam(selectedEmployee.getId(), team.getId());
+                    appController.calculateTeamRates(team.getId());
                 } catch (BBExceptions e) {
                     showAlert("Error", e.getMessage());
                 }
@@ -192,11 +206,6 @@ public class TeamTable {
         contextMenu.getItems().add(deleteItem);
         teamTblView.setContextMenu(contextMenu);
     }
-
-
-
-
-
 
     private void dragAndDrop(TableView<Employee> teamTblView) {
         teamTblView.setOnDragOver(event -> {
@@ -229,9 +238,9 @@ public class TeamTable {
                 if (team != null) {
                     try {
                         employeeModel.addEmployeeToTeam(draggedEmployee, team);
-                        appController.calculateTeamRates(team.getId());
+                        draggedEmployee.setTeamUtil(new BigDecimal("0.00"));
                     } catch (BBExceptions e) {
-                        throw new RuntimeException(e);
+                        showAlert("Error", e.getMessage());
                     }
                 }
 
@@ -327,17 +336,33 @@ public class TeamTable {
         });
     }
 
+//    private void editUtilization(TableColumn<Employee, BigDecimal> teamUtilCol, Team team){
+//        //util column is editable
+//        teamUtilCol.setOnEditCommit(event -> {
+//            Employee employee = event.getRowValue();
+//            employee.setTeamUtil(event.getNewValue());
+//            try {
+//                employeeModel.updateTeamUtilForEmployee(team.getId(), employee.getId(), event.getNewValue());
+//            } catch (BBExceptions e) {
+//                showAlert("Error", e.getMessage());
+//            }
+//            employeeModel.invalidateTeamUtilSumCache(employee.getId());
+//        });
+//    }
+
     private void editUtilization(TableColumn<Employee, BigDecimal> teamUtilCol, Team team){
         //util column is editable
         teamUtilCol.setOnEditCommit(event -> {
             Employee employee = event.getRowValue();
-            employee.setTeamUtil(event.getNewValue());
+            BigDecimal newUtil = event.getNewValue();
             try {
-                employeeModel.updateTeamUtilForEmployee(team.getId(), employee.getId(), event.getNewValue());
+                employeeModel.updateTeamUtilForEmployee(team.getId(), employee.getId(), newUtil);
+                employeeModel.invalidateCacheForEmployeeAndTeam(employee.getId(), team.getId());
             } catch (BBExceptions e) {
                 showAlert("Error", e.getMessage());
             }
             employeeModel.invalidateTeamUtilSumCache(employee.getId());
+            appController.calculateTeamRates(team.getId());
         });
     }
 
@@ -382,13 +407,10 @@ public class TeamTable {
 
 
     private void showAlert(String title, String message) {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle(title);
-            alert.setHeaderText(null);
-            alert.setContentText(message);
-            alert.showAndWait();
-        });
-
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

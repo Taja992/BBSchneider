@@ -7,6 +7,7 @@ import Exceptions.BBExceptions;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import java.math.BigDecimal;
@@ -20,11 +21,24 @@ public class EmployeeModel {
     private final BooleanProperty countryAdded = new SimpleBooleanProperty(false);
     private final List<String> allCountries = FXCollections.observableArrayList();
     private final ObservableList<Employee> allEmployees;
+    private final FilteredList<Employee> filteredEmployees;
     private Map<Integer, BigDecimal> teamUtilSumCache = new HashMap<>();
+    private Map<String, BigDecimal> teamUtilCache = new HashMap<>();
 
     public EmployeeModel(){
         employeeBLL = new EmployeeBLL();
         allEmployees = FXCollections.observableArrayList();
+        filteredEmployees = new FilteredList<>(allEmployees);
+        teamViewListener();
+    }
+
+
+    public static int setWorkingHours(int newWorkingHours) {
+        return EmployeeBLL.setWorkingHours(newWorkingHours);
+    }
+
+    public static int getWorkingHours() {
+        return EmployeeBLL.getWorkingHours();
     }
 
 
@@ -53,6 +67,24 @@ public class EmployeeModel {
             return false;
         });
         return teamEmployees;
+    }
+
+    //this listener lets the team coloumn on Overview Table reflect if someone has been removed from a team
+    public void teamViewListener() {
+        filteredEmployees.addListener((ListChangeListener<Employee>) listChange -> {
+            while (listChange.next()) {
+                if (listChange.wasUpdated()) {
+                    // For each updated employee in the filtered list, update the same employee in the allEmployees list
+                    for (int i = listChange.getFrom(); i < listChange.getTo(); ++i) {
+                        Employee updatedEmployee = filteredEmployees.get(i);
+                        int indexInAllEmployees = allEmployees.indexOf(updatedEmployee);
+                        if (indexInAllEmployees != -1) {
+                            allEmployees.set(indexInAllEmployees, updatedEmployee);
+                        }
+                    }
+                }
+            }
+        });
     }
 
     public void updateEmployee(Employee employee) throws BBExceptions{
@@ -225,20 +257,20 @@ public class EmployeeModel {
         return employeeBLL.calculateTotalHourlyRateForCountry(country);
     }
 
-    public Double calculateDailyRate(Employee selectedEmployee) throws BBExceptions{
-        return employeeBLL.calculateDailyRate(selectedEmployee);
+    public Double calculateDailyRate(Employee selectedEmployee, int hoursPerDay) throws BBExceptions{
+        return employeeBLL.calculateDailyRate(selectedEmployee, hoursPerDay);
     }
 
-    public Double calculateTotalDailyRateForCountry(String country) throws BBExceptions{
-        return employeeBLL.calculateTotalDailyRateForCountry(country);
+    public Double calculateTotalDailyRateForCountry(String country, int hoursPerDay) throws BBExceptions{
+        return employeeBLL.calculateTotalDailyRateForCountry(country, hoursPerDay);
     }
 
     public void updateTeamUtilForEmployee(int teamId, int employeeId, BigDecimal newUtil) throws BBExceptions {
         employeeBLL.updateTeamUtilForEmployee(teamId, employeeId, newUtil);
     }
 
-    public BigDecimal getUtilizationForTeam(Employee employee, Team team) throws BBExceptions {
-        return employeeBLL.getUtilizationForTeam(employee, team);
+    public BigDecimal getUtilizationForTeam(int employeeId, int teamId) throws BBExceptions {
+        return employeeBLL.getUtilizationForTeam(employeeId, teamId);
     }
 
     public void invalidateTeamUtilSumCache(int employeeId) {
@@ -256,4 +288,28 @@ public class EmployeeModel {
     public void updateTeamIsOverheadForEmployee(int teamId, int employeeId, boolean isOverhead) throws BBExceptions {
         employeeBLL.updateTeamIsOverheadForEmployee(teamId, employeeId, isOverhead);
     }
+
+    public BigDecimal getTeamUtilForEmployee(int employeeId, int teamId) throws BBExceptions {
+        String key = employeeId + "-" + teamId;
+        if (teamUtilCache.containsKey(key)) {
+            return teamUtilCache.get(key);
+        } else {
+            BigDecimal teamUtil = employeeBLL.getUtilizationForTeam(employeeId, teamId);
+            teamUtilCache.put(key, teamUtil);
+            return teamUtil;
+        }
+    }
+
+    public void invalidateCacheForEmployeeAndTeam(int employeeId, int teamId) {
+        String key = employeeId + "-" + teamId;
+        teamUtilCache.remove(key);
+    }
+
+//    public double calculateTeamHourlyRate(Employee employee, BigDecimal teamUtil) throws BBExceptions {
+//        return employeeBLL.calculateTeamHourlyRate(employee, teamUtil);
+//    }
+//
+//    public double calculateTeamDailyRate(Employee employee, BigDecimal teamUtil, int hoursPerDay) throws BBExceptions {
+//        return employeeBLL.calculateTeamDailyRate(employee, teamUtil, hoursPerDay);
+//    }
 }

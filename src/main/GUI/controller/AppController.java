@@ -8,40 +8,26 @@ import GUI.model.SnapshotModel;
 import GUI.model.TeamModel;
 import com.jfoenix.controls.JFXToggleButton;
 import javafx.application.Platform;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
-
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.text.NumberFormat;
+import java.util.*;
 
 public class AppController {
 
+// in this class we handle filtering, snapshots and rates calculations
 
 
     @FXML
-    private TabPane snapshotTabPane;
+    private TextField workingHoursTxt;
     @FXML
-    private LineChart<String, Number> lineChart;
-    //--------------------------------------
-    //----------Overview Tab----------------
+    private HBox snapshotHBox;
     @FXML
     public ComboBox grossMarginComboBox;
     @FXML
@@ -73,19 +59,17 @@ public class AppController {
     @FXML
     private TableColumn<Employee, BigDecimal> teamUtilColSum;
     @FXML
-    private TableColumn<Employee, Boolean> overheadCol;
-    @FXML
     public TableColumn<Employee, String> teamCol;
     @FXML
     private TableView<Employee> overviewEmployeeTblView;
     @FXML
     private TextField searchTextField;
     @FXML
-    private TextField employeesSearchTxt;
-    @FXML
     private TabPane teamTabPane;
     @FXML
     private ComboBox<String> overviewCountryCmbBox;
+    @FXML
+    private ComboBox<String> snapshotComboBox;
     @FXML
     private TextField conversionRateTxt;
     @FXML
@@ -96,6 +80,8 @@ public class AppController {
     private Button addTeamBtn;
     @FXML
     private Button addEmployeeBtn;
+    @FXML
+    private Button createSnapshotBtn;
     // -------------------------------------
 
     private String currencySymbol = "$";
@@ -104,8 +90,9 @@ public class AppController {
     private final TeamModel teamModel;
     private TeamTable teamTable;
     private SnapshotModel snapshotModel;
+    private SnapshotTable snapShotTable;
 
-
+        //Coupling
     public AppController(){
         teamModel = new TeamModel();
         employeeModel = new EmployeeModel();
@@ -113,9 +100,9 @@ public class AppController {
     }
 
    public void initialize() {
-
-       this.overviewEmployeeTable = new OverviewEmployeeTable(employeeModel, teamModel, nameCol, teamCol, annualSalaryCol, overHeadMultiCol,
-               annualAmountCol, countryCol, hoursCol, utilCol, teamUtilColSum, overheadCol, overviewEmployeeTblView, addEmployeeBtn);
+            //Cohesion
+       this.overviewEmployeeTable = new OverviewEmployeeTable(employeeModel, nameCol, teamCol, annualSalaryCol, overHeadMultiCol,
+               annualAmountCol, countryCol, hoursCol, utilCol, teamUtilColSum, overviewEmployeeTblView, addEmployeeBtn);
 
        this.overviewEmployeeTable.initialize();
 
@@ -123,20 +110,26 @@ public class AppController {
 
        this.teamTable.initialize();
 
-       generateMockData();
+       this.snapShotTable = new SnapshotTable(snapshotModel, snapshotComboBox, snapshotHBox, teamTable, createSnapshotBtn);
+
+       this.snapShotTable.initialize();
+
+
+       workingHoursTxt.setText(Integer.toString(8));
        employeeRatesListener();
        setSearchEvent();
        teamRatesListener();
        currencyChangeToggleBtnListener();
        markUpListener();
        grossMarginListener();
-       populateComboBox();
        setupCountryBox();
        addCountryListener();
        countryRatesListener();
+       workingHoursListener();
        selectTeamOnStart();
        selectFirstEmployee();
-       createTabsForSnapshots();
+       populateComboBox();
+       toolTips();
    }
 
    public void selectFirstEmployee() {
@@ -145,160 +138,12 @@ public class AppController {
        }
     }
 
-    public void generateMockData() {
-        // For LineChart
-        XYChart.Series<String, Number> series1 = new XYChart.Series<>();
-        series1.setName("Team 1");
-        for (int week = 1; week <= 52; week++) {
-            series1.getData().add(new XYChart.Data<>(String.valueOf(week), Math.random() * 5000));
-        }
-        lineChart.getData().add(series1);
-
-        XYChart.Series<String, Number> series2 = new XYChart.Series<>();
-        series2.setName("Team 2");
-        for (int week = 1; week <= 52; week++) {
-            series2.getData().add(new XYChart.Data<>(String.valueOf(week), Math.random() * 5000));
-        }
-        lineChart.getData().add(series2);
-    }
 
     public void populateComboBox() {
         for (int i = 0; i <= 100; i++) {
             grossMarginComboBox.getItems().add(i + "%");
         }
     }
-
-    public void CreateSnapshotFile(ActionEvent event) {
-
-        LocalDateTime currentDate = LocalDateTime.now();
-
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-
-        String newFileName = snapshotModel.createSnapshotFile("Snapshot on " + currentDate.format(format));
-
-        String tabName = newFileName.substring(12);
-        tabName = tabName.replace("-", "/");
-
-
-        Tab tab = new Tab(tabName);
-        tab.setClosable(false);
-        tab.setId(tabName);
-        tab.setContent(createTabPaneForSnapshot(newFileName + ".db"));
-
-        snapshotTabPane.getTabs().add(tab);
-
-    }
-
-    //creates the tabs for each snapshot
-    private void createTabsForSnapshots(){
-        Map<String, String> allSnapshots = snapshotModel.getAllSnapshotNames();
-        //snapshotTabPane.getStyleClass().add(".snapShotTabPane");
-
-        for(String name : allSnapshots.keySet()){
-            //System.out.println(name);
-            Tab tab = new Tab();
-            tab.setClosable(false);
-            tab.setId(name);
-
-            Label snapNameLbl = new Label(name);
-            //setting padding on label so it's aligned to the center
-            snapNameLbl.setPadding(new Insets(0,35,0,0));
-            tab.setGraphic(snapNameLbl);
-
-            tab.setContent(createTabPaneForSnapshot(allSnapshots.get(name)));
-
-            snapshotTabPane.getTabs().add(tab);
-            //System.out.println(tab.getId());
-        }
-        orderSnapshotTabs();
-
-
-    }
-
-    //creates the content inside each snapshot tab (the tabpane including all the teams)
-    private TabPane createTabPaneForSnapshot(String filename){
-        TabPane snapTabPane = new TabPane();
-        List<Team> teams = null;
-        try {
-            teams = snapshotModel.getAllTeamsInSnapshot(filename);
-        } catch (BBExceptions e) {
-            throw new RuntimeException(e);
-        }
-
-        for (Team team: teams){
-            Tab tab = new Tab(team.getName());
-            tab.setUserData(team);
-            tab.setClosable(false);
-            ObservableList<Employee> employeesInTeam = null;
-            try {
-                employeesInTeam = (ObservableList<Employee>) snapshotModel.getAllEmployeesFromTeam(team.getId(), filename);
-            } catch (BBExceptions e) {
-                throw new RuntimeException(e);
-            }
-            TableView<Employee> content = teamTable.createTableForTeam(team, employeesInTeam);
-            content.setEditable(false);
-
-            //to counteract the columns being editable (from the createTableForTeam() method)
-            TableColumn<Employee, Boolean> teamOverheadCol = (TableColumn<Employee, Boolean>) content.getColumns().get(7);
-            makeOverheadColumnNotEditable(teamOverheadCol);
-
-            tab.setContent(content);
-            snapTabPane.getTabs().add(tab);
-
-        }
-
-        return snapTabPane;
-    }
-
-    private void makeOverheadColumnNotEditable(TableColumn<Employee, Boolean> Col){
-        Col.setCellValueFactory(cellData -> new SimpleBooleanProperty(cellData.getValue().getTeamOverhead()));
-
-        Col.setCellFactory(column -> new TableCell<Employee, Boolean>() {
-            private final CheckBox checkBox = new CheckBox();
-            @Override
-            protected void updateItem(Boolean item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) {
-                    setGraphic(null);
-                } else {
-
-                    Employee employee = getTableView().getItems().get(getIndex());
-                    checkBox.setSelected(employee.getTeamOverhead());
-                    checkBox.setDisable(true);
-                    setGraphic(checkBox);
-                }
-            }
-        });
-    }
-
-    private void orderSnapshotTabs(){
-        ObservableList<Tab> allTabs = snapshotTabPane.getTabs();
-
-        allTabs.sort((tab1, tab2) ->{
-
-            String tab1Name = tab1.getId();
-            String tab2Name = tab2.getId();
-
-            //if either name contains "(2)" in case this is a duplicate file
-            if(tab1Name.contains("(") || tab2Name.contains("(")){
-                return tab1Name.compareTo(tab2Name); //compare them as strings if can't compare as date
-
-            } else {
-                DateTimeFormatter parser = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-                LocalDate date1 = LocalDate.parse(tab1Name, parser);
-
-
-                LocalDate date2 = LocalDate.parse(tab2Name, parser);
-
-
-                return date1.compareTo(date2);
-            }
-
-
-        });
-
-    }
-
 
 
     ////////////////////////////////////////////////////////
@@ -399,17 +244,17 @@ public class AppController {
 
             if(overviewCountryCmbBox.getSelectionModel().getSelectedItem() != null){
                 String selectedCountry = overviewCountryCmbBox.getSelectionModel().getSelectedItem();
-                calculateCountryRates(selectedCountry);
+                calculateCountryRates(selectedCountry, Integer.parseInt(workingHoursTxt.getText()));
             }
 
 
         });
     }
 
-    private void calculateCountryRates(String country){
+    private void calculateCountryRates(String country, int hoursPerDay){
     try{
         double hourlyRate = employeeModel.calculateTotalHourlyRateForCountry(country);
-        double dailyRate = employeeModel.calculateTotalDailyRateForCountry(country);
+        double dailyRate = employeeModel.calculateTotalDailyRateForCountry(country, hoursPerDay);
 
         //convert the currency if needed
         if ("€".equals(currencySymbol)) {
@@ -435,28 +280,42 @@ public class AppController {
       }
     }
 
+
     void calculateTeamRates(int teamId) {
-    try {
-        double hourlyRate = teamModel.calculateTotalHourlyRate(teamId);
-        double dailyRate = teamModel.calculateTotalDailyRate(teamId);
-        if ("€".equals(currencySymbol)) {
-            String conversionText = conversionRateTxt.getText();
-            double conversion = 0.92;
-            if (conversionText != null && !conversionText.isEmpty()) {
-                try {
-                    conversion = Double.parseDouble(conversionText);
-                } catch (NumberFormatException e) {
-                    showAlert("Invalid input", "Please enter a valid number for the conversion rate.");
+        Task<Void> calculateRatesTask = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                double hourlyRate = teamModel.calculateTotalHourlyRate(teamId);
+                double dailyRate = teamModel.calculateTotalDailyRate(teamId, Integer.parseInt(workingHoursTxt.getText()));
+                if ("€".equals(currencySymbol)) {
+                    String conversionText = conversionRateTxt.getText();
+                    double conversion = 0.92;
+                    if (conversionText != null && !conversionText.isEmpty()) {
+                        try {
+                            conversion = Double.parseDouble(conversionText);
+                        } catch (NumberFormatException e) {
+                            Platform.runLater(() -> showAlert("Invalid input", "Please enter a valid number for the conversion rate."));
+                        }
+                    }
+                    hourlyRate *= conversion;
+                    dailyRate *= conversion;
                 }
+                final double finalHourlyRate = hourlyRate;
+                final double finalDailyRate = dailyRate;
+                Platform.runLater(() -> {
+                    teamHourlyRateLbl.setText(currencySymbol +  String.format("%.2f", finalHourlyRate)+ "/Hour");
+                    teamDayRateLbl.setText(currencySymbol + String.format("%.2f", finalDailyRate) + "/Day");
+                });
+                return null;
             }
-            hourlyRate *= conversion;
-            dailyRate *= conversion;
-        }
-        teamHourlyRateLbl.setText(currencySymbol +  String.format("%.2f", hourlyRate)+ "/Hour");
-        teamDayRateLbl.setText(currencySymbol + String.format("%.2f", dailyRate) + "/Day");
-          } catch (BBExceptions e) {
-            showAlert("Error calculating team rates", e.getMessage());
-         }
+        };
+
+        calculateRatesTask.setOnFailed(e -> {
+            Throwable ex = calculateRatesTask.getException();
+            showAlert("Error calculating team rates", ex.getMessage());
+        });
+
+        new Thread(calculateRatesTask).start();
     }
 
     public void calculateEmployeeRates() {
@@ -464,7 +323,7 @@ public class AppController {
         Employee selectedEmployee = overviewEmployeeTable.getSelectedEmployee();
         if(selectedEmployee != null){
             double hourlyRate = employeeModel.calculateHourlyRate(selectedEmployee);
-            double dailyRate = employeeModel.calculateDailyRate(selectedEmployee);
+            double dailyRate = employeeModel.calculateDailyRate(selectedEmployee, Integer.parseInt(workingHoursTxt.getText()));
             if ("€".equals(currencySymbol)) {
                 String conversionText = conversionRateTxt.getText();
                 double conversion = 0.92;
@@ -486,88 +345,136 @@ public class AppController {
     }
     }
 
-    public void markUpListener() {
-        markUpTxt.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            try {
-                // Parse the new value to a double
-                double markupValue = Double.parseDouble(markUpTxt.getText());
+    public void workingHoursListener() {
+        // Action event handler for when the user presses the Enter key
+        workingHoursTxt.setOnAction(event -> updateWorkingHours());
 
-                // If the value is greater than 100, set it to 100
-                if (markupValue > 100) {
-                    markUpTxt.setText("100.00");
-                } else if (markupValue < 0) {
-                    // If the value is less than 0, set it to 0
-                    markUpTxt.setText("0.00");
-                } else {
-                    // If the value is within the range, format it to two decimal places
-                    markUpTxt.setText(String.format("%.2f", markupValue));
-                }
+        // Focus change listener for when the TextField loses focus
+        workingHoursTxt.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) { // If the TextField has lost focus
+                updateWorkingHours();
+            }
+        });
+    }
 
-                try {
-                    // Get the current hourly and daily rates
-                    double individualHourlyRate = employeeModel.calculateHourlyRate(overviewEmployeeTable.getSelectedEmployee());
-                    double individualDailyRate = employeeModel.calculateDailyRate(overviewEmployeeTable.getSelectedEmployee());
+    private void updateWorkingHours() {
+        String newValue = workingHoursTxt.getText();
+        try {
+            // Try to parse the new value to an integer
+            int newWorkingHours = Integer.parseInt(newValue);
 
-                    double teamHourlyRate = teamModel.calculateTotalHourlyRate(((Team) teamTabPane.getSelectionModel().getSelectedItem().getUserData()).getId());
-                    double teamDailyRate = teamModel.calculateTotalDailyRate(((Team) teamTabPane.getSelectionModel().getSelectedItem().getUserData()).getId());
+            // Check if the new value is within the range 0-24
+            if (newWorkingHours >= 0 && newWorkingHours <= 24) {
+                // If it is, update the working hours in the BLLController
+                EmployeeModel.setWorkingHours(newWorkingHours);
+            } else {
+                // If it's not, show an error message to the user and revert the TextField to the previous valid value
+                showAlert("Invalid input", "Working hours must be between 0 and 24.");
+                workingHoursTxt.setText(Integer.toString(EmployeeModel.getWorkingHours()));
+            }
+        } catch (NumberFormatException e) {
+            // If the new value is not a number, show an error message to the user and revert the TextField to the previous valid value
+            showAlert("Invalid input", "Working hours must be a number.");
+            workingHoursTxt.setText(Integer.toString(EmployeeModel.getWorkingHours()));
+        }
+        calculateEmployeeRates();
+        calculateTeamRates(((Team) teamTabPane.getSelectionModel().getSelectedItem().getUserData()).getId());
+        calculateCountryRates(overviewCountryCmbBox.getSelectionModel().getSelectedItem(), Integer.parseInt(workingHoursTxt.getText()));
+    }
 
-                    // Apply the multiplier using method in employeebll
-                    individualHourlyRate *= employeeModel.calculateMarkUp(markupValue);
-                    individualDailyRate *= employeeModel.calculateMarkUp(markupValue);
-
-                    teamHourlyRate *= employeeModel.calculateMarkUp(markupValue);
-                    teamDailyRate *= employeeModel.calculateMarkUp(markupValue);
-
-                    // Update the labels
-                    employeeHourlyRateLbl.setText(currencySymbol + String.format("%.2f", individualHourlyRate) + "/Hour");
-                    employeeDayRateLbl.setText(currencySymbol +  String.format("%.2f", individualDailyRate)+ "/Day");
-
-                    teamHourlyRateLbl.setText(currencySymbol + String.format("%.2f", teamHourlyRate) + "/Hour");
-                    teamDayRateLbl.setText(currencySymbol +  String.format("%.2f", teamDailyRate)+ "/Day");
-                } catch (BBExceptions e) {
-                    showAlert("Error", e.getMessage());
-                }
-
-            } catch (NumberFormatException e) {
-                // If the new value is not a number, revert to 0
+public void markUpListener() {
+    markUpTxt.setOnAction(event -> {
+        if (markUpTxt.getText() == null || markUpTxt.getText().isEmpty()) {
+            workingHoursTxt.requestFocus();
+            return;
+        }
+        try {
+            double markupValue = Double.parseDouble(markUpTxt.getText());
+            if (markupValue > 100) {
+                markUpTxt.setText("100.00");
+            } else if (markupValue < 0) {
                 markUpTxt.setText("0.00");
+            } else {
+                markUpTxt.setText(String.format("%.2f", markupValue));
             }
-        });
-    }
 
-    public void grossMarginListener(){
-        grossMarginComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                // Parse the selected value to a double
-                double grossMarginValue = Double.parseDouble(grossMarginComboBox.getSelectionModel().getSelectedItem().toString().replace("%", ""));
-
-                // Get the current hourly and daily rates
-                try {
-                    double individualHourlyRate = employeeModel.calculateHourlyRate(overviewEmployeeTable.getSelectedEmployee());
-                    double individualDailyRate = employeeModel.calculateDailyRate(overviewEmployeeTable.getSelectedEmployee());
-
-                    double teamHourlyRate = teamModel.calculateTotalHourlyRate(((Team) teamTabPane.getSelectionModel().getSelectedItem().getUserData()).getId());
-                    double teamDailyRate = teamModel.calculateTotalDailyRate(((Team) teamTabPane.getSelectionModel().getSelectedItem().getUserData()).getId());
-
-                    // Apply the multiplier using method in employeebll
-                    individualHourlyRate *= employeeModel.calculateGrossMargin(grossMarginValue);
-                    individualDailyRate *= employeeModel.calculateGrossMargin(grossMarginValue);
-
-                    teamHourlyRate *= employeeModel.calculateGrossMargin(grossMarginValue);
-                    teamDailyRate *= employeeModel.calculateGrossMargin(grossMarginValue);
-
-                    // Update the labels
-                    employeeHourlyRateLbl.setText(currencySymbol + String.format("%.2f", individualHourlyRate) + "/Hour");
-                    employeeDayRateLbl.setText(currencySymbol +  String.format("%.2f", individualDailyRate)+ "/Day");
-
-                    teamHourlyRateLbl.setText(currencySymbol + String.format("%.2f", teamHourlyRate) + "/Hour");
-                    teamDayRateLbl.setText(currencySymbol +  String.format("%.2f", teamDailyRate)+ "/Day");
-                } catch (BBExceptions e) {
-                    showAlert("Error", e.getMessage());
+            Task<Void> task = new Task<>() {
+                @Override
+                protected Void call() {
+                    //create a task and start new thread to run updateRates
+                    updateRates(markupValue);
+                    return null;
                 }
-            }
+            };
+            new Thread(task).start();
+
+        } catch (NumberFormatException e) {
+            markUpTxt.setText("0.00");
+        }
+        workingHoursTxt.requestFocus();
+    });
+}
+
+public void grossMarginListener() {
+        //listener on grossMarginComboBox
+    grossMarginComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+        if (grossMarginComboBox.getSelectionModel().getSelectedItem() == null) {
+            return;
+        }
+        if (newValue != null) {
+            //removes the % for calculation
+            double grossMarginValue = Double.parseDouble(grossMarginComboBox.getSelectionModel().getSelectedItem().toString().replace("%", ""));
+            Task<Void> task = new Task<>() {
+                @Override
+                protected Void call() throws Exception {
+                    //we override call method and call our updateRates method using our value as calculation
+                    updateRates(grossMarginValue);
+                    return null;
+                }
+            };
+            //start our task in a new thread
+            new Thread(task).start();
+        }
+    });
+}
+
+public void updateRates(double value) {
+    try {
+        double individualHourlyRate = employeeModel.calculateHourlyRate(overviewEmployeeTable.getSelectedEmployee());
+        double individualDailyRate = employeeModel.calculateDailyRate(overviewEmployeeTable.getSelectedEmployee(), Integer.parseInt(workingHoursTxt.getText()));
+
+        double teamHourlyRate = teamModel.calculateTotalHourlyRate(((Team) teamTabPane.getSelectionModel().getSelectedItem().getUserData()).getId());
+        double teamDailyRate = teamModel.calculateTotalDailyRate(((Team) teamTabPane.getSelectionModel().getSelectedItem().getUserData()).getId(), Integer.parseInt(workingHoursTxt.getText()));
+
+        individualHourlyRate *= employeeModel.calculateMarkUp(value);
+        individualDailyRate *= employeeModel.calculateMarkUp(value);
+
+        teamHourlyRate *= employeeModel.calculateMarkUp(value);
+        teamDailyRate *= employeeModel.calculateMarkUp(value);
+
+        NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
+        nf.setMaximumFractionDigits(2);
+        nf.setMinimumFractionDigits(2);
+
+        final double finalIndividualHourlyRate = individualHourlyRate;
+        final double finalIndividualDailyRate = individualDailyRate;
+        final double finalTeamHourlyRate = teamHourlyRate;
+        final double finalTeamDailyRate = teamDailyRate;
+
+        //platform.runlater to make sure the labels are updated on the JavaFX thread and not our new one
+        Platform.runLater(() -> {
+            employeeHourlyRateLbl.setText(currencySymbol + nf.format(finalIndividualHourlyRate) + "/Hour");
+            employeeDayRateLbl.setText(currencySymbol + nf.format(finalIndividualDailyRate) + "/Day");
+
+            teamHourlyRateLbl.setText(currencySymbol + nf.format(finalTeamHourlyRate) + "/Hour");
+            teamDayRateLbl.setText(currencySymbol + nf.format(finalTeamDailyRate) + "/Day");
         });
+    } catch (BBExceptions e) {
+        Platform.runLater(() -> showAlert("Error", e.getMessage()));
+    } catch (NumberFormatException e) {
+        Platform.runLater(() -> showAlert("Invalid input", "Please enter valid numbers for the markup and gross margin."));
     }
+}
 
     public void employeeRatesListener() {
 
@@ -575,6 +482,7 @@ public class AppController {
         overviewEmployeeTable.getTableView().getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
                 calculateEmployeeRates();
+                calculateTeamRates(((Team) teamTabPane.getSelectionModel().getSelectedItem().getUserData()).getId());
             }
         });
     }
@@ -599,7 +507,7 @@ public class AppController {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 if(newValue != null){
-                    calculateCountryRates(newValue);
+                    calculateCountryRates(newValue, Integer.parseInt(workingHoursTxt.getText()));
                 }else{
                     teamHourlyRateLbl.setText("$0.00/Hour");
                     teamDayRateLbl.setText("$0.00/Day");
@@ -614,19 +522,26 @@ public class AppController {
     }
 
     //////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////
+    //////////////////////Error handling//////////////////////
     //////////////////////////////////////////////////////////
 
     private void showAlert(String title, String message) {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle(title);
-            alert.setHeaderText(null);
-            alert.setContentText(message);
-            alert.showAndWait();
-        });
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    public void toolTips() {
+        installTooltip(addEmployeeBtn, "Create new employee");
+        installTooltip(addTeamBtn, "Create new team");
+        installTooltip(createSnapshotBtn, "Create database snapshot");
 
     }
 
-
+    private void installTooltip(javafx.scene.Node node, String text) {
+        Tooltip tooltip = new Tooltip(text);
+        Tooltip.install(node, tooltip);
+    }
 }

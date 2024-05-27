@@ -4,20 +4,56 @@
     -fx-border-radius: 20;
 }
 
-.button {
-    -fx-background-color: #00A652;
-    -fx-text-fill: white;
-    -fx-border-radius: 5;
-    -fx-background-radius: 5;
+
+.snapshotButton {
+    -fx-background-image: url('/downloadDb2.png');
+        -fx-background-size: contain;
+        -fx-background-repeat: no-repeat;
+        -fx-background-position: center;
+        -fx-text-fill: transparent;
+        -fx-border-color: transparent;
+    -fx-background-color: transparent;
 }
 
+.addEmployeeButton{
+    -fx-background-image: url('/addEmployee2.png');
+    -fx-background-size: contain;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+    -fx-text-fill: transparent;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.addTeamButton{
+    -fx-background-image: url('/addTeam2.png');
+    -fx-background-size: contain;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+    -fx-text-fill: transparent;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+
 .button:hover {
-    -fx-background-color: #278338;
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
 }
 
 .button:pressed {
-    -fx-background-color: #1A5A29;
+    -fx-scale-x: 0.9;
+    -fx-scale-y: 0.9;
 }
+
+
+/*.button:hover {*/
+/*    -fx-background-color: #278338;*/
+/*}*/
+
+/*.button:pressed {*/
+/*    -fx-background-color: #1A5A29;*/
+/*}*/
 
 .teamTabPane {
     -fx-tab-min-width: 125px;
@@ -38,6 +74,7 @@
     -fx-pref-width: 125;
     -fx-background-color: #e8e8e8;
     -fx-text-fill: #00A652;
+    -fx-border-radius: 5;
 }
 
 .teamTabPane .tab:selected {
@@ -77,14 +114,6 @@
 }
 
 
-/* .closeBtn {
-    -fx-background-radius: 10;
-    -fx-min-width: 17px;
-    -fx-min-height: 17px;
-    -fx-max-width: 17px;
-    -fx-max-height: 17px;
-}*/
-
 .addEmployeeHbox {
     -fx-background-color: #e8e8e8;
     -fx-background-radius: 10;
@@ -110,20 +139,25 @@
     -fx-background-color: #00A652;
 }
 
-.closeBtn {
-    -fx-background-color: rgba(246, 113, 113, 0.8);
-    -fx-text-fill: #EEE;
-    -fx-font-weight: bold;
-    -fx-padding: 5;
-    -fx-background-radius: 1000;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 10, 0, 0, 0);
-    -fx-min-width: 17px;
-    -fx-min-height: 17px;
-    -fx-max-width: 17px;
-    -fx-max-height: 17px;
-}
 
 .titleLbl {
     -fx-font-weight: bold;
     -fx-text-fill: white;
+}
+
+.historyLabel {
+
+    -fx-text-fill: #000000;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+}
+
+.separator {
+    -fx-pref-height: 0.5px;
+    -fx-background-color: #00A652;
+}
+
+.teamLbls {
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
 }
