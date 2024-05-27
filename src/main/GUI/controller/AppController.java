@@ -90,7 +90,7 @@ public class AppController {
     private final TeamModel teamModel;
     private TeamTable teamTable;
     private SnapshotModel snapshotModel;
-    private SnapShotTable snapShotTable;
+    private SnapshotTable snapShotTable;
 
         //Coupling
     public AppController(){
@@ -110,7 +110,7 @@ public class AppController {
 
        this.teamTable.initialize();
 
-       this.snapShotTable = new SnapShotTable(snapshotModel, snapshotComboBox, snapshotHBox, teamTable, createSnapshotBtn);
+       this.snapShotTable = new SnapshotTable(snapshotModel, snapshotComboBox, snapshotHBox, teamTable, createSnapshotBtn);
 
        this.snapShotTable.initialize();
 

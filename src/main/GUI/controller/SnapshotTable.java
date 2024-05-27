@@ -16,7 +16,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
-public class SnapShotTable {
+public class SnapshotTable {
 
     private final SnapshotModel snapshotModel;
     private final ComboBox<String> snapshotComboBox;
@@ -24,7 +24,7 @@ public class SnapShotTable {
     private final TeamTable teamTable;
     private Button createSnapshotBtn;
 
-    public SnapShotTable(SnapshotModel snapshotModel, ComboBox<String> snapshotComboBox, HBox snapshotHBox, TeamTable teamTable, Button createSnapshotBtn) {
+    public SnapshotTable(SnapshotModel snapshotModel, ComboBox<String> snapshotComboBox, HBox snapshotHBox, TeamTable teamTable, Button createSnapshotBtn) {
         this.snapshotModel = snapshotModel;
         this.snapshotComboBox = snapshotComboBox;
         this.snapshotHBox = snapshotHBox;
