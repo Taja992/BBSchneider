@@ -15,7 +15,6 @@ import java.util.Locale;
 public class TeamBLL {
 
     TeamDAO teamDAO = new TeamDAO();
-    EmployeeBLL employeeBLL = new EmployeeBLL();
     EmployeeDAO employeeDAO = new EmployeeDAO();
 
     public List<Team> getAllTeams() throws BBExceptions {
@@ -43,6 +42,7 @@ public class TeamBLL {
     /////////////////Calculation Logic//////////////////////
     ////////////////////////////////////////////////////////
 
+    //sum of all the hourly rates in a team
     public Double calculateTotalHourlyRate(int teamId) throws BBExceptions{
         List<Employee> employees = employeeDAO.getEmployeesWithOverheadStatus(teamId);
         double totalHourlyRate = 0;
@@ -65,6 +65,7 @@ public class TeamBLL {
         }
     }
 
+    //sum of all the daily rates in a team
     public Double calculateTotalDailyRate(int teamId, int hoursPerDay) throws BBExceptions{
         List<Employee> employees = employeeDAO.getEmployeesWithOverheadStatus(teamId);
         double totalDailyRate = 0;
@@ -77,7 +78,7 @@ public class TeamBLL {
 
         NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
         nf.setMaximumFractionDigits(2);
-        nf.setMinimumFractionDigits(2);
+        nf.setMinimumFractionDigits(2); //ensures it's only to a decimal point of 2 (so it doesn't go on too long)
 
         try {
             return nf.parse(nf.format(totalDailyRate)).doubleValue();

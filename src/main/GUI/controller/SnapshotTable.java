@@ -35,26 +35,29 @@ public class SnapshotTable {
     }
 
     public void initialize(){
-        createTabsForSnapshots();
+        setupSnapshotComboBox();
     }
 
     public void CreateSnapshotFile(ActionEvent event) {
 
+        //getting current date and formatting it
         LocalDateTime currentDate = LocalDateTime.now();
-
         DateTimeFormatter format = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
+        //create the SQLitefile (with name that has current date)
         String newFileName = snapshotModel.createSnapshotFile("Snapshot on " + currentDate.format(format));
 
+        //creating the name of the tab (which is just date)
         String tabName = newFileName.substring(12);
         tabName = tabName.replace("-", "/");
 
-        snapshotComboBox.getItems().add(tabName);
+        snapshotComboBox.getItems().add(tabName); //add the new snapshot to the combobox
 
     }
     // POPULATE COMBOBOX FROM HERE
-    //creates the tabs for each snapshot
-    private void createTabsForSnapshots(){
+
+    //Adds the list of snapshots to the combobox
+    private void setupSnapshotComboBox(){
         Map<String, String> allSnapshots = snapshotModel.getAllSnapshotNames();
 
         // Assuming snapshotComboBox is your ComboBox
@@ -62,6 +65,7 @@ public class SnapshotTable {
 
         for(String name : allSnapshots.keySet()){
             snapshotComboBox.getItems().add(name);
+            //add all the keys (a.k.a. shortened names of snapshots) for display
         }
 
         // Set an action listener on the ComboBox
@@ -77,7 +81,7 @@ public class SnapshotTable {
             }
         });
 
-        orderSnapshotTabs();
+        orderSnapshotBox();
 
         // Select the first item by default
         if (!snapshotComboBox.getItems().isEmpty()) {
@@ -109,7 +113,7 @@ public class SnapshotTable {
             throw new RuntimeException(e);
         }
 
-        for (Team team: teams){
+        for (Team team: teams){ //for each team, create a tab (very similar to Team Table)
             Tab tab = new Tab(team.getName());
             tab.setUserData(team);
             tab.setClosable(false);
@@ -126,7 +130,7 @@ public class SnapshotTable {
             TableColumn<Employee, Boolean> teamOverheadCol = (TableColumn<Employee, Boolean>) content.getColumns().get(7);
             makeOverheadColumnNotEditable(teamOverheadCol);
 
-            tab.setContent(content);
+            tab.setContent(content); //set content to the table
             snapTabPane.getTabs().add(tab);
 
         }
@@ -134,8 +138,10 @@ public class SnapshotTable {
         return snapTabPane;
     }
 
+    //reversing the method in the TeamTable class that makes this column editable
+    //this may not be the cleanest solution... but it works
     private void makeOverheadColumnNotEditable(TableColumn<Employee, Boolean> Col){
-        Col.setCellValueFactory(cellData -> new SimpleBooleanProperty(cellData.getValue().getTeamOverhead()));
+        Col.setCellValueFactory(cellData -> new SimpleBooleanProperty(cellData.getValue().getTeamOverhead())); //setting the value of the column
 
         Col.setCellFactory(column -> new TableCell<Employee, Boolean>() {
             private final CheckBox checkBox = new CheckBox();
@@ -146,16 +152,16 @@ public class SnapshotTable {
                     setGraphic(null);
                 } else {
 
-                    Employee employee = getTableView().getItems().get(getIndex());
-                    checkBox.setSelected(employee.getTeamOverhead());
-                    checkBox.setDisable(true);
-                    setGraphic(checkBox);
+                    Employee employee = getTableView().getItems().get(getIndex()); //getting the employee at this row
+                    checkBox.setSelected(employee.getTeamOverhead()); //sets value to "isTeamOverhead"
+                    checkBox.setDisable(true); //this is the part that makes it not editable
+                    setGraphic(checkBox); //makes the column show a checkbox and not text
                 }
             }
         });
     }
 
-    private void orderSnapshotTabs(){
+    private void orderSnapshotBox(){
         ObservableList<String> allItems = snapshotComboBox.getItems();
 
         allItems.sort((item1, item2) ->{
@@ -167,10 +173,9 @@ public class SnapshotTable {
             if(tab1Name.contains("(") || tab2Name.contains("(")){
                 return tab1Name.compareTo(tab2Name); //compare them as strings if can't compare as date
 
-            } else {
+            } else { //compare them as dates
                 DateTimeFormatter parser = DateTimeFormatter.ofPattern("dd/MM/yyyy");
                 LocalDate date1 = LocalDate.parse(tab1Name, parser);
-
 
                 LocalDate date2 = LocalDate.parse(tab2Name, parser);
 
