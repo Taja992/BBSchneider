@@ -51,8 +51,11 @@ EmployeeDAO {
     }
 
     public List<Employee> getAllEmployees() throws BBExceptions {
+        //Using a map instead of a list to store Employees because
+        //They will be on teams so we do this to avoid duplicates
         Map<Integer, Employee> hashMapEmployees = new HashMap<>();
 
+        //Sql query connecting our tables
         String sql = "SELECT employee.*, team.*, connection.Team_Util, connection.TeamIsOverhead FROM Employee employee " +
                 "LEFT JOIN Connection connection ON employee.Employee_Id = connection.Emp_Id " +
                 "LEFT JOIN Team team ON connection.Team_Id = team.Team_Id";
@@ -63,20 +66,24 @@ EmployeeDAO {
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
+                // I put the result set in a different method for organization
                 Employee employee = getEmployeeFromResultSet(rs, hashMapEmployees);
+                // add the team from the current row to the employee
                 addTeamToEmployee(rs, employee);
             }
         } catch (SQLException e) {
             throw new BBExceptions("Error retrieving all employees", e);
         }
-
+        //use our hashmap to return an arraylist without duplicates
         return new ArrayList<>(hashMapEmployees.values());
     }
 
     private Employee getEmployeeFromResultSet(ResultSet rs, Map<Integer, Employee> hashMapEmployees) throws SQLException {
+        //get the employee ID to check if its on our hashmap already or not
+        //it would already be in the hashmap if its on multiple teams
         int employeeId = rs.getInt("Employee_Id");
         Employee employee = hashMapEmployees.get(employeeId);
-
+        //if its not on hashmap, add it
         if (employee == null) {
             employee = new Employee();
             employee.setId(employeeId);
@@ -103,7 +110,7 @@ EmployeeDAO {
             Team team = new Team();
             team.setId(teamId);
             team.setName(rs.getString("Team_Name"));
-
+            //add the team to the employee's team list
             employee.getTeams().add(team);
         }
     }
