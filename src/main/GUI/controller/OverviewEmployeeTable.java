@@ -72,7 +72,6 @@ public class OverviewEmployeeTable {
         newEmployee.setAnnualSalary(BigDecimal.ZERO);
         newEmployee.setUtilization(BigDecimal.ZERO);
         newEmployee.setOverheadMultiPercent(BigDecimal.ZERO);
-        newEmployee.setIsOverheadCost(false);
         newEmployee.setCountry("");
 
         overviewEmployeeTblView.getItems().addFirst(newEmployee);
