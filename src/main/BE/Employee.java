@@ -15,7 +15,6 @@ public class Employee {
     private int workingHours;
     private BigDecimal utilization;
     private BigDecimal teamUtil;
-    private boolean isOverheadCost;
     //because an employee can have multiple teams
     private List<Team> teams;
     private boolean teamIsOverhead;
@@ -84,14 +83,6 @@ public class Employee {
 
     public void setUtilization(BigDecimal utilization) {
         this.utilization = utilization;
-    }
-
-    public boolean getIsOverheadCost() {
-        return isOverheadCost;
-    }
-
-    public void setIsOverheadCost(boolean overheadCost) {
-        isOverheadCost = overheadCost;
     }
 
     public BigDecimal getTeamUtil() {
