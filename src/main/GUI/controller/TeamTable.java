@@ -54,7 +54,10 @@ public class TeamTable {
             tab.setUserData(newTeam); //So our new tab carries the team data
             tab.setClosable(false);
             ObservableList<Employee> employeesInTeam = employeeModel.getAllEmployeesFromTeam(newTeam.getId());
-            tab.setContent(createTableForTeam(newTeam, employeesInTeam));
+            TableView<Employee> teamTable = createTableForTeam(newTeam, employeesInTeam);
+            TableColumn<Employee, Boolean> teamOverheadCol = (TableColumn<Employee, Boolean>) teamTable.getColumns().get(7);
+            makeOverheadEditable(teamOverheadCol, newTeam);
+            tab.setContent(teamTable); //adds a table with the employees from team to the tab
             teamTabPane.getTabs().add(tab);
             makeTeamTabTitleEditable(tab);
 
@@ -71,7 +74,11 @@ public class TeamTable {
             tab.setUserData(team);
             tab.setClosable(false);
             ObservableList<Employee> employeesInTeam = employeeModel.getAllEmployeesFromTeam(team.getId());
-            tab.setContent(createTableForTeam(team, employeesInTeam)); //adds a table with the employees from team to the tab
+
+            TableView<Employee> teamTable = createTableForTeam(team, employeesInTeam);
+            TableColumn<Employee, Boolean> teamOverheadCol = (TableColumn<Employee, Boolean>) teamTable.getColumns().get(7);
+            makeOverheadEditable(teamOverheadCol, team);
+            tab.setContent(teamTable); //adds a table with the employees from team to the tab
             teamTabPane.getTabs().add(tab); //add that tab to TabPane
             makeTeamTabTitleEditable(tab); // make the tab title editable
         }
@@ -173,7 +180,6 @@ public class TeamTable {
         formatPercentageColumnForTeams(teamUtilCol);
         formatUtilization(teamUtilCol);
         editUtilization(teamUtilCol, team);
-        makeOverheadEditable(teamOverHeadCol, team);
 
 
         // Get the list of employees for the team

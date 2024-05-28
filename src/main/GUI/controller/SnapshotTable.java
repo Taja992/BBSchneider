@@ -126,9 +126,10 @@ public class SnapshotTable {
             TableView<Employee> content = teamTable.createTableForTeam(team, employeesInTeam);
             content.setEditable(false);
 
-            //to counteract the columns being editable (from the createTableForTeam() method)
+            //to make the overhead column a checkbox but not editable
+            //this now has to be done outside of the "createTableForTeam" method
             TableColumn<Employee, Boolean> teamOverheadCol = (TableColumn<Employee, Boolean>) content.getColumns().get(7);
-            makeOverheadColumnNotEditable(teamOverheadCol);
+            makeOverheadColumnCheckBox(teamOverheadCol);
 
             tab.setContent(content); //set content to the table
             snapTabPane.getTabs().add(tab);
@@ -138,9 +139,8 @@ public class SnapshotTable {
         return snapTabPane;
     }
 
-    //reversing the method in the TeamTable class that makes this column editable
-    //this may not be the cleanest solution... but it works
-    private void makeOverheadColumnNotEditable(TableColumn<Employee, Boolean> Col){
+    //making the overhead column a checkbox but not editable like the team tabs overhead column
+    private void makeOverheadColumnCheckBox(TableColumn<Employee, Boolean> Col){
         Col.setCellValueFactory(cellData -> new SimpleBooleanProperty(cellData.getValue().getTeamOverhead())); //setting the value of the column
 
         Col.setCellFactory(column -> new TableCell<Employee, Boolean>() {
