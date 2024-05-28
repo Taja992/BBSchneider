@@ -17,14 +17,7 @@ EmployeeDAO {
     private ConnectionManager connectionManager;
 
     public EmployeeDAO(){
-        ConnectionManager databaseConnectionManager;
-        try {
-            databaseConnectionManager = new ConnectionManager(true);
-            databaseConnectionManager.getConnection().close(); // Need this to test connection and force the SQLException and swap to false
-            connectionManager = databaseConnectionManager;
-        } catch (SQLException e) {
-            connectionManager = new ConnectionManager(false);
-        }
+        connectionManager = new ConnectionManager();
     }
 
     //Our New employee method returns the generated key by our database so we are able to edit the newly created employees
@@ -111,41 +104,6 @@ EmployeeDAO {
         return new ArrayList<>(hashMapEmployees.values());
     }
 
-
-    public List<Employee> getAllEmployeesFromTeam(int TeamId) throws BBExceptions {
-        List<Employee> employees = new ArrayList<>();
-
-        String sql = "SELECT Employee.*, Connection.Team_Util FROM Employee" +
-                " INNER JOIN Connection ON Employee.Employee_Id = Connection.Emp_Id" +
-                " WHERE Team_Id = ?";
-
-        try(Connection con = connectionManager.getConnection()){
-            PreparedStatement ps = con.prepareStatement(sql);
-            ps.setInt(1, TeamId);
-
-            ResultSet rs = ps.executeQuery();
-
-            while(rs.next()){
-                Employee employee = new Employee();
-                employee.setId(rs.getInt("Employee_Id"));
-                employee.setName(rs.getString("Name"));
-                employee.setAnnualSalary(rs.getBigDecimal("AnnualSalary"));
-                employee.setOverheadMultiPercent(rs.getBigDecimal("OverheadMultiPercent"));
-                employee.setAnnualAmount(rs.getBigDecimal("AnnualAmount"));
-                employee.setCountry(rs.getString("Country"));
-                employee.setWorkingHours(rs.getInt("WorkingHours"));
-                employee.setUtilization(rs.getBigDecimal("Utilization"));
-                employee.setTeamUtil(rs.getBigDecimal("Team_Util")); // Set the utilization from the Connection table
-                employee.setIsOverheadCost(rs.getBoolean("isOverheadCost"));
-                employees.add(employee);
-            }
-
-        } catch (SQLException e){
-            throw new BBExceptions("Error retrieving all employees from team with ID " + TeamId, e);
-        }
-
-        return employees;
-    }
 
     public void addEmployeeToTeam(int employeeId, int teamId) throws BBExceptions {
         String sql = "INSERT INTO Connection (Emp_Id, Team_Id, Team_Util, TeamIsOverhead) VALUES (?, ?, ?, ?)";

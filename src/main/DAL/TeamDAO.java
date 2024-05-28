@@ -16,14 +16,7 @@ public class TeamDAO {
 
     private ConnectionManager connectionManager;
     public TeamDAO(){
-        ConnectionManager dbConManager;
-        try{
-            dbConManager = new ConnectionManager(true);
-            dbConManager.getConnection().close();
-            connectionManager = dbConManager;
-        } catch (SQLException e) {
-            connectionManager = new ConnectionManager(false);
-        }
+        connectionManager = new ConnectionManager();
     }
 
     public List<Team> getAllTeams() throws BBExceptions {
@@ -49,30 +42,6 @@ public class TeamDAO {
     }
 
 
-    public Team getTeam(int Id) throws BBExceptions {
-
-        Team team = null;
-
-        try(Connection con = connectionManager.getConnection()){
-            String sql = "SELECT * FROM Team WHERE Team_Id = ?";
-
-            PreparedStatement ps = con.prepareStatement(sql);
-            ps.setInt(1, Id);
-            ResultSet rs = ps.executeQuery();
-
-            while(rs.next()){
-                int id = rs.getInt("Team_Id");
-                String name = rs.getString("Team_Name");
-
-                team = new Team(id, name);
-            }
-
-        } catch (SQLException e) {
-            throw new BBExceptions("Error getting team", e);
-        }
-        return team;
-    }
-
     public void createNewTeam(Team team) throws BBExceptions {
 
         try(Connection con = connectionManager.getConnection()){
@@ -93,13 +62,7 @@ public class TeamDAO {
         int lastId = -1;
 
         try(Connection con = connectionManager.getConnection()){
-            String sql;
-
-            if (!connectionManager.isSQLite()) {
-                sql = "SELECT IDENT_CURRENT('Team')";
-            } else {
-                sql = "SELECT MAX(Team_Id) FROM Team ";
-            }
+            String sql = "SELECT IDENT_CURRENT('Team')";
 
             PreparedStatement ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
@@ -180,4 +143,5 @@ public class TeamDAO {
         }
         return teamUtil;
     }
+
    }

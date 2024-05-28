@@ -4,9 +4,7 @@ import BE.Employee;
 import BE.Team;
 import Exceptions.BBExceptions;
 import GUI.model.EmployeeModel;
-import GUI.model.TeamModel;
 import com.neovisionaries.i18n.CountryCode;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -75,7 +73,7 @@ public class OverviewEmployeeTable {
         newEmployee.setUtilization(BigDecimal.ZERO);
         newEmployee.setOverheadMultiPercent(BigDecimal.ZERO);
         newEmployee.setIsOverheadCost(false);
-        newEmployee.setCountry(""); //revisit this
+        newEmployee.setCountry("");
 
         overviewEmployeeTblView.getItems().addFirst(newEmployee);
 
@@ -387,6 +385,10 @@ public class OverviewEmployeeTable {
             }
         });
     }
+
+    //////////////////////////////////////////////////////////
+    //////////////////////Error handling//////////////////////
+    //////////////////////////////////////////////////////////
 
 
     private void showAlert(String title, String message) {
