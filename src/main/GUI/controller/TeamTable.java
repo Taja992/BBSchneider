@@ -151,6 +151,7 @@ public class TeamTable {
         teamCountryCol.setCellValueFactory(new PropertyValueFactory<>("Country"));
         teamHoursCol.setCellValueFactory(new PropertyValueFactory<>("WorkingHours"));
         teamOverHeadCol.setCellValueFactory(new PropertyValueFactory<>("teamIsOverhead"));
+        // teamUtilCOl is a special case, so we need to set it up separately
         setUpTeamUtilCol(teamUtilCol, team);
 
 
@@ -307,11 +308,14 @@ public class TeamTable {
             Employee employee = event.getRowValue();
             BigDecimal newUtil = event.getNewValue();
             try {
+                //update the team util for the employee
                 employeeModel.updateTeamUtilForEmployee(team.getId(), employee.getId(), newUtil);
+                //invalidate the cache for the employee and team since the value got updated
                 employeeModel.invalidateCacheForEmployeeAndTeam(employee.getId(), team.getId());
             } catch (BBExceptions e) {
                 showAlert("Error", e.getMessage());
             }
+            // Calculate the team rates
             employeeModel.invalidateTeamUtilSumCache(employee.getId());
             appController.calculateTeamRates(team.getId());
         });

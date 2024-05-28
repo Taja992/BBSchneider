@@ -140,6 +140,7 @@ public class AppController {
 
 
     public void populateComboBox() {
+        //populate the gross margin combobox with values from 0-100
         for (int i = 0; i <= 100; i++) {
             grossMarginComboBox.getItems().add(i + "%");
         }
@@ -329,23 +330,29 @@ public class AppController {
 
     public void calculateEmployeeRates() {
         try {
+            // Get the selected employee from the overview table
         Employee selectedEmployee = overviewEmployeeTable.getSelectedEmployee();
         if(selectedEmployee != null){
+            // Calculate the hourly and daily rates for the selected employee
             double hourlyRate = employeeModel.calculateHourlyRate(selectedEmployee);
             double dailyRate = employeeModel.calculateDailyRate(selectedEmployee, Integer.parseInt(workingHoursTxt.getText()));
+            // If the currency symbol is "€", convert the rates using the conversion rate
             if ("€".equals(currencySymbol)) {
                 String conversionText = conversionRateTxt.getText();
                 double conversion = 0.92;
                 if (conversionText != null && !conversionText.isEmpty()) {
                     try {
+                        // If there is a conversion rate, use it
                         conversion = Double.parseDouble(conversionText);
                     } catch (NumberFormatException e) {
                         showAlert("Invalid input", "Please enter a valid number for the conversion rate.");
                     }
                 }
+                // Convert the rates
                 hourlyRate *= conversion;
                 dailyRate *= conversion;
             }
+            // Update the labels with the new rates and the corresponding currency symbol
             employeeHourlyRateLbl.setText(currencySymbol + String.format("%.2f", hourlyRate) + "/Hour");
             employeeDayRateLbl.setText(currencySymbol +  String.format("%.2f", dailyRate)+ "/Day");
         }
@@ -449,18 +456,22 @@ public void grossMarginListener() {
 
 public void updateRates(double value) {
     try {
+        // Calculate the individual hourly and daily rates that is in the overview table
         double individualHourlyRate = employeeModel.calculateHourlyRate(overviewEmployeeTable.getSelectedEmployee());
         double individualDailyRate = employeeModel.calculateDailyRate(overviewEmployeeTable.getSelectedEmployee(), Integer.parseInt(workingHoursTxt.getText()));
 
+        // Calculate the team hourly and daily rates based on the selected team that is in the team table
         double teamHourlyRate = teamModel.calculateTotalHourlyRate(((Team) teamTabPane.getSelectionModel().getSelectedItem().getUserData()).getId());
         double teamDailyRate = teamModel.calculateTotalDailyRate(((Team) teamTabPane.getSelectionModel().getSelectedItem().getUserData()).getId(), Integer.parseInt(workingHoursTxt.getText()));
 
+        // Apply the modifier to the rates (MarkUp and Gross margin have the same calculation so we named it modifier.)
         individualHourlyRate *= employeeModel.calculateModifier(value);
         individualDailyRate *= employeeModel.calculateModifier(value);
 
         teamHourlyRate *= employeeModel.calculateModifier(value);
         teamDailyRate *= employeeModel.calculateModifier(value);
 
+        // Format the numbers to 2 decimal places
         NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
         nf.setMaximumFractionDigits(2);
         nf.setMinimumFractionDigits(2);

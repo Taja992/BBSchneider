@@ -273,12 +273,14 @@ public class OverviewEmployeeTable {
         teamUtilColSum.setCellValueFactory(cellData -> {
             Employee employee = cellData.getValue();
             int employeeId = employee.getId();
+            // Check if the value is already cached
             if (employeeModel.getTeamUtilSumCache(employeeId) != null) {
                 return new SimpleObjectProperty<>(employeeModel.getTeamUtilSumCache(employeeId));
+                // If not, calculate the sum of the utilizations for all teams
             } else {
                 List<Team> teams = employee.getTeams();
                 BigDecimal totalUtilization = BigDecimal.ZERO;
-
+                // Loop through all teams and sum the utilizations
                 for (Team team : teams) {
                     try {
                         BigDecimal teamUtilization = employeeModel.getUtilizationForTeam(employeeId, team.getId());
@@ -287,7 +289,7 @@ public class OverviewEmployeeTable {
                         throw new RuntimeException(e);
                     }
                 }
-
+                // Cache the value if it wasnt stored before
                 employeeModel.setTeamUtilSumCache(employeeId, totalUtilization);
                 return new SimpleObjectProperty<>(totalUtilization);
             }

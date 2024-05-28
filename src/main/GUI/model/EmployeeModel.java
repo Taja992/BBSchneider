@@ -294,9 +294,11 @@ public class EmployeeModel {
     }
 
     public BigDecimal getTeamUtilForEmployee(int employeeId, int teamId) throws BBExceptions {
+        // Check if the teamUtil for the employee and team is already in the cache
         String key = employeeId + "-" + teamId;
         if (teamUtilCache.containsKey(key)) {
             return teamUtilCache.get(key);
+            // If not, get the teamUtil from the database and add it to the cache
         } else {
             BigDecimal teamUtil = employeeBLL.getUtilizationForTeam(employeeId, teamId);
             teamUtilCache.put(key, teamUtil);

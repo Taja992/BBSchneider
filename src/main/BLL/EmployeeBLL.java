@@ -55,11 +55,13 @@ public class EmployeeBLL {
 
     private double calculateRate(Employee selectedEmployee) throws BBExceptions {
         if (selectedEmployee != null) {
+            // Adding each data to a variable to make it easier to read
             double annualSalary = selectedEmployee.getAnnualSalary().doubleValue();
             double overheadMultiplier = selectedEmployee.getOverheadMultiPercent().doubleValue() / 100; // convert to decimal
             double fixedAnnualAmount = selectedEmployee.getAnnualAmount().doubleValue();
             double utilizationPercentage = selectedEmployee.getUtilization().doubleValue() / 100; // convert to decimal
             double annualEffectiveWorkingHours = selectedEmployee.getWorkingHours(); // convert to total working hours in a year
+            // Formula to calculate the rate, this is hourly based
             return (((annualSalary + fixedAnnualAmount) * (1 + overheadMultiplier)) / (annualEffectiveWorkingHours * utilizationPercentage));
         } else {
             throw new BBExceptions("No employee selected");
@@ -74,6 +76,7 @@ public class EmployeeBLL {
         nf.setMaximumFractionDigits(2);
         nf.setMinimumFractionDigits(2);
 
+        // Parsing the rate to a double
         try {
             return nf.parse(nf.format(rate)).doubleValue();
         } catch (ParseException e) {
@@ -82,10 +85,11 @@ public class EmployeeBLL {
     }
 
     public Double calculateDailyRate(Employee selectedEmployee, int hoursPerDay) throws BBExceptions {
+        // Checking if the hours per day is valid
         if (hoursPerDay < 0 || hoursPerDay > 24) {
             throw new BBExceptions("Invalid number of hours per day. It should be between 0 and 24.");
         }
-
+        // Calculating the daily rate by multiplying the hourly rate with the hours per day
         double hourlyRate = calculateHourlyRate(selectedEmployee);
         double dailyRate = hourlyRate * hoursPerDay;
 

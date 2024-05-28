@@ -44,8 +44,10 @@ public class TeamBLL {
 
     //sum of all the hourly rates in a team
     public Double calculateTotalHourlyRate(int teamId) throws BBExceptions{
+        // Get all employees in the team with checking for overhead status, if overhead is on then they dont contribute to the calculation
         List<Employee> employees = employeeDAO.getEmployeesWithOverheadStatus(teamId);
         double totalHourlyRate = 0;
+        // Loop through all employees in the team and calculate the hourly rate for each and summing it up
         for(Employee employee : employees){
             if (!employee.getTeamOverhead()) {  // Only calculate the hourly rate for non-overhead employees
                 BigDecimal teamUtilization = employeeDAO.getUtilizationForTeam(employee.getId(), teamId);
@@ -67,8 +69,10 @@ public class TeamBLL {
 
     //sum of all the daily rates in a team
     public Double calculateTotalDailyRate(int teamId, int hoursPerDay) throws BBExceptions{
+        // Get all employees in the team with checking for overhead status, if overhead is on then they dont contribute to the calculation
         List<Employee> employees = employeeDAO.getEmployeesWithOverheadStatus(teamId);
         double totalDailyRate = 0;
+        // Loop through all employees in the team and calculate the daily rate for each and summing it up
         for(Employee employee : employees){
             if (!employee.getTeamOverhead()) {  // Only calculate the daily rate for non-overhead employees
                 double dailyRate = calculateTeamDailyRate(employee, employeeDAO.getUtilizationForTeam(employee.getId(), teamId), hoursPerDay);
@@ -110,6 +114,7 @@ public class TeamBLL {
             throw new BBExceptions("Invalid number of hours per day. It should be between 0 and 24.");
         }
 
+        // Calculate the daily rate by multiplying the hourly rate with the hours per day
         double hourlyRate = calculateTeamHourlyRate(selectedEmployee, teamUtil);
         double dailyRate = hourlyRate * hoursPerDay;
 
@@ -124,32 +129,17 @@ public class TeamBLL {
         }
     }
 
-//    private double calculateRateWithTeamUtil(Employee selectedEmployee, BigDecimal teamUtil) throws BBExceptions {
-//        if (selectedEmployee == null) {
-//            throw new BBExceptions("No employee selected");
-//        }
-//
-//        if (teamUtil == null || teamUtil.doubleValue() == 0) {
-//            return 0.0;
-//        }
-//
-//        double annualSalary = selectedEmployee.getAnnualSalary().doubleValue();
-//        double overheadMultiplier = selectedEmployee.getOverheadMultiPercent().doubleValue() / 100; // convert to decimal
-//        double fixedAnnualAmount = selectedEmployee.getAnnualAmount().doubleValue();
-//        double utilizationPercentage = teamUtil.doubleValue() / 100; // convert to decimal
-//        double annualEffectiveWorkingHours = selectedEmployee.getWorkingHours(); // convert to total working hours in a year
-//        return (((annualSalary + fixedAnnualAmount) * (1 + overheadMultiplier)) / (annualEffectiveWorkingHours * utilizationPercentage));
-//    }
-
     private double calculateRateWithTeamUtil(Employee selectedEmployee, BigDecimal teamUtil) throws BBExceptions {
         if (selectedEmployee == null) {
             throw new BBExceptions("No employee selected");
         }
 
+        // If the team utilization is null or 0, return 0
         if (teamUtil == null || teamUtil.doubleValue() == 0) {
             return 0.0;
         }
 
+        // Adding each data to a variable to make it easier to read
         double annualSalary = selectedEmployee.getAnnualSalary().doubleValue();
         double overheadMultiplier = selectedEmployee.getOverheadMultiPercent().doubleValue() / 100; // convert to decimal
         double fixedAnnualAmount = selectedEmployee.getAnnualAmount().doubleValue();
@@ -160,6 +150,7 @@ public class TeamBLL {
         double adjustedAnnualSalary = annualSalary * utilizationPercentage;
         double adjustedFixedAnnualAmount = fixedAnnualAmount * utilizationPercentage;
 
+        // Formula to calculate the rate, this is hourly based
         return (((adjustedAnnualSalary + adjustedFixedAnnualAmount) * (1 + overheadMultiplier)) / annualEffectiveWorkingHours);
     }
 }
