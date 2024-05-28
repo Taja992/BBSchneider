@@ -150,21 +150,9 @@ public class TeamTable {
         teamAnnualCol.setCellValueFactory(new PropertyValueFactory<>("AnnualAmount"));
         teamCountryCol.setCellValueFactory(new PropertyValueFactory<>("Country"));
         teamHoursCol.setCellValueFactory(new PropertyValueFactory<>("WorkingHours"));
-//        teamUtilCol.setCellValueFactory(new PropertyValueFactory<>("TeamUtil"));
         teamOverHeadCol.setCellValueFactory(new PropertyValueFactory<>("teamIsOverhead"));
+        setUpTeamUtilCol(teamUtilCol, team);
 
-        //this code makes the app open up in like 40 seconds
-        teamUtilCol.setCellValueFactory(cellData -> {
-            try {
-                Employee employee = cellData.getValue();
-                BigDecimal newUtil = employeeModel.getTeamUtilForEmployee(employee.getId(), team.getId());
-                return new SimpleObjectProperty<>(newUtil);
-            } catch (BBExceptions e) {
-                System.err.println("Error getting team util for employee: " + e.getMessage());
-                e.printStackTrace();
-                throw new RuntimeException("Error getting team util for employee", e);
-            }
-        });
 
         //formatting all the columns that need it, these methods have comments explaining them in OverviewEmployeeTable class
         formatSalaryColumnForTeams(teamSalaryCol);
@@ -187,6 +175,7 @@ public class TeamTable {
 
         return teamTblView;
     }
+
 
     private void contextMenu(TableView<Employee> teamTblView, Team team) {
         //creating context menu
@@ -252,6 +241,111 @@ public class TeamTable {
     }
 
 
+    //////////////////////////////////////////////////////////
+    /////////////////////Format and Editing///////////////////
+    //////////////////////////////////////////////////////////
+
+    public void makeOverheadEditable(TableColumn<Employee, Boolean> teamOverHeadCol, Team team) {
+        teamOverHeadCol.setCellValueFactory(cellData -> new SimpleBooleanProperty(cellData.getValue().getTeamOverhead()));
+        teamOverHeadCol.setCellFactory(column -> new TableCell<Employee, Boolean>() {
+            private final CheckBox checkBox = new CheckBox();
+
+            @Override
+            protected void updateItem(Boolean item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(checkBox);
+                    Employee employee = getTableView().getItems().get(getIndex());
+                    checkBox.setSelected(employee.getTeamOverhead());
+                    //we use setOnAction with the checkbox to make it listen if there is a change
+                    checkBox.setOnAction(e -> {
+                        employee.setTeamOverhead(checkBox.isSelected());
+                        try {
+                            employeeModel.updateTeamIsOverheadForEmployee(team.getId(), employee.getId(), checkBox.isSelected());
+                            appController.calculateTeamRates(team.getId());
+                        } catch (BBExceptions ex) {
+                            showAlert("Error", ex.getMessage());
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+
+    private void setUpTeamUtilCol(TableColumn<Employee, BigDecimal> teamUtilCol, Team team){
+        teamUtilCol.setCellValueFactory(cellData -> {
+            try {
+                Employee employee = cellData.getValue();
+                BigDecimal newUtil = employeeModel.getTeamUtilForEmployee(employee.getId(), team.getId());
+                return new SimpleObjectProperty<>(newUtil);
+            } catch (BBExceptions e) {
+                showAlert("Error getting team util for employee: ", e.getMessage());
+                //return 0 if there is an error
+                return new SimpleObjectProperty<>(BigDecimal.ZERO);
+            }
+        });
+    }
+
+
+    private void formatUtilization(TableColumn<Employee, BigDecimal> teamUtilCol){
+        //formatting the utilization column to show the percentage
+        teamUtilCol.setCellFactory(tableColumn -> new TextFieldTableCell<Employee, BigDecimal>(new BigDecimalStringConverter()) {
+            @Override
+            public void updateItem(BigDecimal value, boolean empty) {
+                super.updateItem(value, empty);
+                setText(empty ? null : String.format("%.2f%%", value));
+            }
+        });
+    }
+
+    private void editUtilization(TableColumn<Employee, BigDecimal> teamUtilCol, Team team){
+        //util column is editable
+        teamUtilCol.setOnEditCommit(event -> {
+            Employee employee = event.getRowValue();
+            BigDecimal newUtil = event.getNewValue();
+            try {
+                employeeModel.updateTeamUtilForEmployee(team.getId(), employee.getId(), newUtil);
+                employeeModel.invalidateCacheForEmployeeAndTeam(employee.getId(), team.getId());
+            } catch (BBExceptions e) {
+                showAlert("Error", e.getMessage());
+            }
+            employeeModel.invalidateTeamUtilSumCache(employee.getId());
+            appController.calculateTeamRates(team.getId());
+        });
+    }
+
+
+    private void formatPercentageColumnForTeams(TableColumn<Employee, BigDecimal> column){
+
+        column.setCellFactory(tableColumn -> new TableCell<>() {
+            @Override
+            public void updateItem(BigDecimal value, boolean empty) {
+                super.updateItem(value, empty);
+                setText(empty ? null : String.format("%.2f%%", value));
+            }
+        });
+    }
+
+    private void formatSalaryColumnForTeams(TableColumn<Employee, BigDecimal> column){
+        NumberFormat salaryFormat = NumberFormat.getNumberInstance();
+        salaryFormat.setMinimumFractionDigits(2);
+        salaryFormat.setMaximumFractionDigits(2);
+        column.setCellFactory(tableColumn -> new TableCell<>() {
+            @Override
+            public void updateItem(BigDecimal item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item == null || empty) {
+                    setText(null);
+                } else {
+                    setText("$" + salaryFormat.format(item));
+                }
+            }
+        });
+    }
+
     public void makeTeamTabTitleEditable(Tab tab) {
         final Label label = new Label(tab.getText());
         final TextField textField = new TextField(tab.getText());
@@ -305,105 +399,9 @@ public class TeamTable {
         tab.setGraphic(stackPane);
     }
 
-    /////////////////////Format and Editing///////////////////////////
-
-    public void makeOverheadEditable(TableColumn<Employee, Boolean> teamOverHeadCol, Team team) {
-        teamOverHeadCol.setCellValueFactory(cellData -> new SimpleBooleanProperty(cellData.getValue().getTeamOverhead()));
-        teamOverHeadCol.setCellFactory(column -> new TableCell<Employee, Boolean>() {
-            private final CheckBox checkBox = new CheckBox();
-
-            @Override
-            protected void updateItem(Boolean item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) {
-                    setGraphic(null);
-                } else {
-                    setGraphic(checkBox);
-                    Employee employee = getTableView().getItems().get(getIndex());
-                    checkBox.setSelected(employee.getTeamOverhead());
-                    //we use setOnAction with the checkbox to make it listen if there is a change
-                    checkBox.setOnAction(e -> {
-                        employee.setTeamOverhead(checkBox.isSelected());
-                        try {
-                            employeeModel.updateTeamIsOverheadForEmployee(team.getId(), employee.getId(), checkBox.isSelected());
-                            appController.calculateTeamRates(team.getId());
-                        } catch (BBExceptions ex) {
-                            showAlert("Error", ex.getMessage());
-                        }
-                    });
-                }
-            }
-        });
-    }
-
-//    private void editUtilization(TableColumn<Employee, BigDecimal> teamUtilCol, Team team){
-//        //util column is editable
-//        teamUtilCol.setOnEditCommit(event -> {
-//            Employee employee = event.getRowValue();
-//            employee.setTeamUtil(event.getNewValue());
-//            try {
-//                employeeModel.updateTeamUtilForEmployee(team.getId(), employee.getId(), event.getNewValue());
-//            } catch (BBExceptions e) {
-//                showAlert("Error", e.getMessage());
-//            }
-//            employeeModel.invalidateTeamUtilSumCache(employee.getId());
-//        });
-//    }
-
-    private void editUtilization(TableColumn<Employee, BigDecimal> teamUtilCol, Team team){
-        //util column is editable
-        teamUtilCol.setOnEditCommit(event -> {
-            Employee employee = event.getRowValue();
-            BigDecimal newUtil = event.getNewValue();
-            try {
-                employeeModel.updateTeamUtilForEmployee(team.getId(), employee.getId(), newUtil);
-                employeeModel.invalidateCacheForEmployeeAndTeam(employee.getId(), team.getId());
-            } catch (BBExceptions e) {
-                showAlert("Error", e.getMessage());
-            }
-            employeeModel.invalidateTeamUtilSumCache(employee.getId());
-            appController.calculateTeamRates(team.getId());
-        });
-    }
-
-    private void formatUtilization(TableColumn<Employee, BigDecimal> teamUtilCol){
-        //formatting the utilization column to show the percentage
-        teamUtilCol.setCellFactory(tableColumn -> new TextFieldTableCell<Employee, BigDecimal>(new BigDecimalStringConverter()) {
-            @Override
-            public void updateItem(BigDecimal value, boolean empty) {
-                super.updateItem(value, empty);
-                setText(empty ? null : String.format("%.2f%%", value));
-            }
-        });
-    }
-
-    private void formatPercentageColumnForTeams(TableColumn<Employee, BigDecimal> column){
-
-        column.setCellFactory(tableColumn -> new TableCell<>() {
-            @Override
-            public void updateItem(BigDecimal value, boolean empty) {
-                super.updateItem(value, empty);
-                setText(empty ? null : String.format("%.2f%%", value));
-            }
-        });
-    }
-
-    private void formatSalaryColumnForTeams(TableColumn<Employee, BigDecimal> column){
-        NumberFormat salaryFormat = NumberFormat.getNumberInstance();
-        salaryFormat.setMinimumFractionDigits(2);
-        salaryFormat.setMaximumFractionDigits(2);
-        column.setCellFactory(tableColumn -> new TableCell<>() {
-            @Override
-            public void updateItem(BigDecimal item, boolean empty) {
-                super.updateItem(item, empty);
-                if (item == null || empty) {
-                    setText(null);
-                } else {
-                    setText("$" + salaryFormat.format(item));
-                }
-            }
-        });
-    }
+    //////////////////////////////////////////////////////////
+    //////////////////////Error handling//////////////////////
+    //////////////////////////////////////////////////////////
 
 
     private void showAlert(String title, String message) {

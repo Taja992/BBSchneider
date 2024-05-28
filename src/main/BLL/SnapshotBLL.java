@@ -16,7 +16,6 @@ import java.util.Map;
 public class SnapshotBLL {
 
     private SnapshotDAO snapDAO = new SnapshotDAO();
-    private EmployeeBLL employeeBLL = new EmployeeBLL();
 
 
     public String createSnapshotFile(String fileName){
@@ -36,7 +35,8 @@ public class SnapshotBLL {
 
     public Map<String, String> getAllSnapshotNames(){
 
-        //this Map is so that we can have a clean display name on the tab but can still reference the original file
+        //this Map is so that we can have a clean display name
+        //on the tab but can still reference the original file
         Map<String, String> snapshotMap = new HashMap<>();
         List<String> snapNames = snapDAO.getAllSnapshotNames();
         for(String name : snapNames){
@@ -59,45 +59,6 @@ public class SnapshotBLL {
         return snapDAO.getAllTeamsInSnapshot(fileName);
     }
 
-
-    //for future implementation
-    public Double calculateTotalHourlyRate(int teamId, String fileName) throws BBExceptions{
-        List<Employee> employees = snapDAO.getAllEmployeesFromTeam(teamId, fileName);
-        double totalDailyRate = 0;
-        for(Employee employee : employees){
-            totalDailyRate += employeeBLL.calculateHourlyRate(employee);
-        }
-
-        NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
-        nf.setMaximumFractionDigits(2);
-        nf.setMinimumFractionDigits(2);
-
-        try {
-            return nf.parse(nf.format(totalDailyRate)).doubleValue();
-        } catch (ParseException e) {
-            throw new BBExceptions("Error parsing total daily rate for team with ID '"
-                    + teamId + "' from snapshot '" + fileName + "' ", e);
-        }
-    }
-
-    public Double calculateTotalDailyRate(int teamId, String fileName, int hoursPerDay) throws BBExceptions{
-        List<Employee> employees = snapDAO.getAllEmployeesFromTeam(teamId, fileName);
-        double totalDailyRate = 0;
-        for(Employee employee : employees){
-            totalDailyRate += employeeBLL.calculateDailyRate(employee, hoursPerDay);
-        }
-
-        NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
-        nf.setMaximumFractionDigits(2);
-        nf.setMinimumFractionDigits(2);
-
-        try {
-            return nf.parse(nf.format(totalDailyRate)).doubleValue();
-        } catch (ParseException e) {
-            throw new BBExceptions("Error parsing total daily rate for team with ID '"
-                    + teamId + "' from snapshot '" + fileName + "' ", e);
-        }
-    }
 
     public boolean doesFileExist(String fileName){
         File file = new File("src/resources/Snapshots/" + fileName);

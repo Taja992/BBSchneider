@@ -1,7 +1,6 @@
 package BLL;
 
 import BE.Employee;
-import BE.Team;
 import DAL.EmployeeDAO;
 import Exceptions.BBExceptions;
 import java.math.BigDecimal;
@@ -32,13 +31,7 @@ public class EmployeeBLL {
     public void removeEmployeeFromTeam(int employeeId, int teamId) throws BBExceptions {
         employeeDAO.removeEmployeeFromTeam(employeeId, teamId);
     }
-    public List<Employee> getAllEmployeesFromTeam(int TeamId) throws BBExceptions {
-            return employeeDAO.getAllEmployeesFromTeam(TeamId);
-    }
 
-    public BigDecimal calculateTotalTeamUtil(int employeeId) throws BBExceptions {
-        return employeeDAO.calculateTotalTeamUtilization(employeeId);
-    }
 
     public void updateEmployee(Employee employee) throws BBExceptions{
         employeeDAO.updateEmployee(employee);
@@ -166,13 +159,10 @@ public class EmployeeBLL {
 
 
 
-    public double calculateMarkUp(double markupValue){
+    public double calculateModifier(double markupValue){
         return 1 + (markupValue / 100);
     }
 
-    public double calculateGrossMargin(double grossMarginValue) {
-        return 1 + (grossMarginValue / 100);
-    }
 
     public static int setWorkingHours(int newWorkingHours) {
         return workingHours = newWorkingHours;

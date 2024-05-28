@@ -21,21 +21,11 @@ public class SnapshotDAO {
 
 
     public SnapshotDAO(){
-        ConnectionManager databaseConnectionManager;
-        try {
-            databaseConnectionManager = new ConnectionManager(true);
-            databaseConnectionManager.getConnection().close(); // Need this to test connection and force the SQLException and swap to false
-            connectionManager = databaseConnectionManager;
-        } catch (SQLException e) {
-            connectionManager = new ConnectionManager(false);
-        }
-
-        //getAllTeamsInSnapshot("Snapshot on 18-05-2024 04.35");
+        connectionManager = new ConnectionManager();
     }
 
     public void createNewSnapshotFile(String fileName){
         String filepath = folderPath + fileName + ".db";
-
         try {
             Connection SQLiteCon = DriverManager.getConnection(filepath);
             //this creates SQLite database and establishes connection at the same time
@@ -51,7 +41,6 @@ public class SnapshotDAO {
             //closing connections just in case
             SQLiteCon.close();
             DBCon.close();
-
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -86,8 +75,8 @@ public class SnapshotDAO {
             PreparedStatement ps = DBCon.prepareStatement(sql2); //get all employees from original db
             ResultSet rs = ps.executeQuery();
 
-
-            PreparedStatement ps2 = SQLiteCon.prepareStatement(sql3); //get ready to insert new employee into snapshot db
+            PreparedStatement ps2 = SQLiteCon.prepareStatement(sql3);
+            //get ready to insert new employee into snapshot db
             while (rs.next()){
                 //taking values from original db and putting them into snapshot db
                 ps2.setInt(1, rs.getInt(1));
@@ -100,8 +89,7 @@ public class SnapshotDAO {
                 ps2.setBigDecimal(8, rs.getBigDecimal(8));
                 ps2.setBoolean(9, rs.getBoolean(9));
 
-                ps2.executeUpdate(); //putting values into statement
-
+                ps2.executeUpdate(); //executing command to add new Employee
             }
 
 

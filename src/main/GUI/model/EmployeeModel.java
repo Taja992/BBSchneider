@@ -114,6 +114,7 @@ public class EmployeeModel {
     }
 
     public void removeEmployeeFromTeam(int employeeId, int teamId) throws BBExceptions {
+        //find the employee to be removed
         Employee employee = null;
         for(Employee e : allEmployees){
             if(e.getId() == employeeId){
@@ -124,22 +125,27 @@ public class EmployeeModel {
         if (employee == null) {
             throw new BBExceptions("Employee not found");
         }
+        //loop through all teams of the employee to be removed
         Team teamToRemove = null;
         for(Team t : employee.getTeams()){
             if(t.getId() == teamId){
+                //assign the team that matches the teamId to teamToRemove
                 teamToRemove = t;
                 break;
             }
         }
         if (teamToRemove != null) {
+            //remove the employee from the team on our employee object
             employee.getTeams().remove(teamToRemove);
         } else {
             throw new BBExceptions("Team not found");
         }
+        //remove employee from team on database
         employeeBLL.removeEmployeeFromTeam(employeeId, teamId);
         //index is the place where the employee is in the obsvlist
         int index = allEmployees.indexOf(employee);
         if (index != -1) {
+            //update the employee at that index on our ObservableList so the changes will reflect on UI/FilteredList
             allEmployees.set(index, employee);
         }
 
@@ -243,11 +249,9 @@ public class EmployeeModel {
     /////////////////////////Rates///////////////////////////////
     /////////////////////////////////////////////////////////////
 
-    public double calculateMarkUp(double markupValue){
-        return employeeBLL.calculateMarkUp(markupValue);
+    public double calculateModifier(double markupValue){
+        return employeeBLL.calculateModifier(markupValue);
     }
-
-    public double calculateGrossMargin(double grossMarginValue) {return employeeBLL.calculateGrossMargin(grossMarginValue);}
 
     public Double calculateHourlyRate(Employee selectedEmployee) throws BBExceptions {
         return employeeBLL.calculateHourlyRate(selectedEmployee);
