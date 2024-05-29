@@ -25,7 +25,7 @@ public class TeamTable {
 
     private final EmployeeModel employeeModel;
     private final TeamModel teamModel;
-    private TabPane teamTabPane;
+    private final TabPane teamTabPane;
     private final Button addTeamBtn;
     private final OverviewEmployeeTable overviewEmployeeTable;
     private final AppController appController;

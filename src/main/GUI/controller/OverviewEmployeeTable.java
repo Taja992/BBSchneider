@@ -63,70 +63,11 @@ public class OverviewEmployeeTable {
         addEmployeeBtn.setOnAction(this::addEmployeeBtn);
     }
 
-    private void addEmployeeBtn(ActionEvent actionEvent) {
-        Employee newEmployee = new Employee();
-        newEmployee.setName("New Employee");
-        newEmployee.setOverheadMultiPercent(BigDecimal.ZERO);
-        newEmployee.setWorkingHours(0);
-        newEmployee.setAnnualAmount(BigDecimal.ZERO);
-        newEmployee.setAnnualSalary(BigDecimal.ZERO);
-        newEmployee.setUtilization(BigDecimal.ZERO);
-        newEmployee.setOverheadMultiPercent(BigDecimal.ZERO);
-        newEmployee.setCountry("");
-
-        overviewEmployeeTblView.getItems().addFirst(newEmployee);
-
-        int newIndex = 0;
-
-        overviewEmployeeTblView.getSelectionModel().select(newIndex);
-        nameCol.getTableView().edit(newIndex, nameCol);
-    try {
-        employeeModel.addNewEmployee(newEmployee);
-    }catch (BBExceptions e) {
-            showAlert("Error",e.getMessage());
-        }
-    }
-
-    public void setItems(ObservableList<Employee> employees) {
-        overviewEmployeeTblView.setItems(employees);
-    }
-
-    public Employee getSelectedEmployee() {
-        return overviewEmployeeTblView.getSelectionModel().getSelectedItem();
-    }
-
-    public TableView<Employee> getTableView() {
-        return overviewEmployeeTblView;
-    }
-
 
     public void initialize(){
         overviewEmployeeTblView.setEditable(true);
         populateEmployeeTableView();
         dragAndDrop();
-    }
-
-    private void dragAndDrop() {
-        overviewEmployeeTblView.setRowFactory(tv -> {
-            TableRow<Employee> row = new TableRow<>();
-            //set the Drag method event to the new row
-            row.setOnDragDetected(event -> {
-                if (!row.isEmpty()) {
-                    //first we take the index(list number) from the tableview
-                    Integer index = row.getIndex();
-                    //set the transfermode to move only on the row
-                    Dragboard dragBoard = row.startDragAndDrop(TransferMode.MOVE);
-                    ClipboardContent clipboardContent = new ClipboardContent();
-                    //change the int index to a string to attach to clipboard
-                    clipboardContent.putString(index.toString());
-                    //attach our clipboard to the dragboard
-                    dragBoard.setContent(clipboardContent);
-                    //close the event
-                    event.consume();
-                }
-            });
-            return row;
-        });
     }
 
 
@@ -172,6 +113,66 @@ public class OverviewEmployeeTable {
         countryCol.setCellValueFactory(new PropertyValueFactory<>("country"));
     }
 
+    private void addEmployeeBtn(ActionEvent actionEvent) {
+        Employee newEmployee = new Employee();
+        newEmployee.setName("New Employee");
+        newEmployee.setOverheadMultiPercent(BigDecimal.ZERO);
+        newEmployee.setWorkingHours(0);
+        newEmployee.setAnnualAmount(BigDecimal.ZERO);
+        newEmployee.setAnnualSalary(BigDecimal.ZERO);
+        newEmployee.setUtilization(BigDecimal.ZERO);
+        newEmployee.setOverheadMultiPercent(BigDecimal.ZERO);
+        newEmployee.setCountry("");
+
+        overviewEmployeeTblView.getItems().addFirst(newEmployee);
+
+        int newIndex = 0;
+
+        overviewEmployeeTblView.getSelectionModel().select(newIndex);
+        nameCol.getTableView().edit(newIndex, nameCol);
+        try {
+            employeeModel.addNewEmployee(newEmployee);
+        }catch (BBExceptions e) {
+            showAlert("Error",e.getMessage());
+        }
+    }
+
+    //This shows which employees are getting filtered on the table
+    public void setItems(ObservableList<Employee> employees) {
+        overviewEmployeeTblView.setItems(employees);
+    }
+
+    public Employee getSelectedEmployee() {
+        return overviewEmployeeTblView.getSelectionModel().getSelectedItem();
+    }
+
+    public TableView<Employee> getTableView() {
+        return overviewEmployeeTblView;
+    }
+
+    private void dragAndDrop() {
+        overviewEmployeeTblView.setRowFactory(tv -> {
+            TableRow<Employee> row = new TableRow<>();
+            //set the Drag method event to the new row
+            row.setOnDragDetected(event -> {
+                if (!row.isEmpty()) {
+                    //first we take the index(list number) from the tableview
+                    Integer index = row.getIndex();
+                    //set the transfermode to move only on the row
+                    Dragboard dragBoard = row.startDragAndDrop(TransferMode.MOVE);
+                    ClipboardContent clipboardContent = new ClipboardContent();
+                    //change the int index to a string to attach to clipboard
+                    clipboardContent.putString(index.toString());
+                    //attach our clipboard to the dragboard
+                    dragBoard.setContent(clipboardContent);
+                    //close the event
+                    event.consume();
+                }
+            });
+            return row;
+        });
+    }
+
     private void makeNameEditable() {
         // Make the cell able to become a textfield
         nameCol.setCellFactory(TextFieldTableCell.forTableColumn());
@@ -186,6 +187,7 @@ public class OverviewEmployeeTable {
             }
         });
     }
+
 
     private void makeAnnualHoursEditable() {
         // Make the cell able to become a textfield and we use IntegerStringConverter to convert it from a string to an Integer

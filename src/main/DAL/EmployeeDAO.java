@@ -222,7 +222,6 @@ EmployeeDAO {
                 return rs.getBigDecimal("Team_Util");
             } else {
                 return BigDecimal.ZERO;
-//                throw new BBExceptions("No utilization found for employee with ID " + employeeId + " in team with ID " + teamId);
             }
         } catch (SQLException e) {
             throw new BBExceptions("Error retrieving utilization for employee in team", e);

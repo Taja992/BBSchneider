@@ -33,8 +33,8 @@ public class EmployeeModel {
     }
 
 
-    public static int setWorkingHours(int newWorkingHours) {
-        return EmployeeBLL.setWorkingHours(newWorkingHours);
+    public static void setWorkingHours(int newWorkingHours) {
+        EmployeeBLL.setWorkingHours(newWorkingHours);
     }
 
     public static int getWorkingHours() {
@@ -69,7 +69,7 @@ public class EmployeeModel {
         return teamEmployees;
     }
 
-    //this listener lets the team coloumn on Overview Table reflect if someone has been removed from a team
+    //this listener lets the team column on Overview Table reflect if someone has been removed from a team
     public void teamViewListener() {
         filteredEmployees.addListener((ListChangeListener<Employee>) listChange -> {
             while (listChange.next()) {
