@@ -1,40 +1,44 @@
 package GUI.model;
 
+
 import BE.Team;
 import BLL.TeamBLL;
-import DAL.TeamDAO;
 import Exceptions.BBExceptions;
-
-import java.sql.SQLException;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import java.util.List;
+
 
 public class TeamModel {
 
     TeamBLL teamBLL = new TeamBLL();
 
-
-    public List<Team> getAllTeams() throws BBExceptions {
-        return teamBLL.getAllTeams();
+    public ObservableList<Team> getAllTeams() {
+        try {
+            List<Team> teamList = teamBLL.getAllTeams();
+            return FXCollections.observableArrayList(teamList);
+        } catch (BBExceptions e) {
+            throw new RuntimeException("Error getting all teams", e);
+        }
     }
 
-    public void newTeam(Team team) throws BBExceptions {
-        teamBLL.newTeam(team);
+    public void createNewTeam(Team team) throws BBExceptions {
+        teamBLL.createNewTeam(team);
     }
 
     public int getLastTeamId() throws BBExceptions {
         return teamBLL.getLastTeamId();
     }
 
-    public Double calculateTotalHourlyRate(int teamId){
+    public Double calculateTotalHourlyRate(int teamId) throws BBExceptions{
         return teamBLL.calculateTotalHourlyRate(teamId);
     }
 
-    public Double calculateTotalDailyRate(int teamId){
-        return teamBLL.calculateTotalDailyRate(teamId);
+    public Double calculateTotalDailyRate(int teamId, int hoursPerDay) throws BBExceptions{
+        return teamBLL.calculateTotalDailyRate(teamId, hoursPerDay);
     }
 
     public void updateTeamName(int teamId, String newTeamName) throws BBExceptions {
         teamBLL.updateTeamName(teamId, newTeamName);
     }
-
 }

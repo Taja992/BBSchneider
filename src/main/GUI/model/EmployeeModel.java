@@ -1,49 +1,180 @@
 package GUI.model;
 
 import BE.Employee;
+import BE.Team;
 import BLL.EmployeeBLL;
 import Exceptions.BBExceptions;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-
+import javafx.collections.transformation.FilteredList;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
 public class EmployeeModel {
     private final EmployeeBLL employeeBLL;
-    private final ObservableList<Employee> employees;
-
-    //Added 2 Hashmaps in order to track if an employees Team Id has changed and reflect changes on the tableviews
-    private final Map<Employee, Integer> previousTeamIds = new HashMap<>();
-    private final Map<Integer, ObservableList<Employee>> teamEmployees = new HashMap<>();
-    private final BooleanProperty employeeAdded = new SimpleBooleanProperty(false);
-
+    private final BooleanProperty countryAdded = new SimpleBooleanProperty(false);
+    private final List<String> allCountries = FXCollections.observableArrayList();
+    private final ObservableList<Employee> allEmployees;
+    private final FilteredList<Employee> filteredEmployees;
+    private Map<Integer, BigDecimal> teamUtilSumCache = new HashMap<>();
+    private Map<String, BigDecimal> teamUtilCache = new HashMap<>();
 
     public EmployeeModel(){
         employeeBLL = new EmployeeBLL();
-        employees = FXCollections.observableArrayList();
+        allEmployees = FXCollections.observableArrayList();
+        filteredEmployees = new FilteredList<>(allEmployees);
+        teamViewListener();
     }
 
-    //Boolean property added as a switch to tell the employeeTableview to update
-    public BooleanProperty employeeAddedProperty() {
-        return employeeAdded;
+
+    public static int setWorkingHours(int newWorkingHours) {
+        return EmployeeBLL.setWorkingHours(newWorkingHours);
     }
+
+    public static int getWorkingHours() {
+        return EmployeeBLL.getWorkingHours();
+    }
+
 
     public ObservableList<Employee> getEmployees() throws BBExceptions {
-        if(employees.isEmpty()) {
+        if(allEmployees.isEmpty()) {
             //populate our list from database
-            List<Employee> allEmployees = employeeBLL.getAllEmployees();
-            employees.addAll(allEmployees);
-
-            for (Employee employee : allEmployees) {
-                previousTeamIds.put(employee, employee.getTeamIdEmployee());
-            }
+            List<Employee> fetchedEmployees = employeeBLL.getAllEmployees();
+            allEmployees.addAll(fetchedEmployees);
         }
         //return our observable list
-        return employees;
+        return allEmployees;
+    }
+
+
+
+    public ObservableList<Employee> getAllEmployeesFromTeam(int TeamId) {
+        // Create a filtered view of the allEmployees list
+        //the lambda below works like this: Predicate(function that returns a boolean): employee -> employee.getTeams().contains(TeamId) return
+        FilteredList<Employee> teamEmployees = new FilteredList<>(allEmployees, employee -> {
+            for (Team team : employee.getTeams()) {
+                //returns true if the employee has the given teamID
+                if (team.getId() == TeamId) {
+                    return true;
+                }
+            }
+            return false;
+        });
+        return teamEmployees;
+    }
+
+    //this listener lets the team coloumn on Overview Table reflect if someone has been removed from a team
+    public void teamViewListener() {
+        filteredEmployees.addListener((ListChangeListener<Employee>) listChange -> {
+            while (listChange.next()) {
+                if (listChange.wasUpdated()) {
+                    // For each updated employee in the filtered list, update the same employee in the allEmployees list
+                    for (int i = listChange.getFrom(); i < listChange.getTo(); ++i) {
+                        Employee updatedEmployee = filteredEmployees.get(i);
+                        int indexInAllEmployees = allEmployees.indexOf(updatedEmployee);
+                        if (indexInAllEmployees != -1) {
+                            allEmployees.set(indexInAllEmployees, updatedEmployee);
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    public void updateEmployee(Employee employee) throws BBExceptions{
+        // Update the employee in the database
+        employeeBLL.updateEmployee(employee);
+
+        // Update the employee in the allEmployees list
+        int index = allEmployees.indexOf(employee);
+        //we check the index to make sure the employee actually exists
+        if (index != -1) {
+            allEmployees.set(index, employee);
+        }
+    }
+
+    public void addEmployeeToTeam(Employee employee, Team team) throws BBExceptions {
+        // Add the team to the employee's list of teams
+        employee.getTeams().add(team);
+
+        // Update the employee in the database
+        employeeBLL.addEmployeeToTeam(employee.getId(), team.getId());
+
+        // Update the employee in the allEmployees list
+        int index = allEmployees.indexOf(employee);
+        if (index != -1) {
+            allEmployees.set(index, employee);
+        }
+    }
+
+    public void removeEmployeeFromTeam(int employeeId, int teamId) throws BBExceptions {
+        //find the employee to be removed
+        Employee employee = null;
+        for(Employee e : allEmployees){
+            if(e.getId() == employeeId){
+                employee = e;
+                break;
+            }
+        }
+        if (employee == null) {
+            throw new BBExceptions("Employee not found");
+        }
+        //loop through all teams of the employee to be removed
+        Team teamToRemove = null;
+        for(Team t : employee.getTeams()){
+            if(t.getId() == teamId){
+                //assign the team that matches the teamId to teamToRemove
+                teamToRemove = t;
+                break;
+            }
+        }
+        if (teamToRemove != null) {
+            //remove the employee from the team on our employee object
+            employee.getTeams().remove(teamToRemove);
+        } else {
+            throw new BBExceptions("Team not found");
+        }
+        //remove employee from team on database
+        employeeBLL.removeEmployeeFromTeam(employeeId, teamId);
+        //index is the place where the employee is in the obsvlist
+        int index = allEmployees.indexOf(employee);
+        if (index != -1) {
+            //update the employee at that index on our ObservableList so the changes will reflect on UI/FilteredList
+            allEmployees.set(index, employee);
+        }
+
+    }
+
+
+    public void addNewEmployee(Employee employee) throws BBExceptions{
+            // Add employee to database and get the generated ID
+            int newEmployeeId = employeeBLL.addNewEmployee(employee);
+            // Set the ID of the employee
+            employee.setId(newEmployeeId);
+            // Add employees to the observable list
+            allEmployees.add(employee);
+            // This needs to be done this way to get the generated employee ID from the database so we are able
+            // to edit new employees
+            if(allCountries != null){
+                boolean countryExists = false;
+                // If the employee added has a country that has not been used before, add it to "allCountries"
+                for(String country : allCountries){ // Checking through allCountries to see if one of them is the same as the new employee's country
+                    if (country.equals(employee.getCountry())) {
+                        countryExists = true;
+                        break;
+                    }
+                }
+                // If the country does not exist in allCountries, add it
+                if (!countryExists) {
+                    allCountries.add(employee.getCountry());
+                }
+            }
     }
 
 
@@ -67,49 +198,16 @@ public class EmployeeModel {
         return filteredEmployees;
     }
 
-    public void addNewEmployee(Employee employee) throws BBExceptions {
-        //add employee to database and get the generated ID
-        int newEmployeeId = employeeBLL.addNewEmployee(employee);
-        //set the ID of the employee
-        employee.setId(newEmployeeId);
-        //add employees to the observable list
-        employees.add(employee);
-        //Tell our boolean property that a new employee was added and to refresh Tableview
-        employeeAdded.set(true);
-        //this needs to be done this way to get the generated employee ID from the database so we are able
-        //edit new employees
-    }
+    /////////////////////////////////////////////////////////////
+    ////////////////Filtering Countries//////////////////////////
+    /////////////////////////////////////////////////////////////
 
-
-    //Added a method to repopulate the observable list from the database if needed
-    public void refreshingEmployees() throws BBExceptions {
-        List<Employee> allEmployees = employeeBLL.getAllEmployees();
-        employees.setAll(allEmployees);
-    }
-
-    public Double calculateHourlyRate(Employee selectedEmployee) {
-        return employeeBLL.calculateHourlyRate(selectedEmployee);
-    }
-
-    public Double calculateDailyRate(Employee selectedEmployee) {
-        return employeeBLL.calculateDailyRate(selectedEmployee);
-    }
-    public ObservableList<Employee> getAllEmployeesFromTeam(int TeamId) {
-        //checks to see if the teamId has already been assigned to Hashmap
-        if (!teamEmployees.containsKey(TeamId)) {
-            //Set up Observable list for tables
-            ObservableList<Employee> empFromTeam = FXCollections.observableArrayList();
-            empFromTeam.addAll(employeeBLL.getAllEmployeesFromTeam(TeamId));
-            //Put the TeamId as the setKey for the list of employees
-            teamEmployees.put(TeamId, empFromTeam);
-        }
-
-        // Return the list from the map with .get which gives us the key (TeamId)
-        return teamEmployees.get(TeamId);
+    //doing the same thing for the country combobox
+    public BooleanProperty countryAddedProperty(){
+        return countryAdded;
     }
 
     public ObservableList<Employee> filterEmployeesByCountry(String country) {
-
         if(country.equals("All Countries")){
             try {
                 return getEmployees();
@@ -120,63 +218,97 @@ public class EmployeeModel {
 
         ObservableList<Employee> filteredEmployees = FXCollections.observableArrayList();
 
-        for(Employee employee: employees){
+        for(Employee employee: allEmployees){
             if(employee.getCountry().equals(country)){
                 filteredEmployees.add(employee);
             }
         }
-
         return filteredEmployees;
     }
 
-
-
-
-    public void updateEmployee(Employee employee) throws BBExceptions{
-
-
-        Integer previousTeamId = previousTeamIds.get(employee);
-        Integer currentTeamId = employee.getTeamIdEmployee();
-
-        //Make these -1 because the hashmap cannot handle null
-        //this is necessary when you add a new employee
-        if(previousTeamId == null){
-            previousTeamId = -1;
+    //getting all the countries that have employees in them, for the search function
+    public List<String> getAllCountriesUsed(){
+        if(allCountries.isEmpty()){ //if the list is empty then populate it
+            allCountries.add("All Countries");
+            List<Employee> allEmployees = null;
+            try {
+                allEmployees = getEmployees(); //getting all the employees so we can get all the countries they're in
+            } catch (BBExceptions e) {
+                throw new RuntimeException(e);
+            }
+            for(Employee employee : allEmployees){ //adding list of all countries
+                if(employee.getCountry() != null && !allCountries.contains(employee.getCountry())){
+                    allCountries.add(employee.getCountry());
+                }
+            }
         }
-
-        if(currentTeamId == null){
-            currentTeamId = -1;
-        }
-
-        employeeBLL.updateEmployee(employee);
-
-        //if the previous Id(hashmap) does not match the current Id, we call the refresh method
-        if (previousTeamId != null && !previousTeamId.equals(currentTeamId)) {
-            //we call this method twice so both lists get updated
-            refreshEmployeesInTeam(previousTeamId);
-            refreshEmployeesInTeam(currentTeamId);
-        }
-        //then we update our hashmap to set the employee Key to the the Id
-        previousTeamIds.put(employee, currentTeamId);
+        return allCountries;
     }
 
-    private void refreshEmployeesInTeam(int teamId) {
-        // Get the list of employees for the team
-        ObservableList<Employee> employeesInTeam = teamEmployees.get(teamId);
+    /////////////////////////////////////////////////////////////
+    /////////////////////////Rates///////////////////////////////
+    /////////////////////////////////////////////////////////////
 
-        // If the list is null, create a new list and put it in the map
-        if (employeesInTeam == null) {
-            employeesInTeam = FXCollections.observableArrayList();
-            teamEmployees.put(teamId, employeesInTeam);
-        }
-
-        // Clear the list and repopulate it from the database
-        employeesInTeam.clear();
-        employeesInTeam.addAll(employeeBLL.getAllEmployeesFromTeam(teamId));
+    public double calculateModifier(double markupValue){
+        return employeeBLL.calculateModifier(markupValue);
     }
 
-    public double calculateMarkUp(double markupValue){
-        return employeeBLL.calculateMarkUp(markupValue);
+    public Double calculateHourlyRate(Employee selectedEmployee) throws BBExceptions {
+        return employeeBLL.calculateHourlyRate(selectedEmployee);
+    }
+
+    public Double calculateTotalHourlyRateForCountry(String country) throws BBExceptions{
+        return employeeBLL.calculateTotalHourlyRateForCountry(country);
+    }
+
+    public Double calculateDailyRate(Employee selectedEmployee, int hoursPerDay) throws BBExceptions{
+        return employeeBLL.calculateDailyRate(selectedEmployee, hoursPerDay);
+    }
+
+    public Double calculateTotalDailyRateForCountry(String country, int hoursPerDay) throws BBExceptions{
+        return employeeBLL.calculateTotalDailyRateForCountry(country, hoursPerDay);
+    }
+
+    public void updateTeamUtilForEmployee(int teamId, int employeeId, BigDecimal newUtil) throws BBExceptions {
+        employeeBLL.updateTeamUtilForEmployee(teamId, employeeId, newUtil);
+    }
+
+    public BigDecimal getUtilizationForTeam(int employeeId, int teamId) throws BBExceptions {
+        return employeeBLL.getUtilizationForTeam(employeeId, teamId);
+    }
+
+    public void invalidateTeamUtilSumCache(int employeeId) {
+        teamUtilSumCache.remove(employeeId);
+    }
+
+    public BigDecimal getTeamUtilSumCache(int employeeId) {
+        return teamUtilSumCache.get(employeeId);
+    }
+
+    public void setTeamUtilSumCache(int employeeId, BigDecimal value) {
+        teamUtilSumCache.put(employeeId, value);
+    }
+
+    public void updateTeamIsOverheadForEmployee(int teamId, int employeeId, boolean isOverhead) throws BBExceptions {
+        employeeBLL.updateTeamIsOverheadForEmployee(teamId, employeeId, isOverhead);
+    }
+
+    public BigDecimal getTeamUtilForEmployee(int employeeId, int teamId) throws BBExceptions {
+        // Check if the teamUtil for the employee and team is already in the cache
+        String key = employeeId + "-" + teamId;
+        if (teamUtilCache.containsKey(key)) {
+            return teamUtilCache.get(key);
+            // If not, get the teamUtil from the database and add it to the cache
+        } else {
+            BigDecimal teamUtil = employeeBLL.getUtilizationForTeam(employeeId, teamId);
+            teamUtilCache.put(key, teamUtil);
+            return teamUtil;
+        }
+    }
+
+    public void invalidateCacheForEmployeeAndTeam(int employeeId, int teamId) {
+        String key = employeeId + "-" + teamId;
+        teamUtilCache.remove(key);
     }
 
 }

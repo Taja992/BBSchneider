@@ -1,11 +1,10 @@
 package Exceptions;
 
-import java.sql.SQLException;
 
-public class BBExceptions extends SQLException {
+public class BBExceptions extends Exception {
 
     public BBExceptions(String message){
-        super();
+        super(message);
     }
     public BBExceptions(String message, Throwable cause) {
         super(message, cause);

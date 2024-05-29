@@ -1,5 +1,8 @@
 package BE;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
 
 
 public class Employee {
@@ -9,28 +12,13 @@ public class Employee {
     private BigDecimal overheadMultiPercent;
     private BigDecimal annualAmount;
     private String country;
-    private Integer teamIdEmployee;
     private int workingHours;
     private BigDecimal utilization;
-    private boolean isOverheadCost;
-    private Team team;
-    private String teamName;
+    private BigDecimal teamUtil;
+    //because an employee can have multiple teams
+    private List<Team> teams;
+    private boolean teamIsOverhead;
 
-    public Team getTeam() {
-        return team;
-    }
-
-    public void setTeam(Team team) {
-        this.team = team;
-    }
-
-    public String getTeamName() {
-        return teamName;
-    }
-
-    public void setTeamName(String teamName) {
-        this.teamName = teamName;
-    }
 
 
     public int getId() {
@@ -81,14 +69,6 @@ public class Employee {
         this.country = country;
     }
 
-    public Integer getTeamIdEmployee() {
-        return teamIdEmployee;
-    }
-
-    public void setTeamIdEmployee(Integer teamIdEmployee) {
-        this.teamIdEmployee = teamIdEmployee;
-    }
-
     public int getWorkingHours() {
         return workingHours;
     }
@@ -105,12 +85,53 @@ public class Employee {
         this.utilization = utilization;
     }
 
-    public boolean getIsOverheadCost() {
-        return isOverheadCost;
+    public BigDecimal getTeamUtil() {
+        return teamUtil;
     }
 
-    public void setIsOverheadCost(boolean overheadCost) {
-        isOverheadCost = overheadCost;
+    public void setTeamUtil(BigDecimal teamUtil) {
+        this.teamUtil = teamUtil;
+    }
+
+    public List<Team> getTeams() {
+        if (teams == null) {
+            teams = new ArrayList<>();
+        }
+        return teams;
+    }
+
+    public void setTeams(List<Team> teams) {
+        this.teams = teams;
+    }
+
+    public void addTeam(Team team) {
+        if (teams == null) {
+            teams = new ArrayList<>();
+        }
+        teams.add(team);
+    }
+
+    public String getTeamNames() {
+        //our team should never be null because of our DAO but just in case...
+        if (teams == null || teams.isEmpty()) {
+            return "No Team";
+        }
+        StringBuilder teamNames = new StringBuilder();
+        for (Team team : teams) {
+            if (!teamNames.isEmpty()) {
+                teamNames.append(", ");
+            }
+            teamNames.append(team.getName());
+        }
+        return teamNames.toString();
+    }
+
+    public boolean getTeamOverhead() {
+        return teamIsOverhead;
+    }
+
+    public void setTeamOverhead(boolean teamIsOverhead) {
+        this.teamIsOverhead = teamIsOverhead;
     }
 
 }

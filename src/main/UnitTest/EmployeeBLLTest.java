@@ -3,6 +3,7 @@ package UnitTest;
 import BE.Employee;
 import BLL.EmployeeBLL;
 
+import Exceptions.BBExceptions;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,7 +23,7 @@ public class EmployeeBLLTest {
     }
 
     @Test
-    public void testCalculateHourlyRate() {
+    public void testCalculateHourlyRate() throws BBExceptions {
         // Arrange  --- setting up the testEmployee object with the mock values
         Employee testEmployee = new Employee();
         testEmployee.setAnnualSalary(BigDecimal.valueOf(40000));
@@ -40,7 +41,7 @@ public class EmployeeBLLTest {
     }
 
     @Test
-    public void testCalculateDailyRate() {
+    public void testCalculateDailyRate() throws BBExceptions {
         // Arrange
         Employee testEmployee = new Employee();
         testEmployee.setAnnualSalary(BigDecimal.valueOf(40000));
@@ -51,7 +52,7 @@ public class EmployeeBLLTest {
         double expectedDailyRate = 25.96; // Expected result based on the provided values
 
         // Act
-        Double dailyRate = employeeBLL.calculateDailyRate(testEmployee);
+        Double dailyRate = employeeBLL.calculateDailyRate(testEmployee, 8);
 
         // Assert
         assertEquals(expectedDailyRate, dailyRate, 0.01);
