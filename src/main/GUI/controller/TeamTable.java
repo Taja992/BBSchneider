@@ -163,14 +163,9 @@ public class TeamTable {
         formatUtilization(teamUtilCol);
         editUtilization(teamUtilCol, team);
         makeOverheadEditable(teamOverHeadCol, team);
-
-
-        // Get the list of employees for the team
-        //ObservableList<Employee> employeesInTeam = employeeModel.getAllEmployeesFromTeam(team.getId());
         //enabling editing in table
         teamTblView.setEditable(true);
         teamTblView.setItems(data);
-
         dragAndDrop(teamTblView);
         contextMenu(teamTblView, team);
 
