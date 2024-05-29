@@ -33,9 +33,6 @@ public class TeamBLL {
         teamDAO.updateTeamName(teamId, newTeamName);
     }
 
-    public List<Team> getTeamsForEmployee(int employeeId) throws BBExceptions {
-            return teamDAO.getTeamsForEmployee(employeeId);
-    }
 
 
     ////////////////////////////////////////////////////////

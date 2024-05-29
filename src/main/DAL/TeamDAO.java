@@ -123,25 +123,4 @@ public class TeamDAO {
         return teams;
     }
 
-    public BigDecimal getTeamUtilForEmployee(int employeeId, int teamId) throws BBExceptions {
-        BigDecimal teamUtil = null;
-
-        try(Connection con = connectionManager.getConnection()){
-            String sql = "SELECT Team_Util FROM Connection WHERE Emp_Id = ? AND Team_Id = ?";
-
-            PreparedStatement ps = con.prepareStatement(sql);
-            ps.setInt(1, employeeId);
-            ps.setInt(2, teamId);
-            ResultSet rs = ps.executeQuery();
-
-            if(rs.next()){
-                teamUtil = rs.getBigDecimal("Team_Util");
-            }
-
-        } catch (SQLException e) {
-            throw new BBExceptions("Error getting team util for employee", e);
-        }
-        return teamUtil;
-    }
-
    }

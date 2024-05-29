@@ -311,11 +311,4 @@ public class EmployeeModel {
         teamUtilCache.remove(key);
     }
 
-//    public double calculateTeamHourlyRate(Employee employee, BigDecimal teamUtil) throws BBExceptions {
-//        return employeeBLL.calculateTeamHourlyRate(employee, teamUtil);
-//    }
-//
-//    public double calculateTeamDailyRate(Employee employee, BigDecimal teamUtil, int hoursPerDay) throws BBExceptions {
-//        return employeeBLL.calculateTeamDailyRate(employee, teamUtil, hoursPerDay);
-//    }
 }
