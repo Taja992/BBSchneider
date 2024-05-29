@@ -142,12 +142,7 @@ public class TeamBLL {
         double fixedAnnualAmount = selectedEmployee.getAnnualAmount().doubleValue();
         double utilizationPercentage = teamUtil.doubleValue() / 100; // convert to decimal
         double annualEffectiveWorkingHours = selectedEmployee.getWorkingHours(); // convert to total working hours in a year
-
-        // Apply the utilization percentage to the annual salary and fixed amount before adding the overhead
-        double adjustedAnnualSalary = annualSalary * utilizationPercentage;
-        double adjustedFixedAnnualAmount = fixedAnnualAmount * utilizationPercentage;
-
         // Formula to calculate the rate, this is hourly based
-        return (((adjustedAnnualSalary + adjustedFixedAnnualAmount) * (1 + overheadMultiplier)) / annualEffectiveWorkingHours);
+        return (((annualSalary + fixedAnnualAmount) * (1 + overheadMultiplier)) / annualEffectiveWorkingHours * utilizationPercentage);
     }
 }
