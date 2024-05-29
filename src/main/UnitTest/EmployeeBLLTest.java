@@ -31,7 +31,7 @@ public class EmployeeBLLTest {
         testEmployee.setAnnualAmount(BigDecimal.valueOf(5000));
         testEmployee.setUtilization(BigDecimal.valueOf(100));
         testEmployee.setWorkingHours(2080); // 40 hours/week * 52 weeks/year
-        double expectedHourlyRate = 3.24; // Expected result based on the provided values
+        double expectedHourlyRate = 25.96; // Expected result based on the provided values
 
         // Act --- calling the calculateHourlyRate method from the employeeBLL to test functionality
         Double hourlyRate = employeeBLL.calculateHourlyRate(testEmployee);
@@ -49,10 +49,11 @@ public class EmployeeBLLTest {
         testEmployee.setAnnualAmount(BigDecimal.valueOf(5000));
         testEmployee.setUtilization(BigDecimal.valueOf(100));
         testEmployee.setWorkingHours(2080); // 40 hours/week * 52 weeks/year
-        double expectedDailyRate = 25.96; // Expected result based on the provided values
+        int hoursPerDay = 8;
+        double expectedDailyRate = 207.68; // Expected result based on the provided values
 
         // Act
-        Double dailyRate = employeeBLL.calculateDailyRate(testEmployee, 8);
+        Double dailyRate = employeeBLL.calculateDailyRate(testEmployee, hoursPerDay);
 
         // Assert
         assertEquals(expectedDailyRate, dailyRate, 0.01);

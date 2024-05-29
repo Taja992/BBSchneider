@@ -1,7 +1,6 @@
 package BLL;
 
 import BE.Employee;
-import BE.Team;
 import DAL.EmployeeDAO;
 import Exceptions.BBExceptions;
 import java.math.BigDecimal;
@@ -32,13 +31,7 @@ public class EmployeeBLL {
     public void removeEmployeeFromTeam(int employeeId, int teamId) throws BBExceptions {
         employeeDAO.removeEmployeeFromTeam(employeeId, teamId);
     }
-    public List<Employee> getAllEmployeesFromTeam(int TeamId) throws BBExceptions {
-            return employeeDAO.getAllEmployeesFromTeam(TeamId);
-    }
 
-    public BigDecimal calculateTotalTeamUtil(int employeeId) throws BBExceptions {
-        return employeeDAO.calculateTotalTeamUtilization(employeeId);
-    }
 
     public void updateEmployee(Employee employee) throws BBExceptions{
         employeeDAO.updateEmployee(employee);
@@ -62,11 +55,13 @@ public class EmployeeBLL {
 
     private double calculateRate(Employee selectedEmployee) throws BBExceptions {
         if (selectedEmployee != null) {
+            // Adding each data to a variable to make it easier to read
             double annualSalary = selectedEmployee.getAnnualSalary().doubleValue();
             double overheadMultiplier = selectedEmployee.getOverheadMultiPercent().doubleValue() / 100; // convert to decimal
             double fixedAnnualAmount = selectedEmployee.getAnnualAmount().doubleValue();
             double utilizationPercentage = selectedEmployee.getUtilization().doubleValue() / 100; // convert to decimal
             double annualEffectiveWorkingHours = selectedEmployee.getWorkingHours(); // convert to total working hours in a year
+            // Formula to calculate the rate, this is hourly based
             return (((annualSalary + fixedAnnualAmount) * (1 + overheadMultiplier)) / (annualEffectiveWorkingHours * utilizationPercentage));
         } else {
             throw new BBExceptions("No employee selected");
@@ -81,6 +76,7 @@ public class EmployeeBLL {
         nf.setMaximumFractionDigits(2);
         nf.setMinimumFractionDigits(2);
 
+        // Parsing the rate to a double
         try {
             return nf.parse(nf.format(rate)).doubleValue();
         } catch (ParseException e) {
@@ -89,10 +85,11 @@ public class EmployeeBLL {
     }
 
     public Double calculateDailyRate(Employee selectedEmployee, int hoursPerDay) throws BBExceptions {
+        // Checking if the hours per day is valid
         if (hoursPerDay < 0 || hoursPerDay > 24) {
             throw new BBExceptions("Invalid number of hours per day. It should be between 0 and 24.");
         }
-
+        // Calculating the daily rate by multiplying the hourly rate with the hours per day
         double hourlyRate = calculateHourlyRate(selectedEmployee);
         double dailyRate = hourlyRate * hoursPerDay;
 
@@ -166,13 +163,10 @@ public class EmployeeBLL {
 
 
 
-    public double calculateMarkUp(double markupValue){
+    public double calculateModifier(double markupValue){
         return 1 + (markupValue / 100);
     }
 
-    public double calculateGrossMargin(double grossMarginValue) {
-        return 1 + (grossMarginValue / 100);
-    }
 
     public static int setWorkingHours(int newWorkingHours) {
         return workingHours = newWorkingHours;

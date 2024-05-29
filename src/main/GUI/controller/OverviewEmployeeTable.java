@@ -4,9 +4,7 @@ import BE.Employee;
 import BE.Team;
 import Exceptions.BBExceptions;
 import GUI.model.EmployeeModel;
-import GUI.model.TeamModel;
 import com.neovisionaries.i18n.CountryCode;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -74,8 +72,7 @@ public class OverviewEmployeeTable {
         newEmployee.setAnnualSalary(BigDecimal.ZERO);
         newEmployee.setUtilization(BigDecimal.ZERO);
         newEmployee.setOverheadMultiPercent(BigDecimal.ZERO);
-        newEmployee.setIsOverheadCost(false);
-        newEmployee.setCountry(""); //revisit this
+        newEmployee.setCountry("");
 
         overviewEmployeeTblView.getItems().addFirst(newEmployee);
 
@@ -276,12 +273,14 @@ public class OverviewEmployeeTable {
         teamUtilColSum.setCellValueFactory(cellData -> {
             Employee employee = cellData.getValue();
             int employeeId = employee.getId();
+            // Check if the value is already cached
             if (employeeModel.getTeamUtilSumCache(employeeId) != null) {
                 return new SimpleObjectProperty<>(employeeModel.getTeamUtilSumCache(employeeId));
+                // If not, calculate the sum of the utilizations for all teams
             } else {
                 List<Team> teams = employee.getTeams();
                 BigDecimal totalUtilization = BigDecimal.ZERO;
-
+                // Loop through all teams and sum the utilizations
                 for (Team team : teams) {
                     try {
                         BigDecimal teamUtilization = employeeModel.getUtilizationForTeam(employeeId, team.getId());
@@ -290,7 +289,7 @@ public class OverviewEmployeeTable {
                         throw new RuntimeException(e);
                     }
                 }
-
+                // Cache the value if it wasnt stored before
                 employeeModel.setTeamUtilSumCache(employeeId, totalUtilization);
                 return new SimpleObjectProperty<>(totalUtilization);
             }
@@ -387,6 +386,10 @@ public class OverviewEmployeeTable {
             }
         });
     }
+
+    //////////////////////////////////////////////////////////
+    //////////////////////Error handling//////////////////////
+    //////////////////////////////////////////////////////////
 
 
     private void showAlert(String title, String message) {

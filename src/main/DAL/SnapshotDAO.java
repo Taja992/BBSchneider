@@ -21,16 +21,7 @@ public class SnapshotDAO {
 
 
     public SnapshotDAO(){
-        ConnectionManager databaseConnectionManager;
-        try {
-            databaseConnectionManager = new ConnectionManager(true);
-            databaseConnectionManager.getConnection().close(); // Need this to test connection and force the SQLException and swap to false
-            connectionManager = databaseConnectionManager;
-        } catch (SQLException e) {
-            connectionManager = new ConnectionManager(false);
-        }
-
-        //getAllTeamsInSnapshot("Snapshot on 18-05-2024 04.35");
+        connectionManager = new ConnectionManager();
     }
 
     public void createNewSnapshotFile(String fileName){
@@ -267,7 +258,6 @@ public class SnapshotDAO {
                 employee.setUtilization(rs.getBigDecimal("Utilization"));
                 employee.setTeamUtil(rs.getBigDecimal("Team_Util")); // Set the utilization from the Connection table
                 employee.setTeamOverhead(rs.getBoolean("TeamIsOverhead"));
-                employee.setIsOverheadCost(rs.getBoolean("isOverheadCost"));
                 employees.add(employee);
             }
 

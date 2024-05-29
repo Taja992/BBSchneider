@@ -56,7 +56,7 @@ public class EmployeeModel {
 
     public ObservableList<Employee> getAllEmployeesFromTeam(int TeamId) {
         // Create a filtered view of the allEmployees list
-        //the lambda below works like this: Predicate: employee -> employee.getTeams().contains(TeamId) return
+        //the lambda below works like this: Predicate(function that returns a boolean): employee -> employee.getTeams().contains(TeamId) return
         FilteredList<Employee> teamEmployees = new FilteredList<>(allEmployees, employee -> {
             for (Team team : employee.getTeams()) {
                 //returns true if the employee has the given teamID
@@ -114,6 +114,7 @@ public class EmployeeModel {
     }
 
     public void removeEmployeeFromTeam(int employeeId, int teamId) throws BBExceptions {
+        //find the employee to be removed
         Employee employee = null;
         for(Employee e : allEmployees){
             if(e.getId() == employeeId){
@@ -124,22 +125,27 @@ public class EmployeeModel {
         if (employee == null) {
             throw new BBExceptions("Employee not found");
         }
+        //loop through all teams of the employee to be removed
         Team teamToRemove = null;
         for(Team t : employee.getTeams()){
             if(t.getId() == teamId){
+                //assign the team that matches the teamId to teamToRemove
                 teamToRemove = t;
                 break;
             }
         }
         if (teamToRemove != null) {
+            //remove the employee from the team on our employee object
             employee.getTeams().remove(teamToRemove);
         } else {
             throw new BBExceptions("Team not found");
         }
+        //remove employee from team on database
         employeeBLL.removeEmployeeFromTeam(employeeId, teamId);
         //index is the place where the employee is in the obsvlist
         int index = allEmployees.indexOf(employee);
         if (index != -1) {
+            //update the employee at that index on our ObservableList so the changes will reflect on UI/FilteredList
             allEmployees.set(index, employee);
         }
 
@@ -243,11 +249,9 @@ public class EmployeeModel {
     /////////////////////////Rates///////////////////////////////
     /////////////////////////////////////////////////////////////
 
-    public double calculateMarkUp(double markupValue){
-        return employeeBLL.calculateMarkUp(markupValue);
+    public double calculateModifier(double markupValue){
+        return employeeBLL.calculateModifier(markupValue);
     }
-
-    public double calculateGrossMargin(double grossMarginValue) {return employeeBLL.calculateGrossMargin(grossMarginValue);}
 
     public Double calculateHourlyRate(Employee selectedEmployee) throws BBExceptions {
         return employeeBLL.calculateHourlyRate(selectedEmployee);
@@ -290,9 +294,11 @@ public class EmployeeModel {
     }
 
     public BigDecimal getTeamUtilForEmployee(int employeeId, int teamId) throws BBExceptions {
+        // Check if the teamUtil for the employee and team is already in the cache
         String key = employeeId + "-" + teamId;
         if (teamUtilCache.containsKey(key)) {
             return teamUtilCache.get(key);
+            // If not, get the teamUtil from the database and add it to the cache
         } else {
             BigDecimal teamUtil = employeeBLL.getUtilizationForTeam(employeeId, teamId);
             teamUtilCache.put(key, teamUtil);
@@ -305,11 +311,4 @@ public class EmployeeModel {
         teamUtilCache.remove(key);
     }
 
-//    public double calculateTeamHourlyRate(Employee employee, BigDecimal teamUtil) throws BBExceptions {
-//        return employeeBLL.calculateTeamHourlyRate(employee, teamUtil);
-//    }
-//
-//    public double calculateTeamDailyRate(Employee employee, BigDecimal teamUtil, int hoursPerDay) throws BBExceptions {
-//        return employeeBLL.calculateTeamDailyRate(employee, teamUtil, hoursPerDay);
-//    }
 }
